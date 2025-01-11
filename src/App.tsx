@@ -11,6 +11,7 @@ import DnsIcon from '@mui/icons-material/Dns';
 import ArticleIcon from '@mui/icons-material/Article';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import DescriptionIcon from '@mui/icons-material/Description';
+import BookmarksIcon from '@mui/icons-material/Bookmarks';
 import { useTranslation } from 'react-i18next';
 import theme from './themes/theme';
 
@@ -20,6 +21,7 @@ function App() {
 	return (
 		<AppProvider
 			theme={theme}
+			// branding={}
 			navigation={[
 				{
 					segment: 'overview',
@@ -38,13 +40,18 @@ function App() {
 					icon: <DnsIcon />,
 				},
 				{
-					segment: 'reports',
+					segment: 'document',
 					title: t('documentManagement'),
 					icon: <ArticleIcon />,
 					children: [
 						{
-							segment: 'sales',
+							segment: 'label',
 							title: t('documentLabel'),
+							icon: <BookmarksIcon />,
+						},
+						{
+							segment: 'design',
+							title: t('designDocument'),
 							icon: <DescriptionIcon />,
 						},
 					],

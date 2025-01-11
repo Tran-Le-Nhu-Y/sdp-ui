@@ -1,6 +1,5 @@
 {
 	"overview": "Tổng quan",
-	"productManagement": "Quản lý sản phẩm",
 	"deployManagement": "Quản lý triển khai",
 	"documentManagement": "Quản lý tài liệu",
 	"documentLabel": "Nhãn tài liệu",
@@ -8,5 +7,12 @@
 	"logOut": "Đăng xuất",
 	"title": "Xin chào!",
 	"about": "lorem ipsum",
-	"admin": "Go to the admin page"
+	"admin": "Go to the admin page",
+
+	"productManagement": "Quản lý sản phẩm",
+	"addProduct": "Thêm sản phẩm",
+	"productName": "Tên sản phẩm",
+	"dateCreated": "Ngày tạo",
+	"lastUpdated": "Cập nhật lần cuối",
+	"status": "Trạng thái"
 }
