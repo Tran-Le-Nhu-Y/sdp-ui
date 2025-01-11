@@ -7,7 +7,11 @@ interface BasicButtonsProps {
 
 const BasicButtons: React.FC<BasicButtonsProps> = ({ buttonText }) => {
 	return (
-		<Stack spacing={2} direction="row" sx={{ marginBottom: 2 }}>
+		<Stack
+			spacing={2}
+			direction="row"
+			sx={{ marginBottom: 2, justifyContent: 'flex-end' }}
+		>
 			<Button variant="contained">{buttonText}</Button>
 		</Stack>
 	);

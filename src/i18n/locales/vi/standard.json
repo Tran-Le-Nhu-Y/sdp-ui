@@ -2,17 +2,26 @@
 	"overview": "Tổng quan",
 	"deployManagement": "Quản lý triển khai",
 	"documentManagement": "Quản lý tài liệu",
-	"documentLabel": "Nhãn tài liệu",
 	"designDocument": "Tài liệu thiết kế",
 	"logOut": "Đăng xuất",
 	"title": "Xin chào!",
 	"about": "lorem ipsum",
 	"admin": "Go to the admin page",
+	"cancel": "Hủy",
+	"submit": "Xác nhận",
 
 	"productManagement": "Quản lý sản phẩm",
 	"addProduct": "Thêm sản phẩm",
 	"productName": "Tên sản phẩm",
 	"dateCreated": "Ngày tạo",
 	"lastUpdated": "Cập nhật lần cuối",
-	"status": "Trạng thái"
+	"status": "Trạng thái",
+
+	"documentLabel": "Nhãn tài liệu",
+	"addDocumentLabel": "Thêm nhãn tài liệu",
+	"search": "Tìm kiếm nhãn tài liệu",
+	"labelPreview": "Xem trước nhãn",
+	"labelName": "Tên nhãn",
+	"description": "Mô tả",
+	"color": "Màu sắc"
 }
