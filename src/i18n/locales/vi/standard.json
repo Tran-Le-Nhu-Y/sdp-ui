@@ -9,6 +9,8 @@
 	"admin": "Go to the admin page",
 	"cancel": "Hủy",
 	"submit": "Xác nhận",
+	"edit": "Chỉnh sửa",
+	"delete": "Xóa",
 
 	"productManagement": "Quản lý sản phẩm",
 	"addProduct": "Thêm sản phẩm",
@@ -23,5 +25,6 @@
 	"labelPreview": "Xem trước nhãn",
 	"labelName": "Tên nhãn",
 	"description": "Mô tả",
-	"color": "Màu sắc"
+	"color": "Màu sắc",
+	"label": "Nhãn"
 }
