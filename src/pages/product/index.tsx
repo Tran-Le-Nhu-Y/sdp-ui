@@ -1,13 +1,13 @@
-import Table from '../../components/Table';
+import Button from '@mui/material/Button';
+import { Table } from '../../components';
 import { useTranslation } from 'react-i18next';
-import BasicButtons from '../../components/BasicButton';
 
 export default function ProductManagementPage() {
 	const { t } = useTranslation();
 
 	return (
 		<div>
-			<BasicButtons buttonText={t('addProduct')} />
+			<Button variant="contained">{t('addProduct')}</Button>
 			<Table />
 		</div>
 	);

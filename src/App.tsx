@@ -21,7 +21,11 @@ function App() {
 	return (
 		<AppProvider
 			theme={theme}
-			// branding={}
+			// branding={{
+			// 	logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
+			// 	title: 'MUI',
+			// 	homeUrl: '/toolpad/core/introduction',
+			// }}
 			navigation={[
 				{
 					segment: 'overview',
