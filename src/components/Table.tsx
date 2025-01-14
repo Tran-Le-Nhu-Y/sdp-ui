@@ -20,22 +20,20 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 function createData(
 	name: string,
 	dateCreated: number,
 	lastUpdated: number,
 	status: number,
-
-	price: number,
 ) {
 	return {
 		name,
 		dateCreated,
 		lastUpdated,
 		status,
-
-		price,
 		history: [
 			{
 				date: '2020-01-05',
@@ -64,6 +62,14 @@ function Row(props: { row: ReturnType<typeof createData> }) {
 				<TableCell align="center">{row.dateCreated}</TableCell>
 				<TableCell align="center">{row.lastUpdated}</TableCell>
 				<TableCell align="center">{row.status}</TableCell>
+				<TableCell align="center">
+					<IconButton>
+						<EditIcon color="info" />
+					</IconButton>
+					<IconButton>
+						<DeleteIcon color="error" />
+					</IconButton>
+				</TableCell>
 				<TableCell>
 					<IconButton
 						aria-label="expand row"
@@ -98,9 +104,7 @@ function Row(props: { row: ReturnType<typeof createData> }) {
 											</TableCell>
 											<TableCell>{historyRow.customerId}</TableCell>
 											<TableCell align="right">{historyRow.amount}</TableCell>
-											<TableCell align="right">
-												{Math.round(historyRow.amount * row.price * 100) / 100}
-											</TableCell>
+											<TableCell align="right"></TableCell>
 										</TableRow>
 									))}
 								</TableBody>
@@ -113,23 +117,23 @@ function Row(props: { row: ReturnType<typeof createData> }) {
 	);
 }
 const rows = [
-	createData('Frozen yoghurt', 159, 6.0, 24, 4.0),
-	createData('Ice cream sandwich', 237, 9.0, 37, 4.3),
-	createData('Eclair', 262, 16.0, 24, 6.0),
-	createData('Cupcake', 305, 3.7, 67, 4.3),
-	createData('Gingerbread', 356, 16.0, 49, 3.9),
-	createData('Gingerbread', 356, 16.0, 49, 3.9),
-	createData('Gingerbread', 356, 16.0, 49, 3.9),
-	createData('Gingerbread', 356, 16.0, 49, 3.9),
-	createData('Gingerbread', 356, 16.0, 49, 3.9),
-	createData('Gingerbread', 356, 16.0, 49, 3.9),
-	createData('Gingerbread', 356, 16.0, 49, 3.9),
-	createData('Gingerbread', 356, 16.0, 49, 3.9),
-	createData('Gingerbread', 356, 16.0, 49, 3.9),
-	createData('Gingerbread', 356, 16.0, 49, 3.9),
-	createData('Gingerbread', 356, 16.0, 49, 3.9),
-	createData('Gingerbread', 356, 16.0, 49, 3.9),
-	createData('Gingerbread', 356, 16.0, 49, 3.9),
+	createData('Frozen yoghurt', 159, 6.0, 24),
+	createData('Ice cream sandwich', 237, 9.0, 37),
+	createData('Eclair', 262, 16.0, 24),
+	createData('Cupcake', 305, 3.7, 67),
+	createData('Gingerbread', 356, 16.0, 49),
+	createData('Gingerbread', 356, 16.0, 49),
+	createData('Gingerbread', 356, 16.0, 49),
+	createData('Gingerbread', 356, 16.0, 49),
+	createData('Gingerbread', 356, 16.0, 49),
+	createData('Gingerbread', 356, 16.0, 49),
+	createData('Gingerbread', 356, 16.0, 49),
+	createData('Gingerbread', 356, 16.0, 49),
+	createData('Gingerbread', 356, 16.0, 49),
+	createData('Gingerbread', 356, 16.0, 49),
+	createData('Gingerbread', 356, 16.0, 49),
+	createData('Gingerbread', 356, 16.0, 49),
+	createData('Gingerbread', 356, 16.0, 49),
 ];
 interface TablePaginationActionsProps {
 	count: number;
@@ -244,6 +248,7 @@ export default function CollapsibleTable() {
 						<TableCell align="center">{t('lastUpdated')}</TableCell>
 						<TableCell align="center">{t('status')}</TableCell>
 						<TableCell />
+						<TableCell />
 					</TableRow>
 				</TableHead>
 				<TableBody>
@@ -263,7 +268,7 @@ export default function CollapsibleTable() {
 					<TableRow>
 						<TablePagination
 							rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-							colSpan={5}
+							colSpan={6}
 							count={rows.length}
 							rowsPerPage={rowsPerPage}
 							page={page}
