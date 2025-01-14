@@ -30,6 +30,7 @@ import {
 	createNewLabel,
 	deleteLabelById,
 	selectAllLabels,
+	updateLabel,
 } from '../../redux/slices/DocumentLabelSlice';
 
 interface TablePaginationActionsProps {
@@ -135,7 +136,12 @@ export default function DocumentLabelPage() {
 				.padStart(6, '0')}`;
 		};
 		const randomColor = getRandomColor();
-		setLabelColor(randomColor);
+		if (editingIndex !== null && currentLabel) {
+			setCurrentLabel((prev) => ({
+				...prev!,
+				color: randomColor,
+			}));
+		} else setLabelColor(randomColor);
 	};
 
 	const handleCancel = () => {
@@ -169,14 +175,12 @@ export default function DocumentLabelPage() {
 
 	const handleEditLabel = (index: number) => {
 		setEditingIndex(index);
-		// setCurrentLabel({ ...labels[index] });
+		setCurrentLabel({ ...labels[index] });
 	};
 
 	const handleSaveEditLabel = () => {
 		if (editingIndex !== null && currentLabel) {
-			// const updateLables = [...labels];
-			// updateLables[editingIndex as number] = currentLabel as DocumentLabel;
-			// setLables(updateLables);
+			dispatch(updateLabel(currentLabel));
 			setEditingIndex(null);
 			setCurrentLabel(null);
 		}
@@ -335,15 +339,15 @@ export default function DocumentLabelPage() {
 												justifyContent={'space-between'}
 											>
 												<Chip
-													label={label.name}
+													label={currentLabel?.name || t('labelName')}
 													sx={{
-														backgroundColor: label.color,
+														backgroundColor: currentLabel?.color || '#ccc',
 														color: '#fff',
 														fontWeight: 'bold',
 													}}
 												/>
 												<TextField
-													label="Label name"
+													label={t('labelName') as string}
 													value={currentLabel?.name}
 													onChange={(e) =>
 														setCurrentLabel((prev) => ({
@@ -351,6 +355,7 @@ export default function DocumentLabelPage() {
 															name: e.target.value,
 														}))
 													}
+													size="small"
 												/>
 											</Stack>
 										</TableCell>
@@ -373,7 +378,7 @@ export default function DocumentLabelPage() {
 													justifyContent={'space-between'}
 												>
 													<TextField
-														label="Description"
+														label={t('description') as string}
 														value={currentLabel?.description}
 														onChange={(e) =>
 															setCurrentLabel((prev) => ({
@@ -382,6 +387,7 @@ export default function DocumentLabelPage() {
 															}))
 														}
 														fullWidth
+														size="small"
 													/>
 													<Stack direction="row" alignItems="center">
 														<IconButton
@@ -391,7 +397,7 @@ export default function DocumentLabelPage() {
 															<CachedIcon />
 														</IconButton>
 														<TextField
-															label="Color"
+															label={t('color') as string}
 															value={currentLabel?.color}
 															onChange={(e) =>
 																setCurrentLabel((prev) => ({
@@ -399,6 +405,7 @@ export default function DocumentLabelPage() {
 																	color: e.target.value,
 																}))
 															}
+															size="small"
 														/>
 													</Stack>
 												</Stack>

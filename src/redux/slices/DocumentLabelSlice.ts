@@ -22,6 +22,17 @@ export const slice = createSlice({
 			const newLabel = action.payload;
 			entityAdapter.addOne(state, newLabel);
 		},
+		updateLabel: (state, action: PayloadAction<DocumentLabel>) => {
+			const updateLabel = action.payload;
+			entityAdapter.updateOne(state, {
+				id: updateLabel.id,
+				changes: {
+					name: updateLabel.name,
+					description: updateLabel.description,
+					color: updateLabel.color,
+				},
+			});
+		},
 		deleteLabelById: (state, action: PayloadAction<string>) => {
 			const id = action.payload;
 			entityAdapter.removeOne(state, id);
@@ -31,7 +42,7 @@ export const slice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { createNewLabel, deleteLabelById } = slice.actions;
+export const { createNewLabel, updateLabel, deleteLabelById } = slice.actions;
 export const { selectAll: selectAllLabels } =
 	entityAdapter.getSelectors<RootState>((state) => state.labels);
 export default slice.reducer;
