@@ -224,7 +224,7 @@ export default function DocumentLabelPage() {
 			>
 				<Stack direction="row" spacing={1} alignItems="center">
 					<TextField
-						placeholder={t('search') as string}
+						placeholder={t('searchDocumentLabel') as string}
 						size="small"
 						variant="outlined"
 						sx={{ width: 300 }}
@@ -263,6 +263,7 @@ export default function DocumentLabelPage() {
 						<TextField
 							label={t('labelName') as string}
 							value={labelName}
+							helperText={t('hyperTextMedium')}
 							onChange={(e) => {
 								const newValue = e.target.value;
 								if (isValidLength(newValue, TextLength.Medium))
@@ -276,6 +277,7 @@ export default function DocumentLabelPage() {
 						<TextField
 							label={t('description') as string}
 							value={labelDescription}
+							helperText={t('hyperTextVeryLong')}
 							onChange={(e) => {
 								const newValue = e.target.value;
 								if (isValidLength(newValue, TextLength.VeryLong))
@@ -285,13 +287,14 @@ export default function DocumentLabelPage() {
 							size="small"
 							fullWidth
 						/>
-						<Stack direction="row" spacing={1} alignItems="center">
+						<Stack direction="row" spacing={1} alignItems="flex-start">
 							<IconButton color="secondary" onClick={handleRandomColor}>
 								<CachedIcon />
 							</IconButton>
 							<TextField
 								label={t('color') as string}
 								value={labelColor}
+								helperText={t('hyperTextColor')}
 								onChange={(e) => setLabelColor(e.target.value)}
 								variant="outlined"
 								size="small"

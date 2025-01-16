@@ -12,6 +12,15 @@
 	"save": "Lưu",
 	"edit": "Chỉnh sửa",
 	"delete": "Xóa",
+	"version": "Phiên bản",
+	"seeDetail": "Xem",
+	"description": "Mô tả",
+	"hyperTextMedium": "Nhập tối đa 100 ký tự",
+	"hyperTextLong": "Nhập tối đa 150 ký tự",
+	"hyperTextVeryLong": "Nhập tối đa 255 ký tự",
+	"hyperTextColor": "Nhập mã màu",
+	"addVersion": "Thêm phiên bản",
+	"search": "Tìm kiếm",
 
 	"productManagement": "Quản lý sản phẩm",
 	"addProduct": "Thêm sản phẩm",
@@ -19,13 +28,14 @@
 	"dateCreated": "Ngày tạo",
 	"lastUpdated": "Cập nhật lần cuối",
 	"status": "Trạng thái",
+	"activating": "Đang hoạt động",
+	"inactivating": "Không hoạt động",
 
 	"documentLabel": "Nhãn tài liệu",
 	"addDocumentLabel": "Thêm nhãn tài liệu",
-	"search": "Tìm kiếm nhãn tài liệu",
+	"searchDocumentLabel": "Tìm kiếm nhãn tài liệu",
 	"labelPreview": "Xem trước nhãn",
 	"labelName": "Tên nhãn",
-	"description": "Mô tả",
 	"color": "Màu sắc",
 	"label": "Nhãn"
 }

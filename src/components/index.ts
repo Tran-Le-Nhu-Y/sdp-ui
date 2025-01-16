@@ -1,5 +1,14 @@
 import HydrateFallback from './HydrateFallback';
 import Skeleton from './Skeleton';
-import Table from './Table';
+import { CollapsibleTable, CollapsibleTableRow } from './CollapsibleTable';
+import TableInDetail from './TableInDetail';
+import FilterAction from './FilterAction';
 
-export { HydrateFallback, Skeleton, Table };
+export {
+	HydrateFallback,
+	Skeleton,
+	CollapsibleTable,
+	CollapsibleTableRow,
+	TableInDetail,
+	FilterAction,
+};
