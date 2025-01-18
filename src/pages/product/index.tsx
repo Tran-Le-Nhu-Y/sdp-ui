@@ -15,72 +15,13 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-
-const rows = [
-	{
-		id: 1,
-		name: 'Frozen yoghurt',
-		dateCreated: 159,
-		lastUpdated: 6.0,
-		status: 24,
-	},
-	{
-		id: 2,
-		name: 'Frozen yoghurt',
-		dateCreated: 159,
-		lastUpdated: 6.0,
-		status: 24,
-	},
-	{
-		id: 3,
-		name: 'Frozen yoghurt',
-		dateCreated: 159,
-		lastUpdated: 6.0,
-		status: 24,
-	},
-	{
-		id: 4,
-		name: 'Frozen yoghurt',
-		dateCreated: 159,
-		lastUpdated: 6.0,
-		status: 24,
-	},
-	{
-		id: 5,
-		name: 'Frozen yoghurt',
-		dateCreated: 159,
-		lastUpdated: 6.0,
-		status: 24,
-	},
-	{
-		id: 6,
-		name: 'Frozen yoghurt',
-		dateCreated: 159,
-		lastUpdated: 6.0,
-		status: 24,
-	},
-	{
-		id: 7,
-		name: 'Frozen yoghurt',
-		dateCreated: 159,
-		lastUpdated: 6.0,
-		status: 24,
-	},
-	{
-		id: 8,
-		name: 'Frozen yoghurt',
-		dateCreated: 159,
-		lastUpdated: 6.0,
-		status: 24,
-	},
-	{
-		id: 9,
-		name: 'Frozen yoghurt',
-		dateCreated: 159,
-		lastUpdated: 6.0,
-		status: 24,
-	},
-];
+import { useNavigate } from 'react-router-dom';
+import {
+	deleteProductById,
+	selectAllProducts,
+} from '../../redux/slices/ProductSlice';
+import { useAppSelector } from '../../hooks/useRedux';
+import { useDispatch } from 'react-redux';
 
 function InnerTable() {
 	const { t } = useTranslation('standard');
@@ -94,42 +35,6 @@ function InnerTable() {
 	}
 
 	const rows = [
-		createData(
-			'1.0',
-			'12:30:45 10/12/2024',
-			'12:30:45 10/12/2024',
-			'Đang hoạt động',
-		),
-		createData(
-			'1.2',
-			'12:30:45 10/12/2024',
-			'12:30:45 10/12/2024',
-			'Đang hoạt động',
-		),
-		createData(
-			'1.8',
-			'12:30:45 10/12/2024',
-			'12:30:45 10/12/2024',
-			'Không hoạt động',
-		),
-		createData(
-			'3.1',
-			'12:30:45 10/12/2024',
-			'12:30:45 10/12/2024',
-			'Đang hoạt động',
-		),
-		createData(
-			'3.0',
-			'12:30:45 10/12/2024',
-			'12:30:45 10/12/2024',
-			'Đang hoạt động',
-		),
-		createData(
-			'1.2',
-			'12:30:45 10/12/2024',
-			'12:30:45 10/12/2024',
-			'Đang hoạt động',
-		),
 		createData(
 			'1.0',
 			'12:30:45 10/12/2024',
@@ -178,6 +83,13 @@ function InnerTable() {
 
 export default function ProductManagementPage() {
 	const { t } = useTranslation('standard');
+	const navigate = useNavigate();
+	const dispatch = useDispatch();
+	const products = useAppSelector(selectAllProducts);
+
+	const handleDelete = (id: string) => {
+		dispatch(deleteProductById(id));
+	};
 
 	return (
 		<Box>
@@ -187,7 +99,9 @@ export default function ProductManagementPage() {
 				alignItems="center"
 				sx={{ marginBottom: 1 }}
 			>
-				<Button variant="contained">{t('addProduct')}</Button>
+				<Button variant="contained" onClick={() => navigate('/create-product')}>
+					{t('addProduct')}
+				</Button>
 			</Stack>
 
 			<CollapsibleTable
@@ -201,7 +115,7 @@ export default function ProductManagementPage() {
 						<TableCell />
 					</>
 				}
-				rows={rows}
+				rows={products}
 				getCell={(row) => (
 					<CollapsibleTableRow
 						key={row.id}
@@ -214,10 +128,12 @@ export default function ProductManagementPage() {
 								<TableCell align="center">{row.lastUpdated}</TableCell>
 								<TableCell align="center">{row.status}</TableCell>
 								<TableCell align="center">
-									<IconButton>
+									<IconButton
+										onClick={() => navigate(`/edit-product/${row.id}`)}
+									>
 										<EditIcon color="info" />
 									</IconButton>
-									<IconButton>
+									<IconButton onClick={() => handleDelete(row.id)}>
 										<DeleteIcon color="error" />
 									</IconButton>
 								</TableCell>
@@ -245,7 +161,7 @@ export default function ProductManagementPage() {
 										label={t('description')}
 										multiline
 										rows={10}
-										defaultValue="Consequat"
+										defaultValue={row.description}
 										sx={{
 											width: '100%',
 										}}

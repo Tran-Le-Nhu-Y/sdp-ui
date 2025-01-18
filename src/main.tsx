@@ -8,10 +8,12 @@ import { ErrorPage, OverviewPage } from './pages/index.tsx';
 import HydrateFallback from './components/HydrateFallback.tsx';
 import ProductManagementPage from './pages/product/index.tsx';
 import DeployManagementPage from './pages/deploy/index.tsx';
-import DocumentLabelPage from './pages/documentlabel/index.tsx';
-import DesignDocumentPage from './pages/designdocument/index.tsx';
+import DocumentLabelPage from './pages/documentLabel/index.tsx';
+import DesignDocumentPage from './pages/designDocument/index.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
+import ModifyProductPage from './pages/modifyProduct/index.tsx';
+import CreateProductPage from './pages/createProduct/index.tsx';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
@@ -26,11 +28,18 @@ createRoot(document.getElementById('root')!).render(
 						>
 							<Route path="overview" element={<OverviewPage />} />
 							<Route path="product" element={<ProductManagementPage />} />
+							<Route path="/create-product" element={<CreateProductPage />} />
+							<Route
+								path="/modify-product/:id"
+								element={<ModifyProductPage />}
+							/>
 							<Route path="deploy" element={<DeployManagementPage />} />
 							<Route path="document">
 								<Route path="label" element={<DocumentLabelPage />} />
 								<Route path="design" element={<DesignDocumentPage />} />
 							</Route>
+							{/* <Route path="test" element={<CreateProductPage />} /> */}
+							<Route path="test" element={<ModifyProductPage />} />
 						</Route>
 					</Route>
 				</Routes>

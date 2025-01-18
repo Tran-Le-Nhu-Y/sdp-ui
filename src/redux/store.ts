@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import documentLabelReducer from './slices/DocumentLabelSlice';
+import productReducer from './slices/ProductSlice';
 
 export const store = configureStore({
 	reducer: {
 		labels: documentLabelReducer,
+		products: productReducer,
 	},
 });
 

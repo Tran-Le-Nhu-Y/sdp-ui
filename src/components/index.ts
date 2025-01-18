@@ -3,6 +3,7 @@ import Skeleton from './Skeleton';
 import { CollapsibleTable, CollapsibleTableRow } from './CollapsibleTable';
 import TableInDetail from './TableInDetail';
 import FilterAction from './FilterAction';
+import CreateOrModifyForm from './CreateOrModifyForm';
 
 export {
 	HydrateFallback,
@@ -11,4 +12,5 @@ export {
 	CollapsibleTableRow,
 	TableInDetail,
 	FilterAction,
+	CreateOrModifyForm,
 };

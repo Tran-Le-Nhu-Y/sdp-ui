@@ -2,8 +2,8 @@ import OverviewPage from './overview';
 import ErrorPage from './error';
 import ProductManagementPage from './product';
 import DeployManagementPage from './deploy';
-import DocumentLabelPage from './documentlabel';
-import DesignDocumentPage from './designdocument';
+import DocumentLabelPage from './documentLabel';
+import DesignDocumentPage from './designDocument';
 
 export {
 	OverviewPage,

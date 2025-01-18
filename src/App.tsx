@@ -60,9 +60,14 @@ function App() {
 						},
 					],
 				},
+				// {
+				// 	segment: 'test',
+				// 	title: 'Tạo sản phẩm',
+				// 	icon: <DescriptionIcon />,
+				// },
 				{
 					segment: 'test',
-					title: 'Test',
+					title: 'Chỉnh sửa sản phẩm',
 					icon: <DescriptionIcon />,
 				},
 				{

@@ -21,6 +21,8 @@
 	"hyperTextColor": "Nhập mã màu",
 	"addVersion": "Thêm phiên bản",
 	"search": "Tìm kiếm",
+	"enter": "Nhập",
+	"enterDescription": "Nhập mô tả tại đây...",
 
 	"productManagement": "Quản lý sản phẩm",
 	"addProduct": "Thêm sản phẩm",
