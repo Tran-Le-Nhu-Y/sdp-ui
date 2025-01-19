@@ -89,7 +89,12 @@ export default function ProductManagementPage() {
 
 	const handleDelete = (id: string) => {
 		dispatch(deleteProductById(id));
+		alert(`Đã xóa sản phẩm ${id}`);
 	};
+
+	// const handleModifyProduct = () => {
+
+	// }
 
 	return (
 		<Box>
@@ -129,7 +134,7 @@ export default function ProductManagementPage() {
 								<TableCell align="center">{row.status}</TableCell>
 								<TableCell align="center">
 									<IconButton
-										onClick={() => navigate(`/edit-product/${row.id}`)}
+										onClick={() => navigate(`/modify-product/${row.id}`)}
 									>
 										<EditIcon color="info" />
 									</IconButton>

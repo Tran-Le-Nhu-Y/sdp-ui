@@ -32,6 +32,8 @@
 	"status": "Trạng thái",
 	"activating": "Đang hoạt động",
 	"inactivating": "Không hoạt động",
+	"modifyProduct": "Chỉnh sửa sản phẩm",
+	"productNotFound": "Không tìm thấy sản phẩm",
 
 	"documentLabel": "Nhãn tài liệu",
 	"addDocumentLabel": "Thêm nhãn tài liệu",

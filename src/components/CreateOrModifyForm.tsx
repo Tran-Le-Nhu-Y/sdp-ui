@@ -51,6 +51,10 @@ function TextEditor({
 interface CreateOrModifyFormProps {
 	title: string;
 	label: string;
+	showModifyValues?: {
+		productNameToShow: string;
+		descriptionToShow: string;
+	};
 	onSubmit: (data: {
 		productNameProp: string;
 		descriptionProp: string;
@@ -61,11 +65,16 @@ interface CreateOrModifyFormProps {
 const CreateOrModifyForm: React.FC<CreateOrModifyFormProps> = ({
 	title,
 	label,
+	showModifyValues,
 	onSubmit,
 	onCancel,
 }) => {
-	const [productName, setproductName] = useState('');
-	const [description, setDescription] = useState('');
+	const [productName, setproductName] = useState(
+		showModifyValues?.productNameToShow || '',
+	);
+	const [description, setDescription] = useState(
+		showModifyValues?.descriptionToShow || '',
+	);
 	const { t } = useTranslation();
 	const handleSubmit = () => {
 		onSubmit({ productNameProp: productName, descriptionProp: description });

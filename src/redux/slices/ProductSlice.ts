@@ -43,6 +43,6 @@ export const slice = createSlice({
 // Action creators are generated for each case reducer function
 export const { createProduct, updateProduct, deleteProductById } =
 	slice.actions;
-export const { selectAll: selectAllProducts } =
+export const { selectAll: selectAllProducts, selectById: selectProductById } =
 	entityAdapter.getSelectors<RootState>((state) => state.products);
 export default slice.reducer;

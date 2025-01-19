@@ -38,7 +38,6 @@ createRoot(document.getElementById('root')!).render(
 								<Route path="label" element={<DocumentLabelPage />} />
 								<Route path="design" element={<DesignDocumentPage />} />
 							</Route>
-							{/* <Route path="test" element={<CreateProductPage />} /> */}
 							<Route path="test" element={<ModifyProductPage />} />
 						</Route>
 					</Route>
