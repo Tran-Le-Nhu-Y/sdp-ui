@@ -8,10 +8,11 @@ import { Outlet } from 'react-router';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import DnsIcon from '@mui/icons-material/Dns';
-import ArticleIcon from '@mui/icons-material/Article';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import DescriptionIcon from '@mui/icons-material/Description';
 import BookmarksIcon from '@mui/icons-material/Bookmarks';
+import TopicIcon from '@mui/icons-material/Topic';
+import SummarizeIcon from '@mui/icons-material/Summarize';
 import { useTranslation } from 'react-i18next';
 import theme from './themes/theme';
 
@@ -46,7 +47,7 @@ function App() {
 				{
 					segment: 'document',
 					title: t('documentManagement'),
-					icon: <ArticleIcon />,
+					icon: <TopicIcon />,
 					children: [
 						{
 							segment: 'label',
@@ -54,20 +55,20 @@ function App() {
 							icon: <BookmarksIcon />,
 						},
 						{
-							segment: 'design',
-							title: t('designDocument'),
+							segment: 'product-design',
+							title: t('productDesignDocument'),
 							icon: <DescriptionIcon />,
+						},
+						{
+							segment: 'module-design',
+							title: t('moduleDesignDocument'),
+							icon: <SummarizeIcon />,
 						},
 					],
 				},
-				// {
-				// 	segment: 'test',
-				// 	title: 'Tạo sản phẩm',
-				// 	icon: <DescriptionIcon />,
-				// },
 				{
 					segment: 'test',
-					title: 'Chỉnh sửa sản phẩm',
+					title: 'Tạo sản phẩm',
 					icon: <DescriptionIcon />,
 				},
 				{

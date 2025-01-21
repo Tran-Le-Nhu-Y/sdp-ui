@@ -4,16 +4,21 @@ import App from './App.tsx';
 import './i18n/i18n.ts';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import RootLayout from './layouts/RootLayout.tsx';
-import { ErrorPage, OverviewPage } from './pages/index.tsx';
+import {
+	CreateProductPage,
+	DeployManagementPage,
+	DocumentLabelPage,
+	ErrorPage,
+	ModifyProductPage,
+	ModuleDesignDocumentPage,
+	OverviewPage,
+	ProductDesignDocumentPage,
+	ProductManagementPage,
+} from './pages/index.tsx';
 import HydrateFallback from './components/HydrateFallback.tsx';
-import ProductManagementPage from './pages/product/index.tsx';
-import DeployManagementPage from './pages/deploy/index.tsx';
-import DocumentLabelPage from './pages/documentLabel/index.tsx';
-import DesignDocumentPage from './pages/designDocument/index.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
-import ModifyProductPage from './pages/modifyProduct/index.tsx';
-import CreateProductPage from './pages/createProduct/index.tsx';
+import CreateModifyVersionForm from './components/CreateModifyVersionForm.tsx';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
@@ -36,9 +41,26 @@ createRoot(document.getElementById('root')!).render(
 							<Route path="deploy" element={<DeployManagementPage />} />
 							<Route path="document">
 								<Route path="label" element={<DocumentLabelPage />} />
-								<Route path="design" element={<DesignDocumentPage />} />
+								<Route
+									path="product-design"
+									element={<ProductDesignDocumentPage />}
+								/>
+								<Route
+									path="module-design"
+									element={<ModuleDesignDocumentPage />}
+								/>
 							</Route>
-							<Route path="test" element={<ModifyProductPage />} />
+							<Route
+								path="test"
+								element={
+									<CreateModifyVersionForm
+										label="hahaha"
+										title="ssss"
+										onSubmit={() => App}
+										onCancel={App}
+									/>
+								}
+							/>
 						</Route>
 					</Route>
 				</Routes>

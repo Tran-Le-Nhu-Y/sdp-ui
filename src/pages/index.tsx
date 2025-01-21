@@ -1,15 +1,21 @@
 import OverviewPage from './overview';
 import ErrorPage from './error';
-import ProductManagementPage from './product';
-import DeployManagementPage from './deploy';
+import ProductManagementPage from './productManagement';
+import DeployManagementPage from './deployManagement';
 import DocumentLabelPage from './documentLabel';
-import DesignDocumentPage from './designDocument';
+import ProductDesignDocumentPage from './productDesignDocument';
+import ModuleDesignDocumentPage from './moduleDesignDocument';
+import CreateProductPage from './createProduct';
+import ModifyProductPage from './modifyProduct';
 
 export {
 	OverviewPage,
 	ProductManagementPage,
+	CreateProductPage,
+	ModifyProductPage,
 	DeployManagementPage,
 	DocumentLabelPage,
-	DesignDocumentPage,
+	ProductDesignDocumentPage,
+	ModuleDesignDocumentPage,
 	ErrorPage,
 };

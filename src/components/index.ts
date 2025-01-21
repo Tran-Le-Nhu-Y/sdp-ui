@@ -4,6 +4,7 @@ import { CollapsibleTable, CollapsibleTableRow } from './CollapsibleTable';
 import TableInDetail from './TableInDetail';
 import FilterAction from './FilterAction';
 import CreateOrModifyForm from './CreateOrModifyForm';
+import CreateModifyVersionForm from './CreateModifyVersionForm';
 
 export {
 	HydrateFallback,
@@ -13,4 +14,5 @@ export {
 	TableInDetail,
 	FilterAction,
 	CreateOrModifyForm,
+	CreateModifyVersionForm,
 };
