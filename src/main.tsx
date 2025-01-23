@@ -18,7 +18,8 @@ import {
 import HydrateFallback from './components/HydrateFallback.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
-import CreateModifyVersionForm from './components/CreateModifyVersionForm.tsx';
+//import CreateModifyVersionForm from './components/CreateModifyVersionForm.tsx';
+import ExamplePage from './pages/test/index.tsx';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
@@ -50,7 +51,7 @@ createRoot(document.getElementById('root')!).render(
 									element={<ModuleDesignDocumentPage />}
 								/>
 							</Route>
-							<Route
+							{/* <Route
 								path="test"
 								element={
 									<CreateModifyVersionForm
@@ -60,7 +61,8 @@ createRoot(document.getElementById('root')!).render(
 										onCancel={App}
 									/>
 								}
-							/>
+							/> */}
+							<Route path="test" element={<ExamplePage />} />
 						</Route>
 					</Route>
 				</Routes>

@@ -1,6 +1,5 @@
 {
 	"overview": "Tổng quan",
-	"deployManagement": "Quản lý triển khai",
 	"documentManagement": "Quản lý tài liệu",
 	"productDesignDocument": "Tài liệu thiết kế sản phẩm",
 	"moduleDesignDocument": "Tài liệu thiết kế module",
@@ -39,6 +38,15 @@
 	"attachment": "Các tập tin liên quan",
 	"complete": "Hoàn thành",
 	"dragAndDrop": "Kéo và thả các tập tin ở đây",
+
+	"deployManagement": "Quản lý tài liệu triển khai",
+	"searchDeployDocument": "Tìm kiếm tài liệu triển khai",
+	"searchBy": "Tìm kiếm theo",
+	"operator": "Phương thức",
+	"contains": "Có chứa",
+	"equals": "Bằng với",
+	"enterValue": "Nhập giá trị",
+	"add": "Thêm",
 
 	"documentLabel": "Nhãn tài liệu",
 	"addDocumentLabel": "Thêm nhãn tài liệu",
