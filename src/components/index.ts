@@ -5,6 +5,7 @@ import TableInDetail from './TableInDetail';
 import FilterAction from './FilterAction';
 import CreateOrModifyForm from './CreateOrModifyForm';
 import CreateModifyVersionForm from './CreateModifyVersionForm';
+import DragAndDropForm from './DragAndDropForm';
 
 export {
 	HydrateFallback,
@@ -15,4 +16,5 @@ export {
 	FilterAction,
 	CreateOrModifyForm,
 	CreateModifyVersionForm,
+	DragAndDropForm,
 };

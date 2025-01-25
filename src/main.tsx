@@ -5,7 +5,9 @@ import './i18n/i18n.ts';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import RootLayout from './layouts/RootLayout.tsx';
 import {
+	CreatDeployDocumentPage,
 	CreateProductPage,
+	CreateVersionProductPage,
 	DeployManagementPage,
 	DocumentLabelPage,
 	ErrorPage,
@@ -36,10 +38,18 @@ createRoot(document.getElementById('root')!).render(
 							<Route path="product" element={<ProductManagementPage />} />
 							<Route path="/create-product" element={<CreateProductPage />} />
 							<Route
+								path="/create-version-product"
+								element={<CreateVersionProductPage />}
+							/>
+							<Route
 								path="/modify-product/:id"
 								element={<ModifyProductPage />}
 							/>
 							<Route path="deploy" element={<DeployManagementPage />} />
+							<Route
+								path="/create-deploy-document"
+								element={<CreatDeployDocumentPage />}
+							/>
 							<Route path="document">
 								<Route path="label" element={<DocumentLabelPage />} />
 								<Route

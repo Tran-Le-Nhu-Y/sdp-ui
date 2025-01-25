@@ -187,7 +187,11 @@ export default function ProductManagementPage() {
 											}}
 										/>
 										{/* <TableInDetail /> */}
-										<Button variant="contained" size="large">
+										<Button
+											variant="contained"
+											size="large"
+											onClick={() => navigate('/create-version-product')}
+										>
 											{t('addVersion')}
 										</Button>
 									</Stack>

@@ -22,6 +22,7 @@
 	"addVersion": "Thêm phiên bản",
 	"search": "Tìm kiếm",
 	"enter": "Nhập",
+	"add": "Thêm",
 	"enterDescription": "Nhập mô tả tại đây...",
 
 	"productManagement": "Quản lý sản phẩm",
@@ -39,6 +40,16 @@
 	"complete": "Hoàn thành",
 	"dragAndDrop": "Kéo và thả các tập tin ở đây",
 
+	"addVersionProduct": "Thêm phiên bản sản phẩm",
+	"modifyVersionProduct": "Chỉnh sửa phiên bản sản phẩm",
+
+	"addModule": "Thêm Module",
+	"moduleName": "Tên Module",
+	"modifyModule": "Chỉnh sửa Module",
+
+	"addVersionModule": "Thêm phiên bản Module",
+	"modifyVersionModule": "Chỉnh sửa phiên bản Module",
+
 	"deployManagement": "Quản lý tài liệu triển khai",
 	"searchDeployDocument": "Tìm kiếm tài liệu triển khai",
 	"searchBy": "Tìm kiếm theo",
@@ -46,7 +57,10 @@
 	"contains": "Có chứa",
 	"equals": "Bằng với",
 	"enterValue": "Nhập giá trị",
-	"add": "Thêm",
+	"addDocument": "Thêm tài liệu",
+	"addDeployDocument": "Thêm tài liệu triển khai",
+	"deployDocumentName": "Tên tài liệu triển khai",
+	"deployDocumentDescription": "Mô tả tài liệu triển khai",
 
 	"documentLabel": "Nhãn tài liệu",
 	"addDocumentLabel": "Thêm nhãn tài liệu",

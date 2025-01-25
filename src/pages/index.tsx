@@ -7,13 +7,27 @@ import ProductDesignDocumentPage from './productDesignDocument';
 import ModuleDesignDocumentPage from './moduleDesignDocument';
 import CreateProductPage from './createProduct';
 import ModifyProductPage from './modifyProduct';
+import CreatDeployDocumentPage from './createDeployDocument';
+import CreateVersionProductPage from './createVersionProduct';
+import CreateModulePage from './createModule';
+import CreateVersionModulePage from './createVersionModule';
+import ModifyModulePage from './modifyModule';
+import ModifyVersionModulePage from './modifyVersionModule';
+import ModifyVersionProductPage from './modifyVersionProduct';
 
 export {
 	OverviewPage,
 	ProductManagementPage,
 	CreateProductPage,
 	ModifyProductPage,
+	CreateVersionProductPage,
+	ModifyVersionProductPage,
+	CreateModulePage,
+	ModifyModulePage,
+	CreateVersionModulePage,
+	ModifyVersionModulePage,
 	DeployManagementPage,
+	CreatDeployDocumentPage,
 	DocumentLabelPage,
 	ProductDesignDocumentPage,
 	ModuleDesignDocumentPage,
