@@ -8,6 +8,8 @@ import {
 	CreatDeployDocumentPage,
 	CreateProductPage,
 	CreateVersionProductPage,
+	CreatModuleDesignDocumentPage,
+	CreatProductDesignDocumentPage,
 	DeployManagementPage,
 	DocumentLabelPage,
 	ErrorPage,
@@ -56,11 +58,20 @@ createRoot(document.getElementById('root')!).render(
 									path="product-design"
 									element={<ProductDesignDocumentPage />}
 								/>
+
 								<Route
 									path="module-design"
 									element={<ModuleDesignDocumentPage />}
 								/>
 							</Route>
+							<Route
+								path="/create-product-design-document"
+								element={<CreatProductDesignDocumentPage />}
+							/>
+							<Route
+								path="/create-module-design-document"
+								element={<CreatModuleDesignDocumentPage />}
+							/>
 							{/* <Route
 								path="test"
 								element={

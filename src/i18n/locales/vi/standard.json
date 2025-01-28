@@ -68,5 +68,13 @@
 	"labelPreview": "Xem trước nhãn",
 	"labelName": "Tên nhãn",
 	"color": "Màu sắc",
-	"label": "Nhãn"
+	"label": "Nhãn",
+
+	"addProductDesignDocument": "Thêm tài liệu thiết kế sản phẩm",
+	"productDesignDocumentName": "Tên tài liệu thiết kế sản phẩm",
+	"productDesignDocumentDescription": "Mô tả tài liệu thiết kế sản phẩm",
+
+	"addModuleDesignDocument": "Thêm tài liệu thiết kế module",
+	"moduleDesignDocumentName": "Tên tài liệu thiết kế module",
+	"moduleDesignDocumentDescription": "Mô tả tài liệu thiết kế module"
 }

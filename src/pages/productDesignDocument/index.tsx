@@ -1,54 +1,111 @@
-import Typography from '@mui/material/Typography';
 import { useTranslation } from 'react-i18next';
+import FilterableTable from '../../components/FilterableTable';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProductDesignDocumentPage() {
 	const { t } = useTranslation();
+	const navigate = useNavigate();
+
+	const columns = [
+		{ key: 'id', label: 'ID', filterable: false },
+		{ key: 'label', label: 'Nhãn tài liệu', filterable: false },
+		{ key: 'name', label: 'Tên tài liệu', filterable: true },
+		{ key: 'createdAt', label: 'Thời gian tạo', filterable: false },
+		{ key: 'updatedAt', label: 'Cập nhật lần cuối', filterable: false },
+		{ key: 'product', label: 'Tên sản phẩm', filterable: true },
+	];
+
+	const data = [
+		{
+			id: '1',
+			label: 'aaa',
+			name: 'Document A',
+			createdAt: '2025-01-20',
+			updatedAt: '2025-01-21',
+			product: 'TLNY',
+		},
+		{
+			id: '1',
+			label: 'aaa',
+			name: 'Document A',
+			createdAt: '2025-01-20',
+			updatedAt: '2025-01-21',
+			product: 'TLNY',
+		},
+		{
+			id: '1',
+			label: 'aaa',
+			name: 'Document A',
+			createdAt: '2025-01-20',
+			updatedAt: '2025-01-21',
+			product: 'TLNY',
+		},
+		{
+			id: '1',
+			label: 'aaa',
+			name: 'Document A',
+			createdAt: '2025-01-20',
+			updatedAt: '2025-01-21',
+			product: 'TLNY',
+		},
+		{
+			id: '1',
+			label: 'aaa',
+			name: 'Document A',
+			createdAt: '2025-01-20',
+			updatedAt: '2025-01-21',
+			product: 'TLNY',
+		},
+		{
+			id: '1',
+			label: 'aaa',
+			name: 'Document A',
+			createdAt: '2025-01-20',
+			updatedAt: '2025-01-21',
+			product: 'TLNY',
+		},
+		{
+			id: '1',
+			label: 'aaa',
+			name: 'Document A',
+			createdAt: '2025-01-20',
+			updatedAt: '2025-01-21',
+			product: 'TLNY',
+		},
+		{
+			id: '1',
+			label: 'aaa',
+			name: 'Document A',
+			createdAt: '2025-01-20',
+			updatedAt: '2025-01-21',
+			product: 'TLNY',
+		},
+		{
+			id: '1',
+			label: 'aaa',
+			name: 'Document A',
+			createdAt: '2025-01-20',
+			updatedAt: '2025-01-21',
+			product: 'TLNY',
+		},
+	];
+	const handleAction = (
+		action: string,
+		rowData: Record<string, string | number | Date>,
+	) => {
+		console.log(action, rowData);
+	};
 
 	return (
 		<div>
-			<Typography sx={{ marginBottom: 2 }}>{t('about')}</Typography>
-			<Typography sx={{ marginBottom: 2 }}>
-				Consequat mauris nunc congue nisi vitae suscipit. Fringilla est
-				ullamcorper eget nulla facilisi etiam dignissim diam. Pulvinar elementum
-				integer enim neque volutpat ac tincidunt. Ornare suspendisse sed nisi
-				lacus sed viverra tellus. Purus sit amet volutpat consequat mauris.
-				Elementum eu facilisis sed odio morbi. Euismod lacinia at quis risus sed
-				vulputate odio. Morbi tincidunt ornare massa eget egestas purus viverra
-				accumsan in. In hendrerit gravida rutrum quisque non tellus orci ac.
-				Pellentesque nec nam aliquam sem et tortor. Habitant morbi tristique
-				senectus et. Adipiscing elit duis tristique sollicitudin nibh sit.
-				Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra
-				maecenas accumsan lacus vel facilisis. Nulla posuere sollicitudin
-				aliquam ultrices sagittis orci a.
-			</Typography>
-			<Typography sx={{ marginBottom: 2 }}>
-				Consequat mauris nunc congue nisi vitae suscipit. Fringilla est
-				ullamcorper eget nulla facilisi etiam dignissim diam. Pulvinar elementum
-				integer enim neque volutpat ac tincidunt. Ornare suspendisse sed nisi
-				lacus sed viverra tellus. Purus sit amet volutpat consequat mauris.
-				Elementum eu facilisis sed odio morbi. Euismod lacinia at quis risus sed
-				vulputate odio. Morbi tincidunt ornare massa eget egestas purus viverra
-				accumsan in. In hendrerit gravida rutrum quisque non tellus orci ac.
-				Pellentesque nec nam aliquam sem et tortor. Habitant morbi tristique
-				senectus et. Adipiscing elit duis tristique sollicitudin nibh sit.
-				Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra
-				maecenas accumsan lacus vel facilisis. Nulla posuere sollicitudin
-				aliquam ultrices sagittis orci a.
-			</Typography>
-			<Typography sx={{ marginBottom: 2 }}>
-				Consequat mauris nunc congue nisi vitae suscipit. Fringilla est
-				ullamcorper eget nulla facilisi etiam dignissim diam. Pulvinar elementum
-				integer enim neque volutpat ac tincidunt. Ornare suspendisse sed nisi
-				lacus sed viverra tellus. Purus sit amet volutpat consequat mauris.
-				Elementum eu facilisis sed odio morbi. Euismod lacinia at quis risus sed
-				vulputate odio. Morbi tincidunt ornare massa eget egestas purus viverra
-				accumsan in. In hendrerit gravida rutrum quisque non tellus orci ac.
-				Pellentesque nec nam aliquam sem et tortor. Habitant morbi tristique
-				senectus et. Adipiscing elit duis tristique sollicitudin nibh sit.
-				Ornare aenean euismod elementum nisi quis eleifend. Commodo viverra
-				maecenas accumsan lacus vel facilisis. Nulla posuere sollicitudin
-				aliquam ultrices sagittis orci a.
-			</Typography>
+			<FilterableTable
+				columns={columns}
+				data={data}
+				onAction={handleAction}
+				onButtonAdd={() => navigate('/create-product-design-document')}
+				addButtonText={t('addDocument')}
+				filterableColumns={['id', 'label', 'name', 'product']}
+			/>
 		</div>
 	);
 }

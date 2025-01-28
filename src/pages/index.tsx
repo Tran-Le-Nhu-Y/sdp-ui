@@ -14,6 +14,8 @@ import CreateVersionModulePage from './createVersionModule';
 import ModifyModulePage from './modifyModule';
 import ModifyVersionModulePage from './modifyVersionModule';
 import ModifyVersionProductPage from './modifyVersionProduct';
+import CreatProductDesignDocumentPage from './createProductDesignDocument';
+import CreatModuleDesignDocumentPage from './createModuleDesignDocument';
 
 export {
 	OverviewPage,
@@ -30,6 +32,8 @@ export {
 	CreatDeployDocumentPage,
 	DocumentLabelPage,
 	ProductDesignDocumentPage,
+	CreatProductDesignDocumentPage,
 	ModuleDesignDocumentPage,
+	CreatModuleDesignDocumentPage,
 	ErrorPage,
 };
