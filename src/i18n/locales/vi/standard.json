@@ -24,6 +24,7 @@
 	"enter": "Nhập",
 	"add": "Thêm",
 	"enterDescription": "Nhập mô tả tại đây...",
+	"noFileUpload": "Không có file nào được tải lên",
 
 	"productManagement": "Quản lý sản phẩm",
 	"addProduct": "Thêm sản phẩm",

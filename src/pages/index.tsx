@@ -16,10 +16,12 @@ import ModifyVersionModulePage from './modifyVersionModule';
 import ModifyVersionProductPage from './modifyVersionProduct';
 import CreatProductDesignDocumentPage from './createProductDesignDocument';
 import CreatModuleDesignDocumentPage from './createModuleDesignDocument';
+import ProductVersionDetail from './productVersionDetails';
 
 export {
 	OverviewPage,
 	ProductManagementPage,
+	ProductVersionDetail,
 	CreateProductPage,
 	ModifyProductPage,
 	CreateVersionProductPage,

@@ -18,6 +18,7 @@ import {
 	OverviewPage,
 	ProductDesignDocumentPage,
 	ProductManagementPage,
+	ProductVersionDetail,
 } from './pages/index.tsx';
 import HydrateFallback from './components/HydrateFallback.tsx';
 import { Provider } from 'react-redux';
@@ -40,7 +41,11 @@ createRoot(document.getElementById('root')!).render(
 							<Route path="product" element={<ProductManagementPage />} />
 							<Route path="/create-product" element={<CreateProductPage />} />
 							<Route
-								path="/create-version-product"
+								path="/product-version/:version"
+								element={<ProductVersionDetail />}
+							/>
+							<Route
+								path="/product/:productId/create-version"
 								element={<CreateVersionProductPage />}
 							/>
 							<Route

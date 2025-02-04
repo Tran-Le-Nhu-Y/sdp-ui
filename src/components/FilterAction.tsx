@@ -25,6 +25,7 @@ export default function FilterAction(props: FilterActionProps) {
 			<TextField
 				value={value}
 				label={t('search')}
+				fullWidth
 				size="small"
 				variant="outlined"
 				onChange={(e) => setValue(e.target.value as string)}
@@ -35,6 +36,7 @@ export default function FilterAction(props: FilterActionProps) {
 				label="Select"
 				value={filter}
 				size="small"
+				fullWidth
 				onChange={(e) => setFilter(e.target.value as string)}
 			>
 				{entries.map((option) => (

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import {
 	Table,
 	TableBody,
@@ -24,45 +24,41 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useTranslation } from 'react-i18next';
 
-interface Column {
+export interface Column {
 	key: string;
 	label: string;
 	filterable?: boolean;
 }
 
-interface Filter {
+export interface Filter {
 	columnKey: string;
 	operator: 'contains' | 'equals';
 	value: string | number;
 }
 
-interface FilterableTableProps {
+export interface FilterableTableProps {
 	columns: Column[];
-	data: Record<string, string | number | Date>[];
-	onAction?: (
-		action: string,
-		rowData: Record<string, string | number | Date>,
-	) => void;
+	data: Record<string, string | boolean | Date | number>[];
+	onAction?: (action: string, rowData: object) => void;
 	onButtonAdd?: () => void;
 	addButtonText?: string;
 	filterableColumns?: string[]; // Danh sách các key cột có thể lọc
 }
 
-const FilterableTable: React.FC<FilterableTableProps> = ({
+function FilterableTable({
 	columns,
 	data,
 	onAction,
 	onButtonAdd,
 	addButtonText,
-	filterableColumns,
-}) => {
+}: FilterableTableProps) {
 	const [filters, setFilters] = useState<Filter[]>([]);
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(5);
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const { t } = useTranslation('standard');
 
-	const handleReload = () => {
+	const resetFilter = () => {
 		setFilters([]); // Reset bộ lọc về rỗng
 		//setPage(0); // Quay về trang đầu
 	};
@@ -103,62 +99,6 @@ const FilterableTable: React.FC<FilterableTableProps> = ({
 		setDialogOpen(false);
 	};
 
-	const filteredData = useMemo(() => {
-		return data.filter((row) => {
-			return filters.every((filter) => {
-				if (!filter.columnKey || !filter.value) return true;
-
-				const cellValue = row[filter.columnKey];
-				if (cellValue === undefined) return false;
-
-				// Phân tách giá trị phiên bản thành mảng số
-				const parseVersion = (value: string) => value.split('.').map(Number);
-
-				const toString = (value: string | number | Date) => {
-					if (typeof value === 'string') return value;
-					if (typeof value === 'number') return value.toString();
-					if (value instanceof Date) return value.toISOString();
-					return '';
-				};
-
-				const filterValue = toString(filter.value).toLowerCase();
-				const rowValue = toString(cellValue).toLowerCase();
-
-				// Kiểm tra nếu giá trị là phiên bản
-				if (
-					/^\d+(\.\d+)*$/.test(rowValue) &&
-					/^\d+(\.\d+)*$/.test(filterValue)
-				) {
-					const rowVersion = parseVersion(rowValue as string);
-					const filterVersion = parseVersion(filterValue as string);
-
-					if (filter.operator === 'equals') {
-						return JSON.stringify(rowVersion) === JSON.stringify(filterVersion);
-					}
-					if (filter.operator === 'contains') {
-						return rowValue.includes(filterValue as string);
-					}
-				}
-
-				if (filter.operator === 'contains' && typeof rowValue === 'string') {
-					return rowValue.includes(filterValue as string);
-				} else if (filter.operator === 'equals') {
-					return rowValue === filterValue;
-				}
-
-				return true;
-			});
-		});
-	}, [data, filters]);
-
-	const filterableCols = useMemo(() => {
-		return columns.filter(
-			(col) =>
-				filterableColumns?.includes(col.key) || // Chỉ giữ cột nếu có trong `filterableColumns`
-				(!filterableColumns && col.filterable), // Hoặc cột có `filterable = true`
-		);
-	}, [columns, filterableColumns]);
-
 	return (
 		<Paper>
 			{/* Filter Dialog */}
@@ -184,7 +124,7 @@ const FilterableTable: React.FC<FilterableTableProps> = ({
 								style={{ minWidth: '120px' }}
 							>
 								<MenuItem value="">{t('searchBy')}</MenuItem>
-								{filterableCols.map((col) => (
+								{columns.map((col) => (
 									<MenuItem key={col.key} value={col.key}>
 										{col.label}
 									</MenuItem>
@@ -229,7 +169,7 @@ const FilterableTable: React.FC<FilterableTableProps> = ({
 				}}
 			>
 				<Stack direction={'row'}>
-					<IconButton onClick={handleReload}>
+					<IconButton onClick={resetFilter}>
 						<RefreshIcon />
 					</IconButton>
 					<IconButton color="primary" onClick={() => setDialogOpen(true)}>
@@ -254,7 +194,7 @@ const FilterableTable: React.FC<FilterableTableProps> = ({
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{filteredData
+						{data
 							.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 							.map((row, rowIndex) => (
 								<TableRow key={rowIndex}>
@@ -297,7 +237,7 @@ const FilterableTable: React.FC<FilterableTableProps> = ({
 			<TablePagination
 				rowsPerPageOptions={[5, 10, 25]}
 				component="div"
-				count={filteredData.length}
+				count={data.length}
 				rowsPerPage={rowsPerPage}
 				page={page}
 				onPageChange={handleChangePage}
@@ -305,6 +245,6 @@ const FilterableTable: React.FC<FilterableTableProps> = ({
 			/>
 		</Paper>
 	);
-};
+}
 
 export default FilterableTable;

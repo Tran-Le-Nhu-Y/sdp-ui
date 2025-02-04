@@ -4,51 +4,8 @@ import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import 'react-quill/dist/quill.snow.css';
-import ReactQuill from 'react-quill';
-import { t } from 'i18next';
 import DragAndDropForm from './DragAndDropForm';
-
-function TextEditor({
-	value,
-	onChange,
-}: {
-	value: string;
-	onChange: (value: string) => void;
-}) {
-	const toolbarOptions = [
-		['bold', 'italic', 'underline', 'strike'], // toggled buttons
-		['blockquote', 'code-block'],
-		['link', 'image', 'video', 'formula'],
-
-		[{ header: 1 }, { header: 2 }], // custom button values
-		[{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
-		[{ script: 'sub' }, { script: 'super' }], // superscript/subscript
-		[{ indent: '-1' }, { indent: '+1' }], // outdent/indent
-		[{ direction: 'rtl' }], // text direction
-
-		[{ size: ['small', false, 'large', 'huge'] }], // custom dropdown
-		[{ header: [1, 2, 3, 4, 5, 6, false] }],
-
-		[{ color: [] }, { background: [] }], // dropdown with defaults from theme
-		[{ font: [] }],
-		[{ align: [] }],
-
-		['clean'], // remove formatting button
-	];
-	const module = {
-		toolbar: toolbarOptions,
-	};
-
-	return (
-		<ReactQuill
-			modules={module}
-			theme="snow"
-			value={value}
-			onChange={onChange}
-			placeholder={t('enterDescription')}
-		/>
-	);
-}
+import TextEditor from './TextEditor';
 
 interface FileAttachment {
 	id: number;
@@ -69,7 +26,7 @@ interface CreateModifyVersionFormProps {
 	onSubmit: (data: {
 		productNameProp: string;
 		descriptionProp: string;
-		files: FileAttachment[];
+		files: File[];
 	}) => void;
 	onCancel: () => void;
 }
@@ -82,24 +39,36 @@ const CreateModifyVersionForm: React.FC<CreateModifyVersionFormProps> = ({
 	onCancel,
 }) => {
 	const { t } = useTranslation();
-	const [productName, setproductName] = useState(
+
+	const [files, setFiles] = useState<FileAttachment[]>([]);
+
+	const [productName, setProductName] = useState(
 		showModifyValues?.productNameToShow || '',
 	);
 	const [description, setDescription] = useState(
 		showModifyValues?.descriptionToShow || '',
 	);
-	const [files, setFiles] = useState<FileAttachment[]>([]);
 
 	const handleFilesChange = (uploadedFiles: FileAttachment[]) => {
 		setFiles(uploadedFiles);
 	};
 
 	const handleSubmit = () => {
+		const uploadedFiles = files
+			.filter((file) => file.status === 'complete')
+			.map((file) => new File([], file.name)); // Tạo File object (giữ tên file)
+
 		onSubmit({
 			productNameProp: productName,
 			descriptionProp: description,
-			files,
+			files: uploadedFiles,
 		});
+
+		// onSubmit({
+		// 	productNameProp: productName,
+		// 	descriptionProp: description,
+		// 	files,
+		// });
 	};
 
 	return (
@@ -113,7 +82,7 @@ const CreateModifyVersionForm: React.FC<CreateModifyVersionFormProps> = ({
 					size="small"
 					label={label}
 					value={productName}
-					onChange={(e) => setproductName(e.target.value)}
+					onChange={(e) => setProductName(e.target.value)}
 					placeholder={`${t('enter')} ${label.toLowerCase()}...`}
 				/>
 			</Box>

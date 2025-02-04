@@ -2,17 +2,12 @@ import Button from '@mui/material/Button';
 import {
 	CollapsibleTable,
 	CollapsibleTableRow,
+	FilterableTable,
 	FilterAction,
+	TextEditor,
 } from '../../components';
 import { useTranslation } from 'react-i18next';
-import {
-	Box,
-	IconButton,
-	Stack,
-	TableCell,
-	TextField,
-	Typography,
-} from '@mui/material';
+import { Box, IconButton, Stack, TableCell, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useNavigate } from 'react-router-dom';
@@ -22,88 +17,53 @@ import {
 } from '../../redux/slices/ProductSlice';
 import { useAppSelector } from '../../hooks/useRedux';
 import { useDispatch } from 'react-redux';
-
-function InnerTable() {
-	const { t } = useTranslation('standard');
-	function createData(
-		version: string,
-		dateCreated: string,
-		lastUpdated: string,
-		status: string,
-	) {
-		return { version, dateCreated, lastUpdated, status };
-	}
-
-	const rows = [
-		createData(
-			'1.0',
-			'12:30:45 10/12/2024',
-			'12:30:45 10/12/2024',
-			'Đang hoạt động',
-		),
-	].sort((a, b) => (a.version < b.version ? -1 : 1));
-
-	return (
-		<CollapsibleTable
-			headers={
-				<>
-					<TableCell align="center">{t('version')}</TableCell>
-					<TableCell align="center">{t('dateCreated')}</TableCell>
-					<TableCell align="center">{t('lastUpdated')}</TableCell>
-					<TableCell align="center">{t('status')}</TableCell>
-					<TableCell />
-				</>
-			}
-			rows={rows}
-			getCell={(row) => (
-				<CollapsibleTableRow
-					key={row.version}
-					cells={
-						<>
-							<TableCell align="center" component="th" scope="row">
-								{row.version}
-							</TableCell>
-							<TableCell align="center">{row.dateCreated}</TableCell>
-							<TableCell align="center">{row.lastUpdated}</TableCell>
-							<TableCell align="center">{row.status}</TableCell>
-							<TableCell align="right">
-								<Stack direction="row" justifyContent={'flex-end'}>
-									<Button>{t('seeDetail')}</Button>
-									<Button>{t('edit')}</Button>
-									<Button>{t('delete')}</Button>
-								</Stack>
-							</TableCell>
-						</>
-					}
-				/>
-			)}
-		/>
-	);
-}
+import { selectAllProductVersions } from '../../redux/slices/ProductVersionSlice';
+import { Column } from '../../components/FilterableTable';
 
 export default function ProductManagementPage() {
 	const { t } = useTranslation('standard');
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const products = useAppSelector(selectAllProducts);
+	// const { data, error, isLoading } = useGetAllProductsByUserId(
+	// 	'd28bf637-280e-49b5-b575-5278b34d1dfe',
+	// );
+	const productVersions = useAppSelector(selectAllProductVersions);
 
 	const handleDelete = (id: string) => {
 		dispatch(deleteProductById(id));
 		alert(`Đã xóa sản phẩm ${id}`);
 	};
 
-	// const handleModifyProduct = () => {
+	const columns: Column[] = [
+		{ key: 'version', label: 'Phiên bản', filterable: true },
+		{ key: 'createdAt', label: 'Thời gian tạo', filterable: true },
+		{ key: 'updatedAt', label: 'Cập nhật lần cuối', filterable: true },
+		{ key: 'status', label: 'Trạng thái', filterable: true },
+	];
+	const handleAction = (action: string, rowData: object) => {
+		console.log(action, rowData);
+	};
 
-	// }
+	// if (data == undefined) return <></>;
 
 	return (
 		<Box>
 			<Stack
 				direction="row"
-				justifyContent="flex-end"
+				justifyContent="space-between"
 				alignItems="center"
 				sx={{ marginBottom: 1 }}
 			>
+				<FilterAction
+					entries={[
+						{ value: 'test', label: 'Test' },
+						{ value: 'test2', label: 'Test2' },
+					]}
+					onFilterClick={(value, entry) => {
+						console.log(value, entry);
+					}}
+				/>
 				<Button variant="contained" onClick={() => navigate('/create-product')}>
 					{t('addProduct')}
 				</Button>
@@ -129,8 +89,12 @@ export default function ProductManagementPage() {
 								<TableCell align="justify" component="th" scope="row">
 									{row.name}
 								</TableCell>
-								<TableCell align="center">{row.dateCreated}</TableCell>
-								<TableCell align="center">{row.lastUpdated}</TableCell>
+								<TableCell align="center">
+									{row.dateCreated.toLocaleString()}
+								</TableCell>
+								<TableCell align="center">
+									{row.lastUpdated.toLocaleString()}
+								</TableCell>
 								<TableCell align="center">{row.status}</TableCell>
 								<TableCell align="center">
 									<IconButton
@@ -147,7 +111,7 @@ export default function ProductManagementPage() {
 						inner={
 							<>
 								<Typography variant="caption" gutterBottom component="div">
-									ID: 3b5af8db-09ed-4e92-910b-f6889c55cdef
+									ID: {row.id}
 								</Typography>
 								<Box
 									component="form"
@@ -161,41 +125,30 @@ export default function ProductManagementPage() {
 									noValidate
 									autoComplete="off"
 								>
-									<TextField
-										id="outlined-multiline-static"
-										label={t('description')}
-										multiline
-										rows={10}
-										defaultValue={row.description}
+									<Stack
+										mt={1}
+										mb={2}
 										sx={{
 											width: '100%',
 										}}
-										disabled
-									/>
-									<Stack
-										direction="row"
-										alignItems={'center'}
-										justifyContent={'space-between'}
 									>
-										<FilterAction
-											entries={[
-												{ value: 'test', label: 'Test' },
-												{ value: 'test2', label: 'Test2' },
-											]}
-											onFilterClick={(value, entry) => {
-												console.log(value, entry);
-											}}
-										/>
-										{/* <TableInDetail /> */}
-										<Button
-											variant="contained"
-											size="large"
-											onClick={() => navigate('/create-version-product')}
-										>
-											{t('addVersion')}
-										</Button>
+										<TextEditor value={row.description} readOnly />
 									</Stack>
-									<InnerTable />
+
+									<div>
+										<FilterableTable
+											columns={columns}
+											data={productVersions.filter(
+												(version) => version.productId === row.id,
+											)}
+											onAction={handleAction}
+											onButtonAdd={() =>
+												navigate(`/product/${row.id}/create-version`)
+											}
+											addButtonText={t('addVersion')}
+											filterableColumns={['version', 'status']}
+										/>
+									</div>
 								</Box>
 							</>
 						}
