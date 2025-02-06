@@ -77,5 +77,6 @@
 
 	"addModuleDesignDocument": "Thêm tài liệu thiết kế module",
 	"moduleDesignDocumentName": "Tên tài liệu thiết kế module",
-	"moduleDesignDocumentDescription": "Mô tả tài liệu thiết kế module"
+	"moduleDesignDocumentDescription": "Mô tả tài liệu thiết kế module",
+	"fetchError": "Không thể tải dữ liệu từ máy chủ."
 }

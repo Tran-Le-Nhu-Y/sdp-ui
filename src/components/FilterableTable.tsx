@@ -39,7 +39,10 @@ export interface Filter {
 export interface FilterableTableProps {
 	columns: Column[];
 	data: Record<string, string | boolean | Date | number>[];
-	onAction?: (action: string, rowData: object) => void;
+	onAction?: (
+		action: string,
+		rowData: Record<string, string | boolean | number | Date>
+	) => void;
 	onButtonAdd?: () => void;
 	addButtonText?: string;
 	filterableColumns?: string[]; // Danh sách các key cột có thể lọc
@@ -73,7 +76,7 @@ function FilterableTable({
 	const updateFilter = (
 		index: number,
 		key: keyof Filter,
-		value: string | number,
+		value: string | number
 	) => {
 		const newFilters = [...filters];
 		newFilters[index] = { ...newFilters[index], [key]: value };
@@ -89,7 +92,7 @@ function FilterableTable({
 	};
 
 	const handleChangeRowsPerPage = (
-		event: React.ChangeEvent<HTMLInputElement>,
+		event: React.ChangeEvent<HTMLInputElement>
 	) => {
 		setRowsPerPage(parseInt(event.target.value, 10));
 		setPage(0);

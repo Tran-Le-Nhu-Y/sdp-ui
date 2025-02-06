@@ -111,7 +111,7 @@ export default function DeployManagementPage() {
 	];
 	const handleAction = (
 		action: string,
-		rowData: Record<string, string | number | Date>,
+		rowData: Record<string, string | number | boolean | Date>
 	) => {
 		console.log(action, rowData);
 	};
