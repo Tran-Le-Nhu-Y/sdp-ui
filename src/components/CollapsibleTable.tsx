@@ -100,18 +100,23 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
 }
 
 interface CollapsibleTableProps<T> {
-	headers: React.JSX.Element;
+	headers: JSX.Element;
 	rows: T[];
-	getCell: (row: T) => React.JSX.Element;
+	count: number;
+	pageNumber?: number;
+	pageSize?: number;
+	onPageChange: (newPage: TablePage) => void;
+	getCell: (row: T) => JSX.Element;
 }
 
 interface CollapsibleTableRowProps {
-	cells: React.JSX.Element;
-	inner?: React.JSX.Element | undefined;
+	cells: JSX.Element;
+	inner?: JSX.Element | undefined;
+	onExpand?: () => void;
 }
 
 function CollapsibleTableRow(props: CollapsibleTableRowProps) {
-	const { cells, inner } = props;
+	const { cells, inner, onExpand } = props;
 	const [open, setOpen] = React.useState(false);
 
 	return (
@@ -123,7 +128,10 @@ function CollapsibleTableRow(props: CollapsibleTableRowProps) {
 						<IconButton
 							aria-label="expand row"
 							size="small"
-							onClick={() => setOpen(!open)}
+							onClick={() => {
+								onExpand?.call(null);
+								setOpen(!open);
+							}}
 						>
 							{open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
 						</IconButton>
@@ -144,9 +152,9 @@ function CollapsibleTableRow(props: CollapsibleTableRowProps) {
 }
 
 function CollapsibleTable<T>(props: CollapsibleTableProps<T>) {
-	const { headers, rows, getCell } = props;
-	const [page, setPage] = React.useState(0);
-	const [rowsPerPage, setRowsPerPage] = React.useState(5);
+	const { headers, rows, count, onPageChange, getCell } = props;
+	const page = props.pageNumber ?? 0;
+	const rowsPerPage = props.pageSize ?? 5;
 
 	// Avoid a layout jump when reaching the last page with empty rows.
 	const emptyRows =
@@ -156,14 +164,13 @@ function CollapsibleTable<T>(props: CollapsibleTableProps<T>) {
 		_event: React.MouseEvent<HTMLButtonElement> | null,
 		newPage: number,
 	) => {
-		setPage(newPage);
+		onPageChange({ pageNumber: newPage, pageSize: rowsPerPage });
 	};
 
 	const handleChangeRowsPerPage = (
 		event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
 	) => {
-		setRowsPerPage(parseInt(event.target.value, 10));
-		setPage(0);
+		onPageChange({ pageNumber: 0, pageSize: parseInt(event.target.value, 10) });
 	};
 
 	return (
@@ -188,7 +195,7 @@ function CollapsibleTable<T>(props: CollapsibleTableProps<T>) {
 						<TablePagination
 							rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
 							colSpan={6}
-							count={rows.length}
+							count={count}
 							rowsPerPage={rowsPerPage}
 							page={page}
 							slotProps={{
@@ -212,236 +219,3 @@ function CollapsibleTable<T>(props: CollapsibleTableProps<T>) {
 
 export { CollapsibleTable, CollapsibleTableRow };
 export type { CollapsibleTableProps, CollapsibleTableRowProps };
-
-/*
-function createData(
-	name: string,
-	dateCreated: number,
-	lastUpdated: number,
-	status: number,
-) {
-	return {
-		name,
-		dateCreated,
-		lastUpdated,
-		status,
-	};
-}
-
-function Row(props: { row: ReturnType<typeof createData> }) {
-	const { row } = props;
-	const [open, setOpen] = React.useState(false);
-
-	const currencies = [
-		{
-			value: 'USD',
-			label: '$',
-		},
-		{
-			value: 'EUR',
-			label: '€',
-		},
-		{
-			value: 'BTC',
-			label: '฿',
-		},
-		{
-			value: 'JPY',
-			label: '¥',
-		},
-	];
-
-	return (
-		<React.Fragment>
-			<TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-				<TableCell align="justify" component="th" scope="row">
-					{row.name}
-				</TableCell>
-				<TableCell align="center">{row.dateCreated}</TableCell>
-				<TableCell align="center">{row.lastUpdated}</TableCell>
-				<TableCell align="center">{row.status}</TableCell>
-				<TableCell align="center">
-					<IconButton>
-						<EditIcon color="info" />
-					</IconButton>
-					<IconButton>
-						<DeleteIcon color="error" />
-					</IconButton>
-				</TableCell>
-				<TableCell>
-					<IconButton
-						aria-label="expand row"
-						size="small"
-						onClick={() => setOpen(!open)}
-					>
-						{open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-					</IconButton>
-				</TableCell>
-			</TableRow>
-			<TableRow>
-				<TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-					<Collapse in={open} timeout="auto" unmountOnExit>
-						<Box sx={{ margin: 1 }}>
-							<Typography variant="caption" gutterBottom component="div">
-								ID: 3b5af8db-09ed-4e92-910b-f6889c55cdef
-							</Typography>
-							<Box
-								component="form"
-								sx={{
-									'& .MuiTextField-root': {
-										marginBottom: 1,
-										marginTop: 1,
-										width: '100%',
-									},
-								}}
-								noValidate
-								autoComplete="off"
-							>
-								<TextField
-									id="outlined-multiline-static"
-									label={t('description')}
-									multiline
-									rows={10}
-									defaultValue="Consequat"
-									sx={{
-										width: '100%',
-									}}
-									disabled
-								/>
-								<Stack
-									direction="row"
-									justifyContent="space-between"
-									alignItems="center"
-									sx={{ marginBottom: 1 }}
-								>
-									<Stack direction="row" spacing={1} alignItems="center">
-										<TextField
-											label={t('search') as string}
-											size="small"
-											variant="outlined"
-										/>
-										<TextField
-											id="outlined-select-currency"
-											select
-											label="Select"
-											size="small"
-											//defaultValue="EUR"
-										>
-											{currencies.map((option) => (
-												<MenuItem key={option.value} value={option.value}>
-													{option.label}
-												</MenuItem>
-											))}
-										</TextField>
-										<IconButton aria-label="filter" color="primary">
-											<FilterAltIcon />
-										</IconButton>
-									</Stack>
-									<Button variant="contained">{t('addVersion')}</Button>
-								</Stack>
-								<CustomPaginationActionsTable />
-							</Box>
-						</Box>
-					</Collapse>
-				</TableCell>
-			</TableRow>
-		</React.Fragment>
-	);
-}
-
-const rows = [
-	createData('Frozen yoghurt', 159, 6.0, 24),
-	createData('Ice cream sandwich', 237, 9.0, 37),
-	createData('Eclair', 262, 16.0, 24),
-	createData('Cupcake', 305, 3.7, 67),
-	createData('Gingerbread', 356, 16.0, 49),
-	createData('Gingerbread', 356, 16.0, 49),
-	createData('Gingerbread', 356, 16.0, 49),
-	createData('Gingerbread', 356, 16.0, 49),
-	createData('Gingerbread', 356, 16.0, 49),
-	createData('Gingerbread', 356, 16.0, 49),
-	createData('Gingerbread', 356, 16.0, 49),
-	createData('Gingerbread', 356, 16.0, 49),
-	createData('Gingerbread', 356, 16.0, 49),
-	createData('Gingerbread', 356, 16.0, 49),
-	createData('Gingerbread', 356, 16.0, 49),
-	createData('Gingerbread', 356, 16.0, 49),
-	createData('Gingerbread', 356, 16.0, 49),
-];
-
-export default function CollapsibleTable() {
-	const { t } = useTranslation();
-	const [page, setPage] = React.useState(0);
-	const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
-	// Avoid a layout jump when reaching the last page with empty rows.
-	const emptyRows =
-		page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
-
-	const handleChangePage = (
-		_event: React.MouseEvent<HTMLButtonElement> | null,
-		newPage: number,
-	) => {
-		setPage(newPage);
-	};
-
-	const handleChangeRowsPerPage = (
-		event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-	) => {
-		setRowsPerPage(parseInt(event.target.value, 10));
-		setPage(0);
-	};
-
-	return (
-		<TableContainer component={Paper}>
-			<Table aria-label="collapsible table">
-				<TableHead>
-					<TableRow>
-						<TableCell>{t('productName')}</TableCell>
-						<TableCell align="center">{t('dateCreated')}</TableCell>
-						<TableCell align="center">{t('lastUpdated')}</TableCell>
-						<TableCell align="center">{t('status')}</TableCell>
-						<TableCell />
-						<TableCell />
-					</TableRow>
-				</TableHead>
-				<TableBody>
-					{(rowsPerPage > 0
-						? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-						: rows
-					).map((row) => (
-						<Row key={row.name} row={row} />
-					))}
-					{emptyRows > 0 && (
-						<TableRow style={{ height: 53 * emptyRows }}>
-							<TableCell colSpan={6} />
-						</TableRow>
-					)}
-				</TableBody>
-				<TableFooter>
-					<TableRow>
-						<TablePagination
-							rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-							colSpan={6}
-							count={rows.length}
-							rowsPerPage={rowsPerPage}
-							page={page}
-							slotProps={{
-								select: {
-									inputProps: {
-										'aria-label': 'rows per page',
-									},
-									native: true,
-								},
-							}}
-							onPageChange={handleChangePage}
-							onRowsPerPageChange={handleChangeRowsPerPage}
-							ActionsComponent={TablePaginationActions}
-						/>
-					</TableRow>
-				</TableFooter>
-			</Table>
-		</TableContainer>
-	);
-}
-*/

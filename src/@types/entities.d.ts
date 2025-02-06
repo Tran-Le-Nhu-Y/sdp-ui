@@ -10,21 +10,26 @@ declare interface DocumentLabel {
 	description: string;
 	color: string;
 }
-declare interface ProductVersion extends Record<string, string> {
+declare interface ProductVersion {
 	id: string;
 	productId: string;
-	version: string;
-	changelog: string;
+	name: string;
 	createdAt: string;
-	updatedAt: string;
-	status: string;
-	// files: File[];
+	updatedAt: string?;
+	status: 'ACTIVE' | 'INACTIVE';
 }
+
+declare interface ProductVersionChangelog {
+	id: string;
+	versionId: string;
+	name: string;
+}
+
 declare interface Product {
 	id: string;
 	name: string;
 	description: string;
-	dateCreated: Date;
-	lastUpdated: Date;
+	createdAt: string;
+	updatedAt: string?;
 	status: 'ACTIVE' | 'INACTIVE';
 }

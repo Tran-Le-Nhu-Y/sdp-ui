@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import FilterableTable from '../../components/FilterableTable';
 import { useNavigate } from 'react-router-dom';
+import { FilterableTable } from '../../components';
 
 export default function ProductDesignDocumentPage() {
 	const { t } = useTranslation();
@@ -98,14 +98,14 @@ export default function ProductDesignDocumentPage() {
 
 	return (
 		<div>
-			<FilterableTable
+			{/* <FilterableTable
 				columns={columns}
 				data={data}
 				onAction={handleAction}
-				onButtonAdd={() => navigate('/create-product-design-document')}
+				onAddFilter={() => navigate('/create-product-design-document')}
 				addButtonText={t('addDocument')}
 				filterableColumns={['id', 'label', 'name', 'product']}
-			/>
+			/> */}
 		</div>
 	);
 }

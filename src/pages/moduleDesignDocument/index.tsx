@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import FilterableTable from '../../components/FilterableTable';
+import { FilterableTable } from '../../components';
 import { useNavigate } from 'react-router-dom';
 
 export default function ModuleDesignDocumentPage() {
@@ -98,14 +98,14 @@ export default function ModuleDesignDocumentPage() {
 
 	return (
 		<div>
-			<FilterableTable
+			{/* <FilterableTable
 				columns={columns}
 				data={data}
 				onAction={handleAction}
-				onButtonAdd={() => navigate('/create-module-design-document')}
+				onAddFilter={() => navigate('/create-module-design-document')}
 				addButtonText={t('addDocument')}
 				filterableColumns={['id', 'label', 'name', 'product']}
-			/>
+			/> */}
 		</div>
 	);
 }

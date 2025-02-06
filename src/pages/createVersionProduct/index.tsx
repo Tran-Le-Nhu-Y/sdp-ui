@@ -23,7 +23,7 @@ export default function CreateVersionProductPage() {
 		const newProductVersion: ProductVersion = {
 			id: crypto.randomUUID(),
 			productId: productId,
-			version: data.productNameProp,
+			name: data.productNameProp,
 			changelog: data.descriptionProp,
 			createdAt: new Date().toLocaleString(),
 			updatedAt: new Date().toLocaleString(),

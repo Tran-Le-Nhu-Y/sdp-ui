@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import FilterableTable from '../../components/FilterableTable';
 import { useNavigate } from 'react-router-dom';
+import { FilterableTable } from '../../components';
 
 export default function DeployManagementPage() {
 	const { t } = useTranslation();
@@ -111,18 +111,18 @@ export default function DeployManagementPage() {
 	];
 	const handleAction = (
 		action: string,
-		rowData: Record<string, string | number | boolean | Date>
+		rowData: Record<string, string | number | boolean | Date>,
 	) => {
 		console.log(action, rowData);
 	};
 
 	return (
 		<div>
-			<FilterableTable
+			{/* <FilterableTable
 				columns={columns}
 				data={data}
 				onAction={handleAction}
-				onButtonAdd={() => navigate('/create-deploy-document')}
+				onAddFilter={() => navigate('/create-deploy-document')}
 				addButtonText={t('addDocument')}
 				filterableColumns={[
 					'id',
@@ -132,7 +132,7 @@ export default function DeployManagementPage() {
 					'module',
 					'moduleVersion',
 				]}
-			/>
+			/> */}
 		</div>
 	);
 }

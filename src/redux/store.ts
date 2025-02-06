@@ -1,20 +1,26 @@
 import { configureStore } from '@reduxjs/toolkit';
 import documentLabelReducer from './slices/DocumentLabelSlice';
 import fileReducer from './slices/FileSlice';
+import productReducer from './slices/ProductSlice';
 import productVersionReducer from './slices/ProductVersionSlice';
-import { productApi } from '../services';
+import { productApi, productVersionApi } from '../services';
 
 export const store = configureStore({
 	reducer: {
 		labels: documentLabelReducer,
-		[productApi.reducerPath]: productApi.reducer,
-		files: fileReducer,
+		products: productReducer,
 		productVersions: productVersionReducer,
+		files: fileReducer,
+		[productApi.reducerPath]: productApi.reducer,
+		[productVersionApi.reducerPath]: productVersionApi.reducer,
 	},
 	// Adding the api middleware enables caching, invalidation, polling,
 	// and other useful features of `rtk-query`.
 	middleware(getDefaultMiddleware) {
-		return getDefaultMiddleware().concat(productApi.middleware);
+		return getDefaultMiddleware().concat(
+			productApi.middleware,
+			productVersionApi.middleware,
+		);
 	},
 });
 

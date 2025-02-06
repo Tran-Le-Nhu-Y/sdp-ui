@@ -13,42 +13,53 @@ import {
 	LinearProgress,
 	Stack,
 	TableCell,
+	TableRow,
 	Typography,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useNavigate } from 'react-router-dom';
 import { deleteProductById } from '../../redux/slices/ProductSlice';
-import { useAppSelector } from '../../hooks/useRedux';
 import { useDispatch } from 'react-redux';
-import { selectAllProductVersions } from '../../redux/slices/ProductVersionSlice';
-import { useGetAllProductsByUserId } from '../../services';
+import {
+	useGetAllProductsByUserId,
+	useGetAllVersionsByProductId,
+} from '../../services';
 import { useNotifications } from '@toolpad/core';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function ProductManagementPage() {
 	const { t } = useTranslation('standard');
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
-	const { data, error, isLoading } = useGetAllProductsByUserId({
-		userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+
+	const [productTablePage, setProductTablePage] = useState<TablePage>({
 		pageNumber: 0,
-		pageSize: 3,
+		pageSize: 5,
 	});
-	const productVersions = useAppSelector(selectAllProductVersions);
+	const products = useGetAllProductsByUserId({
+		userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+		...productTablePage,
+	});
+
+	const [currVerProps, setCurrVerProps] = useState({
+		productId: '',
+		versionName: '',
+		status: false,
+		pageNumber: 0,
+		pageSize: 5,
+	});
+	const versions = useGetAllVersionsByProductId(currVerProps);
 
 	const notifications = useNotifications();
 	useEffect(() => {
-		if (error) notifications.show(t('fetchError'), { severity: 'error' });
-	}, [error, notifications, t]);
+		if (products.error)
+			notifications.show(t('fetchError'), { severity: 'error' });
+	}, [notifications, products.error, t]);
 
 	const handleDelete = (id: string) => {
 		dispatch(deleteProductById(id));
 		alert(`Đã xóa sản phẩm ${id}`);
-	};
-
-	const handleAction = (action: string, rowData: object) => {
-		console.log(action, rowData);
 	};
 
 	return (
@@ -70,27 +81,38 @@ export default function ProductManagementPage() {
 				/>
 				<Button
 					variant="contained"
-					onClick={() => navigate(RoutePaths.CREATE_PRODUCT)}
+					// onClick={() => navigate(RoutePaths.CREATE_PRODUCT)}
+					onClick={() => navigate('/create-product')}
 				>
 					{t('addProduct')}
 				</Button>
 			</Stack>
 
-			{isLoading ? (
+			{products.isLoading ? (
 				<LinearProgress />
 			) : (
 				<CollapsibleTable
 					headers={
 						<>
-							<TableCell>{t('productName')}</TableCell>
-							<TableCell align="center">{t('dateCreated')}</TableCell>
-							<TableCell align="center">{t('lastUpdated')}</TableCell>
-							<TableCell align="center">{t('status')}</TableCell>
+							<TableCell key="name">{t('productName')}</TableCell>
+							<TableCell key="createdAt" align="center">
+								{t('dateCreated')}
+							</TableCell>
+							<TableCell key="updatedAt" align="center">
+								{t('lastUpdated')}
+							</TableCell>
+							<TableCell key="status" align="center">
+								{t('status')}
+							</TableCell>
 							<TableCell />
 							<TableCell />
 						</>
 					}
-					rows={data ?? []}
+					rows={products.data?.content ?? []}
+					count={products.data?.totalPages ?? 0}
+					pageNumber={productTablePage.pageNumber}
+					pageSize={productTablePage.pageSize}
+					onPageChange={(newPage) => setProductTablePage(newPage)}
 					getCell={(row) => (
 						<CollapsibleTableRow
 							key={row.id}
@@ -99,12 +121,8 @@ export default function ProductManagementPage() {
 									<TableCell align="justify" component="th" scope="row">
 										{row.name}
 									</TableCell>
-									<TableCell align="center">
-										{row.dateCreated.toLocaleString()}
-									</TableCell>
-									<TableCell align="center">
-										{row.lastUpdated.toLocaleString()}
-									</TableCell>
+									<TableCell align="center">{row.createdAt}</TableCell>
+									<TableCell align="center">{row.updatedAt ?? ''}</TableCell>
 									<TableCell align="center">{row.status}</TableCell>
 									<TableCell align="center">
 										<IconButton
@@ -149,42 +167,102 @@ export default function ProductManagementPage() {
 
 										<div>
 											<FilterableTable
-												columns={[
+												filterableCols={[
 													{
-														key: 'version',
+														key: 'name',
 														label: 'Phiên bản',
-														filterable: true,
 													},
-													{
-														key: 'createdAt',
-														label: 'Thời gian tạo',
-														filterable: true,
-													},
-													{
-														key: 'updatedAt',
-														label: 'Cập nhật lần cuối',
-														filterable: true,
-													},
+													// {
+													// 	key: 'createdAt',
+													// 	label: 'Thời gian tạo',
+													// },
+													// {
+													// 	key: 'updatedAt',
+													// 	label: 'Cập nhật lần cuối',
+													// },
 													{
 														key: 'status',
 														label: 'Trạng thái',
-														filterable: true,
 													},
 												]}
-												data={productVersions.filter(
-													(version) => version.productId === row.id
+												headers={
+													<>
+														<TableCell key={`product-${row.id}-name`}>
+															{t('productName')}
+														</TableCell>
+														<TableCell
+															key={`product-${row.id}-createdAt`}
+															align="center"
+														>
+															{t('dateCreated')}
+														</TableCell>
+														<TableCell
+															key={`product-${row.id}-updatedAt`}
+															align="center"
+														>
+															{t('lastUpdated')}
+														</TableCell>
+														<TableCell
+															key={`product-${row.id}-status`}
+															align="center"
+														>
+															{t('status')}
+														</TableCell>
+														<TableCell />
+														<TableCell />
+													</>
+												}
+												getCell={(row) => (
+													<TableRow key={`product_verion-${row.id}`}>
+														<TableCell>{row.name}</TableCell>
+														<TableCell align="center">
+															{row.createdAt}
+														</TableCell>
+														<TableCell align="center">
+															{row.updatedAt}
+														</TableCell>
+														<TableCell align="center">{row.status}</TableCell>
+														<TableCell>
+															<Stack>
+																<Button size="small" onClick={() => {}}>
+																	{t('seeDetail')}
+																</Button>
+																<Button size="small" onClick={() => {}}>
+																	{t('edit')}
+																</Button>
+																<Button size="small" onClick={() => {}}>
+																	{t('delete')}
+																</Button>
+															</Stack>
+														</TableCell>
+													</TableRow>
 												)}
-												onAction={handleAction}
-												onButtonAdd={() =>
+												count={0}
+												rows={versions?.data?.content ?? []}
+												onAddFilter={() =>
 													navigate(`/product/${row.id}/create-version`)
 												}
 												addButtonText={t('addVersion')}
-												filterableColumns={['version', 'status']}
+												onPageChange={(newPage) =>
+													setCurrVerProps({
+														...currVerProps,
+														...newPage,
+													})
+												}
 											/>
 										</div>
 									</Box>
 								</>
 							}
+							onExpand={() => {
+								setCurrVerProps({
+									productId: row.id,
+									versionName: '',
+									status: false,
+									pageNumber: 0,
+									pageSize: 5,
+								});
+							}}
 						/>
 					)}
 				/>

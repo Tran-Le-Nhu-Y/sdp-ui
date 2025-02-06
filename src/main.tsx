@@ -29,7 +29,6 @@ import HydrateFallback from './components/HydrateFallback.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
 //import CreateModifyVersionForm from './components/CreateModifyVersionForm.tsx';
-import ExamplePage from './pages/test/index.tsx';
 
 const router = createBrowserRouter(
 	createRoutesFromElements(
@@ -84,10 +83,10 @@ const router = createBrowserRouter(
 						/>
 					}
 				/> */}
-				<Route path="test" element={<ExamplePage />} />
+				<Route path="test" element={<ProductVersionDetail />} />
 			</Route>
-		</Route>
-	)
+		</Route>,
+	),
 );
 
 createRoot(document.getElementById('root')!).render(
@@ -95,5 +94,5 @@ createRoot(document.getElementById('root')!).render(
 		<Provider store={store}>
 			<RouterProvider router={router} />
 		</Provider>
-	</StrictMode>
+	</StrictMode>,
 );

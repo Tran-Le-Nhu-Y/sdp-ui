@@ -6,7 +6,7 @@ import FilterAction from './FilterAction';
 import CreateOrModifyForm from './CreateOrModifyForm';
 import CreateModifyVersionForm from './CreateModifyVersionForm';
 import DragAndDropForm from './DragAndDropForm';
-import FilterableTable from './FilterableTable';
+import { FilterableTable } from './FilterableTable';
 import TextEditor from './TextEditor';
 
 export {

@@ -18,65 +18,70 @@ import {
 	DialogContent,
 	DialogTitle,
 	Stack,
+	TableFooter,
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useTranslation } from 'react-i18next';
+import TablePaginationActions from '@mui/material/TablePagination/TablePaginationActions';
 
-export interface Column {
+const DEFAULT_FILTER: Omit<Filter, 'label'> = {
+	key: 'default',
+};
+
+interface Filter {
 	key: string;
 	label: string;
-	filterable?: boolean;
 }
-
-export interface Filter {
-	columnKey: string;
+interface FilterResult extends Omit<Filter, 'label'> {
 	operator: 'contains' | 'equals';
 	value: string | number;
 }
 
-export interface FilterableTableProps {
-	columns: Column[];
-	data: Record<string, string | boolean | Date | number>[];
-	onAction?: (
-		action: string,
-		rowData: Record<string, string | boolean | number | Date>
-	) => void;
-	onButtonAdd?: () => void;
+interface FilterableTableProps<T> {
+	filterableCols: Filter[];
+	headers: JSX.Element;
+	rows: T[];
+	count: number;
+	pageNumber?: number;
+	pageSize?: number;
 	addButtonText?: string;
-	filterableColumns?: string[]; // Danh sách các key cột có thể lọc
+	onPageChange: (newPage: TablePage) => void;
+	getCell: (row: T) => React.JSX.Element;
+	onAddFilter?: () => void;
 }
 
-function FilterableTable({
-	columns,
-	data,
-	onAction,
-	onButtonAdd,
-	addButtonText,
-}: FilterableTableProps) {
-	const [filters, setFilters] = useState<Filter[]>([]);
-	const [page, setPage] = useState(0);
-	const [rowsPerPage, setRowsPerPage] = useState(5);
+function FilterableTable<T>(props: FilterableTableProps<T>) {
+	const {
+		filterableCols,
+		headers,
+		rows,
+		addButtonText,
+		onAddFilter,
+		count,
+		onPageChange,
+		getCell,
+	} = props;
+	const [filters, setFilters] = useState<FilterResult[]>([]);
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const { t } = useTranslation('standard');
+	const page = props.pageNumber ?? 0;
+	const rowsPerPage = props.pageSize ?? 5;
 
 	const resetFilter = () => {
 		setFilters([]); // Reset bộ lọc về rỗng
-		//setPage(0); // Quay về trang đầu
+		onPageChange({ pageNumber: 0, pageSize: rowsPerPage });
 	};
 
 	const addFilter = () => {
-		setFilters([
-			...filters,
-			{ columnKey: '', operator: 'contains', value: '' },
-		]);
+		setFilters([...filters, { key: '', operator: 'contains', value: '' }]);
 	};
 
-	const updateFilter = (
+	const updateFilters = (
 		index: number,
-		key: keyof Filter,
-		value: string | number
+		key: keyof FilterResult,
+		value: string | number,
 	) => {
 		const newFilters = [...filters];
 		newFilters[index] = { ...newFilters[index], [key]: value };
@@ -87,19 +92,25 @@ function FilterableTable({
 		setFilters(filters.filter((_, i) => i !== index));
 	};
 
-	const handleChangePage = (_event: unknown, newPage: number) => {
-		setPage(newPage);
+	const applyFilters = () => {
+		setDialogOpen(false);
+	};
+
+	// Avoid a layout jump when reaching the last page with empty rows.
+	const emptyRows =
+		page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+
+	const handleChangePage = (
+		_event: React.MouseEvent<HTMLButtonElement> | null,
+		newPage: number,
+	) => {
+		onPageChange({ pageNumber: newPage, pageSize: rowsPerPage });
 	};
 
 	const handleChangeRowsPerPage = (
-		event: React.ChangeEvent<HTMLInputElement>
+		event: React.ChangeEvent<HTMLInputElement>,
 	) => {
-		setRowsPerPage(parseInt(event.target.value, 10));
-		setPage(0);
-	};
-
-	const applyFilters = () => {
-		setDialogOpen(false);
+		onPageChange({ pageNumber: 0, pageSize: parseInt(event.target.value, 10) });
 	};
 
 	return (
@@ -119,15 +130,19 @@ function FilterableTable({
 							}}
 						>
 							<Select
-								value={filter.columnKey}
-								onChange={(e) =>
-									updateFilter(index, 'columnKey', e.target.value)
-								}
+								value={filter.key}
+								onChange={(e) => {
+									const key = e.target.value;
+									const isExist = filters.find((f) => f.key === key);
+									if (isExist) return;
+
+									updateFilters(index, 'key', key);
+								}}
 								displayEmpty
 								style={{ minWidth: '120px' }}
 							>
-								<MenuItem value="">{t('searchBy')}</MenuItem>
-								{columns.map((col) => (
+								<MenuItem value={DEFAULT_FILTER.key}>{t('searchBy')}</MenuItem>
+								{filterableCols.map((col) => (
 									<MenuItem key={col.key} value={col.key}>
 										{col.label}
 									</MenuItem>
@@ -136,7 +151,7 @@ function FilterableTable({
 							<Select
 								value={filter.operator}
 								onChange={(e) =>
-									updateFilter(index, 'operator', e.target.value)
+									updateFilters(index, 'operator', e.target.value)
 								}
 								style={{ minWidth: '120px' }}
 							>
@@ -145,7 +160,7 @@ function FilterableTable({
 							</Select>
 							<TextField
 								value={filter.value}
-								onChange={(e) => updateFilter(index, 'value', e.target.value)}
+								onChange={(e) => updateFilters(index, 'value', e.target.value)}
 								placeholder={t('enterValue')}
 							/>
 							<IconButton onClick={() => removeFilter(index)}>
@@ -153,9 +168,11 @@ function FilterableTable({
 							</IconButton>
 						</div>
 					))}
-					<Button variant="contained" onClick={addFilter}>
-						{t('add')}
-					</Button>
+					{filters.length !== filterableCols.length && (
+						<Button variant="contained" onClick={addFilter}>
+							{t('add')}
+						</Button>
+					)}
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={() => setDialogOpen(false)}>{t('cancel')}</Button>
@@ -180,74 +197,56 @@ function FilterableTable({
 					</IconButton>
 				</Stack>
 
-				<Button variant="contained" onClick={onButtonAdd}>
+				<Button variant="contained" onClick={onAddFilter}>
 					{addButtonText || t('add')}
 				</Button>
 			</div>
 
 			{/* Table Section */}
-			<TableContainer>
+			<TableContainer aria-label="filterable table">
 				<Table>
 					<TableHead>
-						<TableRow>
-							{columns.map((col) => (
-								<TableCell key={col.key}>{col.label}</TableCell>
-							))}
-							{onAction && <TableCell></TableCell>}
-						</TableRow>
+						<TableRow>{headers}</TableRow>
 					</TableHead>
 					<TableBody>
-						{data
-							.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-							.map((row, rowIndex) => (
-								<TableRow key={rowIndex}>
-									{columns.map((col) => (
-										<TableCell key={col.key}>
-											{row[col.key]?.toString() || ''}
-										</TableCell>
-									))}
-									{onAction && (
-										<TableCell>
-											<Stack>
-												<Button
-													size="small"
-													onClick={() => onAction('view', row)}
-												>
-													{t('seeDetail')}
-												</Button>
-												<Button
-													size="small"
-													onClick={() => onAction('edit', row)}
-												>
-													{t('edit')}
-												</Button>
-												<Button
-													size="small"
-													onClick={() => onAction('delete', row)}
-												>
-													{t('delete')}
-												</Button>
-											</Stack>
-										</TableCell>
-									)}
-								</TableRow>
-							))}
+						{(rowsPerPage > 0
+							? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+							: rows
+						).map(getCell)}
+						{emptyRows > 0 && (
+							<TableRow style={{ height: 53 * emptyRows }}>
+								<TableCell colSpan={6} />
+							</TableRow>
+						)}
 					</TableBody>
+					<TableFooter>
+						<TableRow>
+							{/* Pagination */}
+							<TablePagination
+								rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+								colSpan={6}
+								count={count}
+								rowsPerPage={rowsPerPage}
+								page={page}
+								slotProps={{
+									select: {
+										inputProps: {
+											'aria-label': 'rows per page',
+										},
+										native: true,
+									},
+								}}
+								onPageChange={handleChangePage}
+								onRowsPerPageChange={handleChangeRowsPerPage}
+								ActionsComponent={TablePaginationActions}
+							/>
+						</TableRow>
+					</TableFooter>
 				</Table>
 			</TableContainer>
-
-			{/* Pagination */}
-			<TablePagination
-				rowsPerPageOptions={[5, 10, 25]}
-				component="div"
-				count={data.length}
-				rowsPerPage={rowsPerPage}
-				page={page}
-				onPageChange={handleChangePage}
-				onRowsPerPageChange={handleChangeRowsPerPage}
-			/>
 		</Paper>
 	);
 }
 
-export default FilterableTable;
+export { FilterableTable };
+export type { FilterResult, FilterableTableProps };

@@ -163,7 +163,7 @@ const ProductVersionDetail = () => {
 						columns={columns}
 						data={data}
 						addButtonText={t('addVersion')}
-						onButtonAdd={() => console.log('Add version')}
+						onAddFilter={() => console.log('Add version')}
 					/>
 				</Card>
 			</Stack>

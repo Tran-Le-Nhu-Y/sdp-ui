@@ -27,7 +27,7 @@ export const slice = createSlice({
 			entityAdapter.updateOne(state, {
 				id: updateProductVersion.id,
 				changes: {
-					version: updateProductVersion.version,
+					name: updateProductVersion.name,
 					changelog: updateProductVersion.changelog,
 				},
 			});

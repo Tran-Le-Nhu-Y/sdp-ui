@@ -2,23 +2,31 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
 // Define a service using a base URL and expected endpoints
-export const productApi = createApi({
-	reducerPath: 'productApi',
+export const productVersionApi = createApi({
+	reducerPath: 'productVersionApi',
 	baseQuery: fetchBaseQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/product/`,
+		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/product/version/`,
 		jsonContentType: 'application/json',
 		timeout: 300000,
 	}),
-	tagTypes: ['PagingProducts'],
+	tagTypes: ['PagingProductVersions'],
 	endpoints: (builder) => ({
-		getAllProductsByUserId: builder.query<
-			PagingWrapper<Product>,
-			{ userId: string; pageNumber: number; pageSize: number }
+		getAllVersionsByProductId: builder.query<
+			PagingWrapper<ProductVersion>,
+			{
+				productId: string;
+				versionName: string;
+				status: boolean;
+				pageNumber: number;
+				pageSize: number;
+			}
 		>({
-			query: ({ userId, pageNumber, pageSize }) => ({
-				url: `${userId}/user`,
+			query: ({ productId, versionName, status, pageNumber, pageSize }) => ({
+				url: `${productId}/product`,
 				method: 'GET',
 				params: {
+					versionName,
+					isUsed: status,
 					pageNumber,
 					pageSize,
 				},
@@ -34,7 +42,7 @@ export const productApi = createApi({
 			providesTags(result) {
 				return [
 					{
-						type: 'PagingProducts',
+						type: 'PagingProductVersions',
 						id: `${result?.number}-${result?.totalPages}-${result?.numberOfElements}-${result?.size}-${result?.totalElements}`,
 					},
 				];
@@ -42,19 +50,23 @@ export const productApi = createApi({
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
 			},
-			transformResponse(rawResult: PagingWrapper<ProductResponse>) {
+			transformResponse(
+				rawResult: PagingWrapper<ProductVersionResponse>,
+				_meta,
+				arg,
+			) {
 				const content = rawResult.content.map((response) => {
-					const product: Product = {
+					const version: ProductVersion = {
 						id: response.id,
-						name: response.name,
-						description: response.description,
+						productId: arg.productId,
+						name: response.versionName,
 						createdAt: new Date(response.createdAtMillis).toLocaleString(),
 						updatedAt: response.updatedAtMillis
 							? new Date(response.updatedAtMillis).toLocaleString()
 							: '',
 						status: response.isUsed ? 'ACTIVE' : 'INACTIVE',
 					};
-					return product;
+					return version;
 				});
 				return {
 					...rawResult,
@@ -67,4 +79,4 @@ export const productApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetAllProductsByUserIdQuery } = productApi;
+export const { useGetAllVersionsByProductIdQuery } = productVersionApi;
