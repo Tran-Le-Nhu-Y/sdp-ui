@@ -5,7 +5,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const productVersionApi = createApi({
 	reducerPath: 'productVersionApi',
 	baseQuery: fetchBaseQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/product/version/`,
+		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/product/version`,
 		jsonContentType: 'application/json',
 		timeout: 300000,
 	}),
@@ -22,7 +22,7 @@ export const productVersionApi = createApi({
 			}
 		>({
 			query: ({ productId, versionName, status, pageNumber, pageSize }) => ({
-				url: `${productId}/product`,
+				url: `/${productId}/product`,
 				method: 'GET',
 				params: {
 					versionName,
@@ -31,14 +31,6 @@ export const productVersionApi = createApi({
 					pageSize,
 				},
 			}),
-			// Always merge incoming data to the cache entry
-			// merge: (currentCache, newItems) => {
-			// 	currentCache.push(...newItems);
-			// },
-			// Refetch when the page arg changes
-			forceRefetch({ currentArg, previousArg }) {
-				return currentArg !== previousArg;
-			},
 			providesTags(result) {
 				return [
 					{

@@ -1,39 +1,49 @@
 import { useTranslation } from 'react-i18next';
 import { CreateOrModifyForm } from '../../components';
 import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { createProduct } from '../../redux/slices/ProductSlice';
+import { useCreateProduct } from '../../services';
+import { Box, LinearProgress } from '@mui/material';
+import { useNotifications } from '@toolpad/core';
+import { useEffect } from 'react';
 
 export default function CreateProductPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const dispatch = useDispatch();
+	const [createProductTrigger, createProduct] = useCreateProduct();
+	const notifications = useNotifications();
 
-	const handleSubmit = (data: {
+	useEffect(() => {
+		if (createProduct.isError)
+			notifications.show(t('createProductError'), { severity: 'error' });
+		else if (createProduct.isSuccess) navigate(-1); // back to previous page
+	}, [
+		createProduct.isError,
+		createProduct.isSuccess,
+		navigate,
+		notifications,
+		t,
+	]);
+	const handleSubmit = async (data: {
 		productNameProp: string;
 		descriptionProp: string;
 	}) => {
-		const newProduct = {
-			id: `${Math.random()}`,
+		const newProduct: ProductCreatingRequest = {
 			name: data.productNameProp,
 			description: data.descriptionProp,
-			dateCreated: new Date().toLocaleString(),
-			lastUpdated: new Date().toLocaleString(),
-			status: 'Đang hoạt động',
+			userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
 		};
-		dispatch(createProduct(newProduct));
-
-		navigate(-1); // back to previous page
+		await createProductTrigger(newProduct);
 	};
 
 	return (
-		<div>
+		<Box>
+			{createProduct.isLoading && <LinearProgress />}
 			<CreateOrModifyForm
 				title={t('addProduct')}
-				label={`${t('productName')}`}
+				label={t('productName')}
 				onSubmit={handleSubmit}
 				onCancel={() => navigate(-1)}
 			/>
-		</div>
+		</Box>
 	);
 }

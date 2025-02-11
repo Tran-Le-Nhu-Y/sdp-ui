@@ -10,7 +10,6 @@ import {
 	ListItem,
 	ListItemText,
 	TableCell,
-	TableRow,
 	Button,
 	LinearProgress,
 } from '@mui/material';
@@ -18,12 +17,10 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { useTranslation } from 'react-i18next';
 import {
 	CollapsibleTable,
 	CollapsibleTableRow,
-	FilterableTable,
 	FilterAction,
 	TextEditor,
 } from '../../components';
@@ -32,25 +29,25 @@ import { useDispatch, useSelector } from 'react-redux';
 import { selectAllFiles } from '../../redux/slices/FileSlice';
 import { useNavigate } from 'react-router-dom';
 import {
-	deleteModuleById,
-	selectAllModules,
-} from '../../redux/slices/ModuleSlice';
+	deleteInstanceById,
+	selectAllInstances,
+} from '../../redux/slices/InstanceSlice';
 
-const ProductVersionDetailPage = () => {
+const ModuleVersionDetailPage = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const dispatch = useDispatch();
 	const [showChangeLog, setShowChangeLog] = useState(false);
 	const [version] = useState('1.0');
 
-	const [moduleTablePage, setModuleTablePage] = useState<TablePage>({
+	const [instanceTablePage, setInstanceTablePage] = useState<TablePage>({
 		pageNumber: 0,
 		pageSize: 5,
 	});
 
 	const files = useSelector(selectAllFiles);
 
-	const modules = useSelector(selectAllModules);
+	const instances = useSelector(selectAllInstances);
 	// const products = useGetAllProductsByUserId({
 	// 	userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
 	// 	...productTablePage,
@@ -82,7 +79,7 @@ const ProductVersionDetailPage = () => {
 			`Bạn có chắc chắn muốn xóa module ${id}?`,
 		);
 		if (confirmDelete) {
-			dispatch(deleteModuleById(id));
+			dispatch(deleteInstanceById(id));
 			alert(`Đã xóa module ${id}`);
 		}
 	};
@@ -91,7 +88,7 @@ const ProductVersionDetailPage = () => {
 		<Stack>
 			<Stack>
 				<Typography variant="h5" textAlign="center">
-					Tên sản phẩm ở đây
+					Tên module ở đây
 				</Typography>
 				<Typography
 					variant="caption"
@@ -215,7 +212,7 @@ const ProductVersionDetailPage = () => {
 							// onClick={() => navigate(RoutePaths.CREATE_PRODUCT)}
 							onClick={() => navigate('/create-module')}
 						>
-							{t('addModule')}
+							{t('addInstance')}
 						</Button>
 					</Stack>
 
@@ -225,7 +222,7 @@ const ProductVersionDetailPage = () => {
 						<CollapsibleTable
 							headers={
 								<>
-									<TableCell key="name">{t('moduleName')}</TableCell>
+									<TableCell key="name">{t('instanceName')}</TableCell>
 									<TableCell key="createdAt" align="center">
 										{t('dateCreated')}
 									</TableCell>
@@ -239,11 +236,11 @@ const ProductVersionDetailPage = () => {
 									<TableCell />
 								</>
 							}
-							rows={modules}
-							count={modules.length ?? 0}
-							pageNumber={moduleTablePage.pageNumber}
-							pageSize={moduleTablePage.pageSize}
-							onPageChange={(newPage) => setModuleTablePage(newPage)}
+							rows={instances}
+							count={instances.length ?? 0}
+							pageNumber={instanceTablePage.pageNumber}
+							pageSize={instanceTablePage.pageSize}
+							onPageChange={(newPage) => setInstanceTablePage(newPage)}
 							getCell={(row) => (
 								<CollapsibleTableRow
 									key={row.id}
@@ -301,86 +298,6 @@ const ProductVersionDetailPage = () => {
 												>
 													<TextEditor value={row.description} readOnly />
 												</Stack>
-
-												<FilterableTable
-													filterableCols={[
-														{
-															key: 'name',
-															label: 'Phiên bản',
-														},
-													]}
-													headers={
-														<>
-															<TableCell key={`name`}>
-																{t('deployDocumentName')}
-															</TableCell>
-															<TableCell key={`productName`} align="center">
-																{t('productName')}
-															</TableCell>
-															<TableCell key={`productVer`} align="center">
-																{t('version')}
-															</TableCell>
-															<TableCell key={`moduleName`} align="center">
-																{t('moduleName')}
-															</TableCell>
-															<TableCell key={`moduleVer`} align="center">
-																{t('version')}
-															</TableCell>
-															<TableCell key={`createAt`} align="center">
-																{t('dateCreated')}
-															</TableCell>
-															<TableCell key={`updateAt`} align="center">
-																{t('lastUpdated')}
-															</TableCell>
-															<TableCell />
-															<TableCell />
-														</>
-													}
-													count={modules.length ?? 0}
-													rows={modules}
-													pageNumber={moduleTablePage.pageNumber}
-													pageSize={moduleTablePage.pageSize}
-													onPageChange={(newPage) =>
-														setModuleTablePage(newPage)
-													}
-													onAddFilter={() =>
-														navigate(`/create-deploy-document`)
-													}
-													addButtonText={t('addDocument')}
-													getCell={(row) => (
-														<TableRow key={row.id}>
-															<TableCell key={`moduleName`}>
-																{row.name}
-															</TableCell>
-															<TableCell key={`createAt`} align="center">
-																{row.createdAt}
-															</TableCell>
-															<TableCell key={`updateAt`} align="center">
-																{row.updatedAt}
-															</TableCell>
-															<TableCell
-																key={`moduleStatus`}
-																align="center"
-															></TableCell>
-															<TableCell>
-																<Stack direction="row">
-																	<IconButton size="small" onClick={() => {}}>
-																		<RemoveRedEyeIcon />
-																	</IconButton>
-																	<IconButton size="small" onClick={() => {}}>
-																		<EditIcon />
-																	</IconButton>
-																	<IconButton
-																		size="small"
-																		onClick={() => handleDelete(row.id)}
-																	>
-																		<DeleteIcon />
-																	</IconButton>
-																</Stack>
-															</TableCell>
-														</TableRow>
-													)}
-												/>
 											</Box>
 										</>
 									}
@@ -403,4 +320,4 @@ const ProductVersionDetailPage = () => {
 	);
 };
 
-export default ProductVersionDetailPage;
+export default ModuleVersionDetailPage;

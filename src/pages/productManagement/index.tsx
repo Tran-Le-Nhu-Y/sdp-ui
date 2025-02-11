@@ -18,20 +18,21 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { deleteProductById } from '../../redux/slices/ProductSlice';
-import { useDispatch } from 'react-redux';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import {
+	useDeleteProduct,
 	useGetAllProductsByUserId,
 	useGetAllVersionsByProductId,
 } from '../../services';
-import { useNotifications } from '@toolpad/core';
+import { useDialogs, useNotifications } from '@toolpad/core';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export default function ProductManagementPage() {
 	const { t } = useTranslation('standard');
 	const navigate = useNavigate();
-	const dispatch = useDispatch();
+	const notifications = useNotifications();
+	const dialogs = useDialogs();
 
 	const [productTablePage, setProductTablePage] = useState<TablePage>({
 		pageNumber: 0,
@@ -41,6 +42,10 @@ export default function ProductManagementPage() {
 		userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
 		...productTablePage,
 	});
+	useEffect(() => {
+		if (products.isError)
+			notifications.show(t('fetchError'), { severity: 'error' });
+	}, [notifications, products.isError, t]);
 
 	const [currVerProps, setCurrVerProps] = useState({
 		productId: '',
@@ -51,15 +56,21 @@ export default function ProductManagementPage() {
 	});
 	const versions = useGetAllVersionsByProductId(currVerProps);
 
-	const notifications = useNotifications();
+	const [deleteProductTrigger, deleteProduct] = useDeleteProduct();
 	useEffect(() => {
-		if (products.error)
-			notifications.show(t('fetchError'), { severity: 'error' });
-	}, [notifications, products.error, t]);
+		if (deleteProduct.isError)
+			notifications.show(t('deleteProductError'), { severity: 'error' });
+		else if (deleteProduct.isSuccess)
+			notifications.show(t('deleteProductSuccess'), { severity: 'success' });
+	}, [deleteProduct.isError, deleteProduct.isSuccess, notifications, t]);
+	const handleDelete = async (productId: string) => {
+		const confirmed = await dialogs.confirm(t('deleteProductConfirm'), {
+			okText: t('yes'),
+			cancelText: t('cancel'),
+		});
+		if (!confirmed) return;
 
-	const handleDelete = (id: string) => {
-		dispatch(deleteProductById(id));
-		alert(`Đã xóa sản phẩm ${id}`);
+		await deleteProductTrigger(productId);
 	};
 
 	return (
@@ -88,143 +99,146 @@ export default function ProductManagementPage() {
 				</Button>
 			</Stack>
 
-			{products.isLoading ? (
-				<LinearProgress />
-			) : (
-				<CollapsibleTable
-					headers={
-						<>
-							<TableCell key="name">{t('productName')}</TableCell>
-							<TableCell key="createdAt" align="center">
-								{t('dateCreated')}
-							</TableCell>
-							<TableCell key="updatedAt" align="center">
-								{t('lastUpdated')}
-							</TableCell>
-							<TableCell key="status" align="center">
-								{t('status')}
-							</TableCell>
-							<TableCell />
-							<TableCell />
-						</>
-					}
-					rows={products.data?.content ?? []}
-					count={products.data?.totalPages ?? 0}
-					pageNumber={productTablePage.pageNumber}
-					pageSize={productTablePage.pageSize}
-					onPageChange={(newPage) => setProductTablePage(newPage)}
-					getCell={(row) => (
-						<CollapsibleTableRow
-							key={row.id}
-							cells={
-								<>
-									<TableCell align="justify" component="th" scope="row">
-										{row.name}
-									</TableCell>
-									<TableCell align="center">{row.createdAt}</TableCell>
-									<TableCell align="center">{row.updatedAt ?? ''}</TableCell>
-									<TableCell align="center">{row.status}</TableCell>
-									<TableCell align="center">
-										<IconButton
-											onClick={() =>
-												navigate(`${RoutePaths.MODIFY_PRODUCT}/${row.id}`)
-											}
-										>
-											<EditIcon color="info" />
-										</IconButton>
-										<IconButton onClick={() => handleDelete(row.id)}>
-											<DeleteIcon color="error" />
-										</IconButton>
-									</TableCell>
-								</>
-							}
-							inner={
-								<>
-									<Typography variant="caption" gutterBottom component="div">
-										ID: {row.id}
-									</Typography>
-									<Box
-										component="form"
-										sx={{
-											'& .MuiTextField-root': {
-												marginBottom: 1,
-												marginTop: 1,
-												width: '100%',
-											},
-										}}
-										noValidate
-										autoComplete="off"
+			{products.isLoading || (deleteProduct.isLoading && <LinearProgress />)}
+			<CollapsibleTable
+				headers={
+					<>
+						<TableCell key="name">{t('productName')}</TableCell>
+						<TableCell key="createdAt" align="center">
+							{t('dateCreated')}
+						</TableCell>
+						<TableCell key="updatedAt" align="center">
+							{t('lastUpdated')}
+						</TableCell>
+						<TableCell key="status" align="center">
+							{t('status')}
+						</TableCell>
+						<TableCell />
+						<TableCell />
+					</>
+				}
+				rows={products.data?.content ?? []}
+				count={products.data?.totalElements ?? 0}
+				pageNumber={productTablePage.pageNumber}
+				pageSize={productTablePage.pageSize}
+				onPageChange={(newPage) => setProductTablePage(newPage)}
+				getCell={(row) => (
+					<CollapsibleTableRow
+						key={row.id}
+						cells={
+							<>
+								<TableCell align="justify" component="th" scope="row">
+									{row.name}
+								</TableCell>
+								<TableCell align="center">{row.createdAt}</TableCell>
+								<TableCell align="center">{row.updatedAt ?? ''}</TableCell>
+								<TableCell align="center">{t(row.status)}</TableCell>
+								<TableCell align="center">
+									<IconButton
+										onClick={() =>
+											navigate(`${RoutePaths.MODIFY_PRODUCT}/${row.id}`)
+										}
 									>
-										<Stack
-											mt={1}
-											mb={2}
-											sx={{
-												width: '100%',
-											}}
-										>
-											<TextEditor value={row.description} readOnly />
-										</Stack>
+										<EditIcon color="info" />
+									</IconButton>
+									<IconButton onClick={async () => handleDelete(row.id)}>
+										<DeleteIcon color="error" />
+									</IconButton>
+								</TableCell>
+							</>
+						}
+						inner={
+							<>
+								<Typography variant="caption" gutterBottom component="div">
+									ID: {row.id}
+								</Typography>
+								<Box
+									component="form"
+									sx={{
+										'& .MuiTextField-root': {
+											marginBottom: 1,
+											marginTop: 1,
+											width: '100%',
+										},
+									}}
+									noValidate
+									autoComplete="off"
+								>
+									<Stack
+										mt={1}
+										mb={2}
+										sx={{
+											width: '100%',
+										}}
+									>
+										<TextEditor value={row.description} readOnly />
+									</Stack>
 
-										<div>
-											<FilterableTable
-												filterableCols={[
-													{
-														key: 'name',
-														label: 'Phiên bản',
-													},
-													// {
-													// 	key: 'createdAt',
-													// 	label: 'Thời gian tạo',
-													// },
-													// {
-													// 	key: 'updatedAt',
-													// 	label: 'Cập nhật lần cuối',
-													// },
-													{
-														key: 'status',
-														label: 'Trạng thái',
-													},
-												]}
-												headers={
-													<>
-														<TableCell key={`product-${row.id}-name`}>
-															{t('productName')}
-														</TableCell>
-														<TableCell
-															key={`product-${row.id}-createdAt`}
-															align="center"
-														>
-															{t('dateCreated')}
-														</TableCell>
-														<TableCell
-															key={`product-${row.id}-updatedAt`}
-															align="center"
-														>
-															{t('lastUpdated')}
-														</TableCell>
-														<TableCell
-															key={`product-${row.id}-status`}
-															align="center"
-														>
-															{t('status')}
-														</TableCell>
-														<TableCell />
-														<TableCell />
-													</>
-												}
-												getCell={(row) => (
-													<TableRow key={`product_verion-${row.id}`}>
-														<TableCell>{row.name}</TableCell>
-														<TableCell align="center">
-															{row.createdAt}
-														</TableCell>
-														<TableCell align="center">
-															{row.updatedAt}
-														</TableCell>
-														<TableCell align="center">{row.status}</TableCell>
-														<TableCell>
-															<Stack>
-																<Button size="small" onClick={() => {}}>
+									<div>
+										<FilterableTable
+											filterableCols={[
+												{
+													key: 'name',
+													label: 'Phiên bản',
+												},
+												// {
+												// 	key: 'createdAt',
+												// 	label: 'Thời gian tạo',
+												// },
+												// {
+												// 	key: 'updatedAt',
+												// 	label: 'Cập nhật lần cuối',
+												// },
+												{
+													key: 'status',
+													label: 'Trạng thái',
+												},
+											]}
+											headers={
+												<>
+													<TableCell key={`product-${row.id}-name`}>
+														{t('productName')}
+													</TableCell>
+													<TableCell
+														key={`product-${row.id}-createdAt`}
+														align="center"
+													>
+														{t('dateCreated')}
+													</TableCell>
+													<TableCell
+														key={`product-${row.id}-updatedAt`}
+														align="center"
+													>
+														{t('lastUpdated')}
+													</TableCell>
+													<TableCell
+														key={`product-${row.id}-status`}
+														align="center"
+													>
+														{t('status')}
+													</TableCell>
+													<TableCell />
+													<TableCell />
+												</>
+											}
+											getCell={(row) => (
+												<TableRow key={`product_verion-${row.id}`}>
+													<TableCell>{row.name}</TableCell>
+													<TableCell align="center">{row.createdAt}</TableCell>
+													<TableCell align="center">{row.updatedAt}</TableCell>
+													<TableCell align="center">{t(row.status)}</TableCell>
+													<TableCell>
+														<Stack direction="row">
+															<IconButton size="small" onClick={() => {}}>
+																<RemoveRedEyeIcon />
+															</IconButton>
+															<IconButton size="small" onClick={() => {}}>
+																<EditIcon />
+															</IconButton>
+															<IconButton size="small" onClick={() => {}}>
+																<DeleteIcon />
+															</IconButton>
+															{/* <Button size="small" onClick={() => {}}>
 																	{t('seeDetail')}
 																</Button>
 																<Button size="small" onClick={() => {}}>
@@ -232,41 +246,40 @@ export default function ProductManagementPage() {
 																</Button>
 																<Button size="small" onClick={() => {}}>
 																	{t('delete')}
-																</Button>
-															</Stack>
-														</TableCell>
-													</TableRow>
-												)}
-												count={0}
-												rows={versions?.data?.content ?? []}
-												onAddFilter={() =>
-													navigate(`/product/${row.id}/create-version`)
-												}
-												addButtonText={t('addVersion')}
-												onPageChange={(newPage) =>
-													setCurrVerProps({
-														...currVerProps,
-														...newPage,
-													})
-												}
-											/>
-										</div>
-									</Box>
-								</>
-							}
-							onExpand={() => {
-								setCurrVerProps({
-									productId: row.id,
-									versionName: '',
-									status: false,
-									pageNumber: 0,
-									pageSize: 5,
-								});
-							}}
-						/>
-					)}
-				/>
-			)}
+																</Button> */}
+														</Stack>
+													</TableCell>
+												</TableRow>
+											)}
+											count={versions?.data?.totalElements ?? 0}
+											rows={versions?.data?.content ?? []}
+											onAddFilter={() =>
+												navigate(`/product/${row.id}/create-version`)
+											}
+											addButtonText={t('addVersion')}
+											onPageChange={(newPage) =>
+												setCurrVerProps({
+													...currVerProps,
+													...newPage,
+												})
+											}
+										/>
+									</div>
+								</Box>
+							</>
+						}
+						onExpand={() => {
+							setCurrVerProps({
+								productId: row.id,
+								versionName: '',
+								status: false,
+								pageNumber: 0,
+								pageSize: 5,
+							});
+						}}
+					/>
+				)}
+			/>
 		</Box>
 	);
 }

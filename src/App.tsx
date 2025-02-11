@@ -68,7 +68,7 @@ function App() {
 				},
 				{
 					segment: 'test',
-					title: 'Tạo sản phẩm',
+					title: 'Test',
 					icon: <DescriptionIcon />,
 				},
 				{

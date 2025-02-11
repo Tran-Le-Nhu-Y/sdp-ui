@@ -98,7 +98,7 @@ function FilterableTable<T>(props: FilterableTableProps<T>) {
 
 	// Avoid a layout jump when reaching the last page with empty rows.
 	const emptyRows =
-		page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+		rowsPerPage - rows.length > 0 ? rowsPerPage - rows.length : 0;
 
 	const handleChangePage = (
 		_event: React.MouseEvent<HTMLButtonElement> | null,
@@ -112,6 +112,8 @@ function FilterableTable<T>(props: FilterableTableProps<T>) {
 	) => {
 		onPageChange({ pageNumber: 0, pageSize: parseInt(event.target.value, 10) });
 	};
+
+	const columnCount = headers.props.children.length;
 
 	return (
 		<Paper>
@@ -209,12 +211,9 @@ function FilterableTable<T>(props: FilterableTableProps<T>) {
 						<TableRow>{headers}</TableRow>
 					</TableHead>
 					<TableBody>
-						{(rowsPerPage > 0
-							? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-							: rows
-						).map(getCell)}
+						{rows.map(getCell)}
 						{emptyRows > 0 && (
-							<TableRow style={{ height: 53 * emptyRows }}>
+							<TableRow style={{ height: 32 * emptyRows }}>
 								<TableCell colSpan={6} />
 							</TableRow>
 						)}
@@ -224,7 +223,7 @@ function FilterableTable<T>(props: FilterableTableProps<T>) {
 							{/* Pagination */}
 							<TablePagination
 								rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-								colSpan={6}
+								colSpan={columnCount}
 								count={count}
 								rowsPerPage={rowsPerPage}
 								page={page}

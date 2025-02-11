@@ -31,3 +31,12 @@ declare interface ErrorResponse {
 	errorKey: string;
 	severity?: 'warn' | 'error';
 }
+
+declare interface DocumentLabelResponse {
+	id: string;
+	name: string;
+	description: string;
+	createdAtMillis: number;
+	updatedAtMillis: number?;
+	color: string;
+}

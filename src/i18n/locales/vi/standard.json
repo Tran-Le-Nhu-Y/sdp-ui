@@ -11,6 +11,7 @@
 	"submit": "Xác nhận",
 	"save": "Lưu",
 	"edit": "Chỉnh sửa",
+	"yes": "Đồng ý",
 	"delete": "Xóa",
 	"version": "Phiên bản",
 	"seeDetail": "Xem",
@@ -25,9 +26,14 @@
 	"add": "Thêm",
 	"enterDescription": "Nhập mô tả tại đây...",
 	"noFileUpload": "Không có file nào được tải lên",
+	"documentName": "Tên tài liệu",
 
 	"productManagement": "Quản lý sản phẩm",
 	"addProduct": "Thêm sản phẩm",
+	"createProductError": "Thêm sản phẩm đã xảy ra lỗi",
+	"deleteProductConfirm": "Bạn có chắc chắn muốn xóa sản phẩm này không?",
+	"deleteProductSuccess": "Đã xóa sản phẩm",
+	"deleteProductError": "Xóa sản phẩm đã xảy ra lỗi",
 	"productName": "Tên sản phẩm",
 	"dateCreated": "Ngày tạo",
 	"lastUpdated": "Cập nhật lần cuối",
@@ -50,6 +56,9 @@
 
 	"addVersionModule": "Thêm phiên bản Module",
 	"modifyVersionModule": "Chỉnh sửa phiên bản Module",
+
+	"addInstance": "Thêm Instance",
+	"instanceName": "Tên instance",
 
 	"deployManagement": "Quản lý tài liệu triển khai",
 	"searchDeployDocument": "Tìm kiếm tài liệu triển khai",
@@ -78,5 +87,10 @@
 	"addModuleDesignDocument": "Thêm tài liệu thiết kế module",
 	"moduleDesignDocumentName": "Tên tài liệu thiết kế module",
 	"moduleDesignDocumentDescription": "Mô tả tài liệu thiết kế module",
-	"fetchError": "Không thể tải dữ liệu từ máy chủ."
+	"fetchError": "Không thể tải dữ liệu từ máy chủ.",
+	"ACTIVE": "Đang hoạt động",
+	"INACTIVE": "Không hoạt động",
+
+	"processing": "Đang xử lý...",
+	"loading": "Đang tải..."
 }

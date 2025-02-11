@@ -11,6 +11,7 @@ import {
 import RootLayout from './layouts/RootLayout.tsx';
 import {
 	CreatDeployDocumentPage,
+	CreateModulePage,
 	CreateProductPage,
 	CreateVersionProductPage,
 	CreatModuleDesignDocumentPage,
@@ -20,14 +21,16 @@ import {
 	ErrorPage,
 	ModifyProductPage,
 	ModuleDesignDocumentPage,
+	//ModuleVersionDetailPage,
 	OverviewPage,
 	ProductDesignDocumentPage,
 	ProductManagementPage,
-	ProductVersionDetail,
+	ProductVersionDetailPage,
 } from './pages/index.tsx';
 import HydrateFallback from './components/HydrateFallback.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
+
 //import CreateModifyVersionForm from './components/CreateModifyVersionForm.tsx';
 
 const router = createBrowserRouter(
@@ -41,9 +44,10 @@ const router = createBrowserRouter(
 				<Route path="overview" element={<OverviewPage />} />
 				<Route path="product" element={<ProductManagementPage />} />
 				<Route path="/create-product" element={<CreateProductPage />} />
+				<Route path="/create-module" element={<CreateModulePage />} />
 				<Route
 					path="/product-version/:version"
-					element={<ProductVersionDetail />}
+					element={<ProductVersionDetailPage />}
 				/>
 				<Route
 					path="/product/:productId/create-version"
@@ -83,7 +87,7 @@ const router = createBrowserRouter(
 						/>
 					}
 				/> */}
-				<Route path="test" element={<ProductVersionDetail />} />
+				<Route path="test" element={<CreatProductDesignDocumentPage />} />
 			</Route>
 		</Route>,
 	),
