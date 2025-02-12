@@ -343,9 +343,7 @@ const ProductVersionDetailPage = () => {
 													onPageChange={(newPage) =>
 														setModuleTablePage(newPage)
 													}
-													onAddFilter={() =>
-														navigate(`/create-deploy-document`)
-													}
+													onAddClick={() => navigate(`/create-deploy-document`)}
 													addButtonText={t('addDocument')}
 													getCell={(row) => (
 														<TableRow key={row.id}>

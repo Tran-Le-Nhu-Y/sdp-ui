@@ -14,6 +14,9 @@ import {
 	documentLabelApi,
 	useGetAllDocumentLabelsByUserIdQuery as useGetAllDocumentLabelsByUserId,
 	usePostDocumentLabelMutation as useCreateDocumentLabel,
+	useGetLabelByIdQuery as useGetDocumentLabelById,
+	usePutLabelMutation as useUpdateDocumentLabel,
+	useDeleteLabelMutation as useDeleteDocumentLabel,
 } from './document-label';
 
 export {
@@ -29,4 +32,7 @@ export {
 	documentLabelApi,
 	useGetAllDocumentLabelsByUserId,
 	useCreateDocumentLabel,
+	useGetDocumentLabelById,
+	useUpdateDocumentLabel,
+	useDeleteDocumentLabel,
 };

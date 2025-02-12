@@ -8,3 +8,13 @@ export enum TextLength {
 
 export const isValidLength = (text: string, length: TextLength) =>
 	text.length <= length;
+
+export enum RoutePaths {
+	CREATE_PRODUCT = '/create-product',
+	MODIFY_PRODUCT = '/modify-product',
+}
+
+export enum hideDuration {
+	fast = 3000,
+	slow = 5000,
+}

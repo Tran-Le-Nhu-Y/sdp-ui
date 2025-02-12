@@ -114,7 +114,7 @@ export default function ModuleDesignDocumentPage() {
 					pageNumber={deployTablePage.pageNumber}
 					pageSize={deployTablePage.pageSize}
 					onPageChange={(newPage) => setDeployTablePage(newPage)}
-					onAddFilter={() => navigate(`/create-deploy-document`)}
+					onAddClick={() => navigate(`/create-deploy-document`)}
 					addButtonText={t('addDocument')}
 					getCell={(row) => (
 						<TableRow key={row.id}>

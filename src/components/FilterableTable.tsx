@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
 	Table,
 	TableBody,
-	TableCell,
 	TableContainer,
 	TableHead,
 	TableRow,
@@ -49,7 +48,7 @@ interface FilterableTableProps<T> {
 	addButtonText?: string;
 	onPageChange: (newPage: TablePage) => void;
 	getCell: (row: T) => React.JSX.Element;
-	onAddFilter?: () => void;
+	onAddClick?: () => void;
 }
 
 function FilterableTable<T>(props: FilterableTableProps<T>) {
@@ -58,7 +57,7 @@ function FilterableTable<T>(props: FilterableTableProps<T>) {
 		headers,
 		rows,
 		addButtonText,
-		onAddFilter,
+		onAddClick: onAddFilter,
 		count,
 		onPageChange,
 		getCell,
@@ -96,9 +95,9 @@ function FilterableTable<T>(props: FilterableTableProps<T>) {
 		setDialogOpen(false);
 	};
 
-	// Avoid a layout jump when reaching the last page with empty rows.
-	const emptyRows =
-		rowsPerPage - rows.length > 0 ? rowsPerPage - rows.length : 0;
+	// // Avoid a layout jump when reaching the last page with empty rows.
+	// const emptyRows =
+	// 	rowsPerPage - rows.length > 0 ? rowsPerPage - rows.length : 0;
 
 	const handleChangePage = (
 		_event: React.MouseEvent<HTMLButtonElement> | null,
@@ -212,17 +211,17 @@ function FilterableTable<T>(props: FilterableTableProps<T>) {
 					</TableHead>
 					<TableBody>
 						{rows.map(getCell)}
-						{emptyRows > 0 && (
+						{/* {emptyRows > 0 && (
 							<TableRow style={{ height: 32 * emptyRows }}>
-								<TableCell colSpan={6} />
+								<TableCell colSpan={columnCount} />
 							</TableRow>
-						)}
+						)} */}
 					</TableBody>
 					<TableFooter>
 						<TableRow>
 							{/* Pagination */}
 							<TablePagination
-								rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+								rowsPerPageOptions={[5, 10, 25, { label: 'Tất cả', value: -1 }]}
 								colSpan={columnCount}
 								count={count}
 								rowsPerPage={rowsPerPage}
@@ -235,6 +234,7 @@ function FilterableTable<T>(props: FilterableTableProps<T>) {
 										native: true,
 									},
 								}}
+								labelRowsPerPage={t('rowsPerPage')}
 								onPageChange={handleChangePage}
 								onRowsPerPageChange={handleChangeRowsPerPage}
 								ActionsComponent={TablePaginationActions}

@@ -1,10 +1,9 @@
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useMemo, useState } from 'react';
 import Stack from '@mui/material/Stack';
 import Chip from '@mui/material/Chip';
 import { useTranslation } from 'react-i18next';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import {
 	Box,
 	Button,
@@ -15,149 +14,79 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material';
-import { useAppDispatch } from '../../hooks/useRedux';
-import { deleteLabelById } from '../../redux/slices/DocumentLabelSlice';
-import { useGetAllDocumentLabelsByUserId } from '../../services';
-import { useNotifications } from '@toolpad/core';
+
+import {
+	useDeleteDocumentLabel,
+	useGetAllDocumentLabelsByUserId,
+	useGetDocumentLabelById,
+	useUpdateDocumentLabel,
+} from '../../services';
+import { useDialogs, useNotifications } from '@toolpad/core';
 import { FilterableTable } from '../../components';
-import { isValidLength, TextLength } from '../../utils';
+import { hideDuration, isValidLength, TextLength } from '../../utils';
 import CachedIcon from '@mui/icons-material/Cached';
 import { usePostDocumentLabelMutation } from '../../services/document-label';
+import { useNavigate } from 'react-router-dom';
 
-// import { useTheme } from '@mui/material/styles';
-// import TableFooter from '@mui/material/TableFooter';
-// import TablePagination from '@mui/material/TablePagination';
-// import FirstPageIcon from '@mui/icons-material/FirstPage';
-// import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
-// import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-// import LastPageIcon from '@mui/icons-material/LastPage';
-// import { isValidLength, TextLength } from '../../utils';
-
-// interface TablePaginationActionsProps {
-// 	count: number;
-// 	page: number;
-// 	rowsPerPage: number;
-// 	onPageChange: (
-// 		event: React.MouseEvent<HTMLButtonElement>,
-// 		newPage: number,
-// 	) => void;
-// }
-
-// function TablePaginationActions(props: TablePaginationActionsProps) {
-// 	const theme = useTheme();
-// 	const { count, page, rowsPerPage, onPageChange } = props;
-
-// 	const handleFirstPageButtonClick = (
-// 		event: React.MouseEvent<HTMLButtonElement>,
-// 	) => {
-// 		onPageChange(event, 0);
-// 	};
-
-// 	const handleBackButtonClick = (
-// 		event: React.MouseEvent<HTMLButtonElement>,
-// 	) => {
-// 		onPageChange(event, page - 1);
-// 	};
-
-// 	const handleNextButtonClick = (
-// 		event: React.MouseEvent<HTMLButtonElement>,
-// 	) => {
-// 		onPageChange(event, page + 1);
-// 	};
-
-// 	const handleLastPageButtonClick = (
-// 		event: React.MouseEvent<HTMLButtonElement>,
-// 	) => {
-// 		onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
-// 	};
-
-// 	return (
-// 		<Box sx={{ flexShrink: 0, ml: 2.5 }}>
-// 			<IconButton
-// 				onClick={handleFirstPageButtonClick}
-// 				disabled={page === 0}
-// 				aria-label="first page"
-// 			>
-// 				{theme.direction === 'rtl' ? <LastPageIcon /> : <FirstPageIcon />}
-// 			</IconButton>
-// 			<IconButton
-// 				onClick={handleBackButtonClick}
-// 				disabled={page === 0}
-// 				aria-label="previous page"
-// 			>
-// 				{theme.direction === 'rtl' ? (
-// 					<KeyboardArrowRight />
-// 				) : (
-// 					<KeyboardArrowLeft />
-// 				)}
-// 			</IconButton>
-// 			<IconButton
-// 				onClick={handleNextButtonClick}
-// 				disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-// 				aria-label="next page"
-// 			>
-// 				{theme.direction === 'rtl' ? (
-// 					<KeyboardArrowLeft />
-// 				) : (
-// 					<KeyboardArrowRight />
-// 				)}
-// 			</IconButton>
-// 			<IconButton
-// 				onClick={handleLastPageButtonClick}
-// 				disabled={page >= Math.ceil(count / rowsPerPage) - 1}
-// 				aria-label="last page"
-// 			>
-// 				{theme.direction === 'rtl' ? <FirstPageIcon /> : <LastPageIcon />}
-// 			</IconButton>
-// 		</Box>
-// 	);
-// }
-
-export default function DocumentLabelPage() {
+function DocumentLabelPage() {
 	const { t } = useTranslation();
-	const dispatch = useAppDispatch();
+	const navigate = useNavigate();
+	const dialogs = useDialogs();
+	const notifications = useNotifications();
 
 	const [showCreatingLabelPanel, setShowCreatingLabelPanel] = useState(false);
-	const [labelName, setLabelName] = useState('');
-	const [labelDescription, setLabelDescription] = useState('');
-	const [labelColor, setLabelColor] = useState('0e8a16');
-	const [createLabel, { isLoading }] = usePostDocumentLabelMutation();
-	// const [page, setPage] = React.useState(0);
-	// const [rowsPerPage, setRowsPerPage] = React.useState(5);
-	// const [editingIndex, setEditingIndex] = useState<number | null>(null);
-	// const [currentLabel, setCurrentLabel] = useState<DocumentLabel | null>(null);
+	const [labelCreating, setLabelCreating] = useState<{
+		name: string;
+		description?: string | undefined;
+		color: string;
+	}>({ name: '', color: '0e8a16' });
+	const [editingId, setEditingId] = useState<string | null>(null);
+	const [currentLabel, setCurrentLabel] = useState<DocumentLabel | null>(null);
+	const [createLabelTrigger, createLabel] = usePostDocumentLabelMutation();
+	useEffect(() => {
+		if (createLabel.isSuccess)
+			notifications.show(t('createLabelSuccess'), {
+				severity: 'success',
+				autoHideDuration: hideDuration.fast,
+			});
+		else if (createLabel.isError)
+			notifications.show(t('createLabelError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
+	}, [createLabel.isError, createLabel.isSuccess, notifications, t]);
 
-	const [labelTablePage, setLabelTablePage] = useState<TablePage>({
+	const [filteredLabels, setFilteredLabels] = useState({
+		userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+		labelName: '',
 		pageNumber: 0,
 		pageSize: 5,
 	});
+	const labels = useGetAllDocumentLabelsByUserId(filteredLabels);
 
-	const labels = useGetAllDocumentLabelsByUserId({
-		userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
-		...labelTablePage,
-	});
-
-	const notifications = useNotifications();
 	useEffect(() => {
 		if (labels.error)
-			notifications.show(t('fetchError'), { severity: 'error' });
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
 	}, [notifications, labels.error, t]);
 
-	const handleRandomColor = () => {
-		const getRandomColor = () => {
-			// Generate a random hex color
-			return `${Math.floor(Math.random() * 20052003)
-				.toString(16)
-				.substring(0, 6)}`;
-		};
-		const randomColor = getRandomColor();
-		// if (editingIndex !== null && currentLabel) {
-		// 	setCurrentLabel((prev) => ({
-		// 		...prev!,
-		// 		color: randomColor,
-		// 	}));
-		// } else
-		setLabelColor(randomColor);
+	const label = useGetDocumentLabelById(editingId!, { skip: !editingId });
+	useEffect(() => {
+		if (label.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
+		else if (label.isSuccess) setCurrentLabel(label.data);
+	}, [notifications, label.isError, t, label.isSuccess, label.data]);
+
+	const getRandomColor = () => {
+		// Generate a random hex color
+		return `${Math.floor(Math.random() * 20052003)
+			.toString(16)
+			.substring(0, 6)}`;
 	};
 
 	const handleCancel = () => {
@@ -166,383 +95,97 @@ export default function DocumentLabelPage() {
 	};
 
 	const resetFields = () => {
-		setLabelName('');
-		setLabelDescription('');
-		setLabelColor('0e8a16');
+		setLabelCreating({ name: '', color: '0e8a16' });
 	};
 
 	const handleCreateLabel = async () => {
-		if (!labelName.trim()) {
-			notifications.show("t('labelNameRequired')", { severity: 'warning' });
+		if (!labelCreating.name.trim()) {
+			notifications.show(t('labelNameRequired'), {
+				severity: 'warning',
+				autoHideDuration: hideDuration.fast,
+			});
 			return;
 		}
 
-		try {
-			await createLabel({
-				name: labelName,
-				description: labelDescription,
-				color: labelColor,
-				userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
-			}).unwrap();
-
-			notifications.show("t('labelCreatedSuccess')", { severity: 'success' });
-			setShowCreatingLabelPanel(false);
-			resetFields();
-			// eslint-disable-next-line @typescript-eslint/no-unused-vars
-		} catch (error) {
-			notifications.show("t('createLabelError')", { severity: 'error' });
-		}
+		await createLabelTrigger({
+			name: labelCreating.name,
+			description: labelCreating.description,
+			color: labelCreating.color,
+			userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+		});
 
 		setShowCreatingLabelPanel(false);
 		resetFields();
 	};
 
-	const handleDelete = (id: string) => {
-		dispatch(deleteLabelById(id));
-		alert(`Đã xóa nhãn tài liệu ${id}`);
+	const [deleteLabelTrigger, deleteLabel] = useDeleteDocumentLabel();
+	useEffect(() => {
+		if (deleteLabel.isError)
+			notifications.show(t('deleteLabelError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
+		else if (deleteLabel.isSuccess)
+			notifications.show(t('deleteLabelSuccess'), {
+				severity: 'success',
+				autoHideDuration: hideDuration.fast,
+			});
+	}, [deleteLabel.isError, deleteLabel.isSuccess, notifications, t]);
+	const onDelete = async (labelId: string) => {
+		const confirmed = await dialogs.confirm(t('deleteLabelConfirm'), {
+			okText: t('yes'),
+			cancelText: t('cancel'),
+		});
+		if (!confirmed) return;
+
+		await deleteLabelTrigger(labelId);
 	};
 
-	// const handleEditLabel = (index: number) => {
-	// 	setEditingIndex(index);
-	// 	setCurrentLabel({ ...labels[index] });
-	// };
+	const [updateLabelTrigger, updateLabel] = useUpdateDocumentLabel();
+	useEffect(() => {
+		if (updateLabel.isError)
+			notifications.show(t('updateLabelError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
+		else if (updateLabel.isSuccess) {
+			navigate(-1);
+			notifications.show(t('updateLabelSuccess'), {
+				severity: 'success',
+				autoHideDuration: hideDuration.fast,
+			});
+		}
+	}, [notifications, t, updateLabel.isError, updateLabel.isSuccess, navigate]);
 
-	// const handleSaveEditLabel = () => {
-	// 	if (editingIndex !== null && currentLabel) {
-	// 		dispatch(updateLabel(currentLabel));
-	// 		setEditingIndex(null);
-	// 		setCurrentLabel(null);
-	// 	}
-	// };
+	const onUpdatingSave = async () => {
+		if (editingId !== null && label.data) {
+			setEditingId(null);
+			setCurrentLabel(null);
+			try {
+				await updateLabelTrigger({
+					labelId: editingId,
+					data: {
+						name: label.data.name,
+						description: label.data.description,
+						color: label.data.color,
+					},
+				}).unwrap();
+			} catch (error) {
+				console.error(error);
+			}
+		}
+	};
 
-	// const handleCancelEdit = () => {
-	// 	setEditingIndex(null);
-	// 	setCurrentLabel(null);
-	// };
+	const onUpdatingCancel = () => {
+		setEditingId(null);
+	};
 
-	// Avoid a layout jump when reaching the last page with empty rows.
-	// const emptyRows =
-	// 	page > 0 ? Math.max(0, (1 + page) * rowsPerPage - labels.length) : 0;
-
-	// const handleChangePage = (
-	// 	_event: React.MouseEvent<HTMLButtonElement> | null,
-	// 	newPage: number,
-	// ) => {
-	// 	setPage(newPage);
-	// };
-
-	// const handleChangeRowsPerPage = (
-	// 	event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-	// ) => {
-	// 	setRowsPerPage(parseInt(event.target.value, 10));
-	// 	setPage(0);
-	// };
-
-	// const paginatedLabels =
-	// 	rowsPerPage > 0
-	// 		? labels.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-	// 		: labels;
+	const isLoading = useMemo(
+		() => labels.isLoading || createLabel.isLoading || updateLabel.isLoading,
+		[createLabel.isLoading, labels.isLoading, updateLabel.isLoading],
+	);
 
 	return (
-		// <Box sx={{ padding: 2 }}>
-		// 	<Stack
-		// 		direction="row"
-		// 		justifyContent="space-between"
-		// 		alignItems="center"
-		// 		sx={{ marginBottom: 1 }}
-		// 	>
-		// 		<Stack direction="row" spacing={1} alignItems="center">
-		// 			<TextField
-		// 				placeholder={t('searchDocumentLabel') as string}
-		// 				size="small"
-		// 				variant="outlined"
-		// 				sx={{ width: 300 }}
-		// 			/>
-		// 		</Stack>
-		// 		<Button
-		// 			variant="contained"
-		// 			color="success"
-		// 			onClick={() => setShowCreatingLabelPanel(true)}
-		// 		>
-		// 			{t('addDocumentLabel')}
-		// 		</Button>
-		// 	</Stack>
-		// 	{showCreatingLabelPanel && (
-		// 		<Box
-		// 			sx={{
-		// 				padding: 2,
-		// 				border: '1px solid #e0e0e0',
-		// 				borderRadius: '8px',
-		// 				backgroundColor: '#f9f9f9',
-		// 			}}
-		// 		>
-		// 			<Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
-		// 				<Typography variant="subtitle1">{t('labelPreview')}:</Typography>
-		// 				<Chip
-		// 					label={labelName || t('labelName')}
-		// 					size="small"
-		// 					sx={{
-		// 						backgroundColor: labelColor,
-		// 						color: '#fff',
-		// 						fontWeight: 'bold',
-		// 					}}
-		// 				/>
-		// 			</Stack>
-		// 			<Stack direction="row" spacing={2} alignItems="center">
-		// 				<TextField
-		// 					label={t('labelName') as string}
-		// 					value={labelName}
-		// 					helperText={t('hyperTextMedium')}
-		// 					onChange={(e) => {
-		// 						const newValue = e.target.value;
-		// 						if (isValidLength(newValue, TextLength.Medium))
-		// 							setLabelName(newValue);
-		// 					}}
-		// 					variant="outlined"
-		// 					size="small"
-		// 					maxRows={1}
-		// 					fullWidth
-		// 				/>
-		// 				<TextField
-		// 					label={t('description') as string}
-		// 					value={labelDescription}
-		// 					helperText={t('hyperTextVeryLong')}
-		// 					onChange={(e) => {
-		// 						const newValue = e.target.value;
-		// 						if (isValidLength(newValue, TextLength.VeryLong))
-		// 							setLabelDescription(newValue);
-		// 					}}
-		// 					variant="outlined"
-		// 					size="small"
-		// 					fullWidth
-		// 				/>
-		// 				<Stack direction="row" spacing={1} alignItems="flex-start">
-		// 					<IconButton color="secondary" onClick={handleRandomColor}>
-		// 						<CachedIcon />
-		// 					</IconButton>
-		// 					<TextField
-		// 						label={t('color') as string}
-		// 						value={labelColor}
-		// 						helperText={t('hyperTextColor')}
-		// 						onChange={(e) => setLabelColor(e.target.value)}
-		// 						variant="outlined"
-		// 						size="small"
-		// 						sx={{ width: 120 }}
-		// 					/>
-		// 				</Stack>
-		// 			</Stack>
-		// 			<Stack direction="row" spacing={2} justifyContent="flex-end" mt={1}>
-		// 				<Button variant="outlined" onClick={handleCancel}>
-		// 					{t('cancel')}
-		// 				</Button>
-		// 				<Button
-		// 					variant="contained"
-		// 					color="success"
-		// 					onClick={handleCreateLabel}
-		// 				>
-		// 					{t('submit')}
-		// 				</Button>
-		// 			</Stack>
-		// 		</Box>
-		// 	)}
-		// 	<TableContainer component={Paper}>
-		// 		<Table>
-		// 			<TableHead>
-		// 				<TableRow>
-		// 					<TableCell align="left" sx={{ fontWeight: 'bold' }}>
-		// 						{t('label')}
-		// 					</TableCell>
-		// 					<TableCell align="left" sx={{ fontWeight: 'bold' }}>
-		// 						{t('description')}
-		// 					</TableCell>
-		// 					<TableCell align="right" sx={{ fontWeight: 'bold' }}></TableCell>
-		// 				</TableRow>
-		// 			</TableHead>
-		// 			<TableBody>
-		// 				{paginatedLabels.map((label, index) => (
-		// 					<TableRow key={index}>
-		// 						{editingIndex === index ? (
-		// 							<>
-		// 								<TableCell align="left">
-		// 									<Stack
-		// 										direction="column"
-		// 										spacing={2}
-		// 										alignItems="flex-start"
-		// 										justifyContent={'space-between'}
-		// 									>
-		// 										<Chip
-		// 											label={currentLabel?.name || t('labelName')}
-		// 											sx={{
-		// 												backgroundColor: currentLabel?.color || '#ccc',
-		// 												color: '#fff',
-		// 												fontWeight: 'bold',
-		// 											}}
-		// 										/>
-		// 										<TextField
-		// 											label={t('labelName') as string}
-		// 											value={currentLabel?.name}
-		// 											onChange={(e) =>
-		// 												setCurrentLabel((prev) => ({
-		// 													...prev!,
-		// 													name: e.target.value,
-		// 												}))
-		// 											}
-		// 											size="small"
-		// 										/>
-		// 									</Stack>
-		// 								</TableCell>
-		// 								<TableCell align="left">
-		// 									<Stack
-		// 										direction="column"
-		// 										spacing={2}
-		// 										alignItems="flex-start"
-		// 										justifyContent={'space-between'}
-		// 									>
-		// 										<Chip
-		// 											sx={{
-		// 												backgroundColor: 'white',
-		// 												color: '#fff',
-		// 											}}
-		// 										/>
-		// 										<Stack
-		// 											direction="row"
-		// 											alignItems="flex-end"
-		// 											justifyContent={'space-between'}
-		// 										>
-		// 											<TextField
-		// 												label={t('description') as string}
-		// 												value={currentLabel?.description}
-		// 												onChange={(e) =>
-		// 													setCurrentLabel((prev) => ({
-		// 														...prev!,
-		// 														description: e.target.value,
-		// 													}))
-		// 												}
-		// 												fullWidth
-		// 												size="small"
-		// 											/>
-		// 											<Stack direction="row" alignItems="center">
-		// 												<IconButton
-		// 													color="secondary"
-		// 													onClick={handleRandomColor}
-		// 												>
-		// 													<CachedIcon />
-		// 												</IconButton>
-		// 												<TextField
-		// 													label={t('color') as string}
-		// 													value={currentLabel?.color}
-		// 													onChange={(e) =>
-		// 														setCurrentLabel((prev) => ({
-		// 															...prev!,
-		// 															color: e.target.value,
-		// 														}))
-		// 													}
-		// 													size="small"
-		// 												/>
-		// 											</Stack>
-		// 										</Stack>
-		// 									</Stack>
-		// 								</TableCell>
-		// 								<TableCell align="left">
-		// 									<Stack
-		// 										direction="column"
-		// 										spacing={2}
-		// 										alignItems="flex-end"
-		// 										justifyContent={'space-between'}
-		// 									>
-		// 										<Button
-		// 											variant="outlined"
-		// 											color="error"
-		// 											onClick={() => handleDeleteLabel(label.id)}
-		// 										>
-		// 											{t('delete')}
-		// 										</Button>
-		// 										<Stack
-		// 											direction="row"
-		// 											alignItems="flex-end"
-		// 											justifyContent={'space-between'}
-		// 											spacing={1}
-		// 										>
-		// 											<Button variant="outlined" onClick={handleCancelEdit}>
-		// 												{t('cancel')}
-		// 											</Button>
-		// 											<Button
-		// 												variant="contained"
-		// 												color="success"
-		// 												onClick={handleSaveEditLabel}
-		// 											>
-		// 												{t('save')}
-		// 											</Button>
-		// 										</Stack>
-		// 									</Stack>
-		// 								</TableCell>
-		// 							</>
-		// 						) : (
-		// 							<>
-		// 								<TableCell align="left">
-		// 									<Chip
-		// 										label={label.name}
-		// 										sx={{
-		// 											backgroundColor: label.color,
-		// 											color: '#fff',
-		// 											fontWeight: 'bold',
-		// 										}}
-		// 									/>
-		// 								</TableCell>
-		// 								<TableCell align="left">{label.description}</TableCell>
-		// 								<TableCell align="right">
-		// 									<Button
-		// 										variant="outlined"
-		// 										color="primary"
-		// 										sx={{ marginRight: 1 }}
-		// 										onClick={() => handleEditLabel(index)}
-		// 									>
-		// 										{t('edit')}
-		// 									</Button>
-		// 									<Button
-		// 										variant="outlined"
-		// 										color="error"
-		// 										onClick={() => handleDeleteLabel(label.id)}
-		// 									>
-		// 										{t('delete')}
-		// 									</Button>
-		// 								</TableCell>
-		// 							</>
-		// 						)}
-		// 					</TableRow>
-		// 				))}
-
-		// 				{emptyRows > 0 && (
-		// 					<TableRow style={{ height: 53 * emptyRows }}>
-		// 						<TableCell colSpan={6} />
-		// 					</TableRow>
-		// 				)}
-		// 			</TableBody>
-		// 			<TableFooter>
-		// 				<TableRow>
-		// 					<TablePagination
-		// 						rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-		// 						colSpan={3}
-		// 						count={labels.length}
-		// 						rowsPerPage={rowsPerPage}
-		// 						page={page}
-		// 						slotProps={{
-		// 							select: {
-		// 								inputProps: {
-		// 									'aria-label': 'rows per page',
-		// 								},
-		// 								native: true,
-		// 							},
-		// 						}}
-		// 						onPageChange={handleChangePage}
-		// 						onRowsPerPageChange={handleChangeRowsPerPage}
-		// 						ActionsComponent={TablePaginationActions}
-		// 					/>
-		// 				</TableRow>
-		// 			</TableFooter>
-		// 		</Table>
-		// 	</TableContainer>
-		// </Box>
 		<Stack spacing={1}>
 			{showCreatingLabelPanel && (
 				<Box
@@ -556,10 +199,10 @@ export default function DocumentLabelPage() {
 					<Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 1 }}>
 						<Typography variant="subtitle1">{t('labelPreview')}:</Typography>
 						<Chip
-							label={labelName || t('labelName')}
+							label={labelCreating.name || t('labelName')}
 							size="small"
 							sx={{
-								backgroundColor: `#${labelColor}`,
+								backgroundColor: `#${labelCreating.color}`,
 								color: '#fff',
 								fontWeight: 'bold',
 							}}
@@ -568,12 +211,12 @@ export default function DocumentLabelPage() {
 					<Stack direction="row" spacing={2} alignItems="center">
 						<TextField
 							label={t('labelName') as string}
-							value={labelName}
+							value={labelCreating.name}
 							helperText={t('hyperTextMedium')}
 							onChange={(e) => {
 								const newValue = e.target.value;
 								if (isValidLength(newValue, TextLength.Medium))
-									setLabelName(newValue);
+									setLabelCreating((prev) => ({ ...prev, name: newValue }));
 							}}
 							variant="outlined"
 							size="small"
@@ -582,26 +225,44 @@ export default function DocumentLabelPage() {
 						/>
 						<TextField
 							label={t('description') as string}
-							value={labelDescription}
+							value={labelCreating.description}
 							helperText={t('hyperTextVeryLong')}
 							onChange={(e) => {
 								const newValue = e.target.value;
 								if (isValidLength(newValue, TextLength.VeryLong))
-									setLabelDescription(newValue);
+									setLabelCreating((prev) => ({
+										...prev,
+										description: newValue,
+									}));
 							}}
 							variant="outlined"
 							size="small"
 							fullWidth
 						/>
 						<Stack direction="row" spacing={1} alignItems="flex-start">
-							<IconButton color="secondary" onClick={handleRandomColor}>
+							<IconButton
+								color="secondary"
+								onClick={() =>
+									setLabelCreating((prev) => ({
+										...prev,
+										color: getRandomColor(),
+									}))
+								}
+							>
 								<CachedIcon />
 							</IconButton>
 							<TextField
 								label={t('color') as string}
-								value={labelColor}
+								value={labelCreating.color}
 								helperText={t('hyperTextColor')}
-								onChange={(e) => setLabelColor(e.target.value)}
+								onChange={(e) => {
+									const color = e.target.value;
+									if (color.match(/^[0-9a-fA-F]{6}$/))
+										setLabelCreating((prev) => ({
+											...prev,
+											color,
+										}));
+								}}
 								variant="outlined"
 								size="small"
 								sx={{ width: 120 }}
@@ -614,7 +275,7 @@ export default function DocumentLabelPage() {
 						</Button>
 						<Button
 							variant="contained"
-							color="success"
+							color="primary"
 							onClick={async () => {
 								await handleCreateLabel();
 							}}
@@ -624,14 +285,14 @@ export default function DocumentLabelPage() {
 					</Stack>
 				</Box>
 			)}
-			{labels.isLoading && isLoading ? (
+			{isLoading ? (
 				<LinearProgress />
 			) : (
 				<FilterableTable
 					filterableCols={[
 						{
 							key: 'name',
-							label: 'Phiên bản',
+							label: t('labelName'),
 						},
 					]}
 					headers={
@@ -651,45 +312,90 @@ export default function DocumentLabelPage() {
 					}
 					count={labels.data?.totalElements ?? 0}
 					rows={labels.data?.content ?? []}
-					pageNumber={labelTablePage.pageNumber}
-					pageSize={labelTablePage.pageSize}
-					onPageChange={(newPage) => setLabelTablePage(newPage)}
-					onAddFilter={() => setShowCreatingLabelPanel(true)}
-					addButtonText={t('addDocument')}
+					pageNumber={filteredLabels.pageNumber}
+					pageSize={filteredLabels.pageSize}
+					onPageChange={(newPage) => {
+						setFilteredLabels((prev) => ({ ...prev, ...newPage }));
+					}}
+					onAddClick={() => setShowCreatingLabelPanel(true)}
+					addButtonText={t('addDocumentLabel')}
 					getCell={(row) => (
 						<TableRow key={row.id}>
-							<TableCell key={`label`}>
-								<Chip
-									label={row.name || t('labelName')}
-									sx={{
-										backgroundColor: `#${row.color ?? 'ccc'}`,
-										color: '#fff',
-										fontWeight: 'bold',
+							{editingId === row.id ? (
+								<EditableLabel
+									isLoading={label.isLoading}
+									name={currentLabel?.name}
+									description={currentLabel?.description}
+									color={currentLabel?.color}
+									onNameChange={(e) => {
+										setCurrentLabel((prev) => ({
+											...prev!,
+											name: e.target.value,
+										}));
+									}}
+									onDescriptionChange={(e) => {
+										setCurrentLabel((prev) => ({
+											...prev!,
+											description: e.target.value,
+										}));
+									}}
+									onColorChange={(e) => {
+										setCurrentLabel((prev) => ({
+											...prev!,
+											color: e.target.value,
+										}));
+									}}
+									onGenerateColor={() => {
+										setCurrentLabel((prev) => ({
+											...prev!,
+											color: getRandomColor(),
+										}));
+									}}
+									onSave={onUpdatingSave}
+									onCancel={onUpdatingCancel}
+									onDelete={() => {
+										onDelete(row.id);
 									}}
 								/>
-							</TableCell>
-							<TableCell key={`description`} align="center">
-								{row.description}
-							</TableCell>
-							<TableCell key={`createAt`} align="center">
-								{row.createdAt}
-							</TableCell>
-							<TableCell key={`updateAt`} align="center">
-								{row.updatedAt}
-							</TableCell>
-							<TableCell>
-								<Stack direction="row">
-									<IconButton size="small" onClick={() => {}}>
-										<RemoveRedEyeIcon />
-									</IconButton>
-									<IconButton size="small" onClick={() => {}}>
-										<EditIcon />
-									</IconButton>
-									<IconButton size="small" onClick={() => handleDelete(row.id)}>
-										<DeleteIcon />
-									</IconButton>
-								</Stack>
-							</TableCell>
+							) : (
+								<>
+									<TableCell key={`label`}>
+										<Chip
+											label={row.name || t('labelName')}
+											sx={{
+												backgroundColor: `#${row.color ?? 'ccc'}`,
+												color: '#fff',
+												fontWeight: 'bold',
+											}}
+										/>
+									</TableCell>
+									<TableCell key={`description`} align="center">
+										{row.description}
+									</TableCell>
+									<TableCell key={`createAt`} align="center">
+										{row.createdAt}
+									</TableCell>
+									<TableCell key={`updateAt`} align="center">
+										{row.updatedAt}
+									</TableCell>
+									<TableCell>
+										<Stack direction="row">
+											<IconButton
+												size="small"
+												onClick={() => setEditingId(row.id)}
+											>
+												<EditIcon color="info" />
+											</IconButton>
+											<IconButton
+												size="small"
+												onClick={async () => onDelete(row.id)}
+											>
+												<DeleteIcon color="error" />
+											</IconButton>
+										</Stack>
+									</TableCell>
+								</>
+							)}
 						</TableRow>
 					)}
 				/>
@@ -697,3 +403,165 @@ export default function DocumentLabelPage() {
 		</Stack>
 	);
 }
+
+interface EditableLabelProps {
+	isLoading: boolean;
+	name?: string;
+	description?: string;
+	color?: string;
+	onNameChange: (
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+	) => void;
+	onDescriptionChange: (
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+	) => void;
+	onColorChange: (
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+	) => void;
+	onGenerateColor: () => void;
+	onSave: () => void;
+	onCancel: () => void;
+	onDelete: () => void;
+}
+
+const EditableLabel = ({
+	isLoading,
+	name,
+	description,
+	color,
+	onNameChange,
+	onDescriptionChange,
+	onColorChange,
+	onGenerateColor,
+	onSave,
+	onCancel,
+	onDelete,
+}: EditableLabelProps) => {
+	const { t } = useTranslation('standard');
+	const colorSettled = `#${color ?? 'ccc'}`;
+
+	if (isLoading) return <LinearProgress />;
+	return (
+		<>
+			<TableCell align="left">
+				<Stack
+					direction="column"
+					spacing={2}
+					alignItems="flex-start"
+					justifyContent={'space-between'}
+				>
+					<Chip
+						label={name}
+						sx={{
+							backgroundColor: colorSettled,
+							color: '#fff',
+							fontWeight: 'bold',
+						}}
+					/>
+					<TextField
+						label={t('labelName') as string}
+						value={name}
+						onChange={onNameChange}
+						size="small"
+					/>
+				</Stack>
+			</TableCell>
+			<TableCell align="left">
+				<Stack
+					direction="column"
+					spacing={2}
+					alignItems="flex-start"
+					justifyContent={'space-between'}
+				>
+					<Chip
+						sx={{
+							backgroundColor: 'white',
+							color: '#fff',
+						}}
+					/>
+					<TextField
+						label={t('description') as string}
+						value={description}
+						onChange={onDescriptionChange}
+						fullWidth
+						size="small"
+					/>
+				</Stack>
+			</TableCell>
+			<TableCell align="left">
+				<Stack
+					direction="column"
+					spacing={2}
+					alignItems="flex-start"
+					justifyContent={'space-between'}
+				>
+					<Chip
+						sx={{
+							backgroundColor: 'white',
+							color: '#fff',
+						}}
+					/>
+					<Stack direction="row" alignItems="center">
+						<IconButton color="secondary" onClick={onGenerateColor}>
+							<CachedIcon />
+						</IconButton>
+						<TextField
+							label={t('color') as string}
+							value={colorSettled}
+							onChange={onColorChange}
+							size="small"
+						/>
+					</Stack>
+				</Stack>
+			</TableCell>
+			<TableCell align="left">
+				<Stack
+					direction="column"
+					spacing={2}
+					alignItems="flex-end"
+					justifyContent={'space-between'}
+				>
+					<Chip
+						sx={{
+							backgroundColor: 'white',
+							color: '#fff',
+						}}
+					/>
+					<Stack
+						direction="row"
+						alignItems="flex-end"
+						justifyContent={'space-between'}
+						spacing={1}
+					>
+						<Button variant="outlined" onClick={onCancel}>
+							{t('cancel')}
+						</Button>
+						<Button variant="contained" color="success" onClick={onSave}>
+							{t('save')}
+						</Button>
+					</Stack>
+				</Stack>
+			</TableCell>
+			<TableCell align="left">
+				<Stack
+					direction="column"
+					spacing={2}
+					alignItems="flex-end"
+					justifyContent={'space-between'}
+				>
+					<IconButton onClick={onDelete}>
+						<DeleteIcon color="error" />
+					</IconButton>
+					<Chip
+						sx={{
+							backgroundColor: 'white',
+							color: '#fff',
+						}}
+					/>
+				</Stack>
+			</TableCell>
+		</>
+	);
+};
+
+export default DocumentLabelPage;

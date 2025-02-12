@@ -15,3 +15,9 @@ declare interface DocumentLabelCreatingRequest {
 	color?: string?;
 	userId: string;
 }
+
+declare interface DocumentLabelUpdatingRequest {
+	name: string;
+	description?: string?;
+	color: string;
+}

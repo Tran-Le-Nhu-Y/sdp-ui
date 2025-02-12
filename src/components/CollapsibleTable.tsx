@@ -18,6 +18,7 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
+import { useTranslation } from 'react-i18next';
 
 interface TablePaginationActionsProps {
 	count: number;
@@ -152,13 +153,14 @@ function CollapsibleTableRow(props: CollapsibleTableRowProps) {
 }
 
 function CollapsibleTable<T>(props: CollapsibleTableProps<T>) {
+	const { t } = useTranslation('standard');
 	const { headers, rows, count, onPageChange, getCell } = props;
 	const page = props.pageNumber ?? 0;
 	const rowsPerPage = props.pageSize ?? 5;
 
 	// Avoid a layout jump when reaching the last page with empty rows.
-	const emptyRows =
-		page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
+	// const emptyRows =
+	// 	page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
 	const handleChangePage = (
 		_event: React.MouseEvent<HTMLButtonElement> | null,
@@ -172,6 +174,7 @@ function CollapsibleTable<T>(props: CollapsibleTableProps<T>) {
 	) => {
 		onPageChange({ pageNumber: 0, pageSize: parseInt(event.target.value, 10) });
 	};
+	const columnCount = headers.props.children.length;
 
 	return (
 		<TableContainer component={Paper}>
@@ -180,21 +183,22 @@ function CollapsibleTable<T>(props: CollapsibleTableProps<T>) {
 					<TableRow>{headers}</TableRow>
 				</TableHead>
 				<TableBody>
-					{(rowsPerPage > 0
+					{/* {(rowsPerPage > 0
 						? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
 						: rows
-					).map(getCell)}
-					{emptyRows > 0 && (
+					).map(getCell)} */}
+					{/* {emptyRows > 0 && (
 						<TableRow style={{ height: 53 * emptyRows }}>
-							<TableCell colSpan={6} />
+						<TableCell colSpan={columnCount} />
 						</TableRow>
-					)}
+						)} */}
+					{rows.map(getCell)}
 				</TableBody>
 				<TableFooter>
 					<TableRow>
 						<TablePagination
-							rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-							colSpan={6}
+							rowsPerPageOptions={[5, 10, 25, { label: 'Tất cả', value: -1 }]}
+							colSpan={columnCount}
 							count={count}
 							rowsPerPage={rowsPerPage}
 							page={page}
@@ -206,6 +210,7 @@ function CollapsibleTable<T>(props: CollapsibleTableProps<T>) {
 									native: true,
 								},
 							}}
+							labelRowsPerPage={t('rowsPerPage')}
 							onPageChange={handleChangePage}
 							onRowsPerPageChange={handleChangeRowsPerPage}
 							ActionsComponent={TablePaginationActions}

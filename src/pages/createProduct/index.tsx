@@ -5,6 +5,7 @@ import { useCreateProduct } from '../../services';
 import { Box, LinearProgress } from '@mui/material';
 import { useNotifications } from '@toolpad/core';
 import { useEffect } from 'react';
+import { hideDuration } from '../../utils';
 
 export default function CreateProductPage() {
 	const { t } = useTranslation();
@@ -14,8 +15,17 @@ export default function CreateProductPage() {
 
 	useEffect(() => {
 		if (createProduct.isError)
-			notifications.show(t('createProductError'), { severity: 'error' });
-		else if (createProduct.isSuccess) navigate(-1); // back to previous page
+			notifications.show(t('createProductError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
+		else if (createProduct.isSuccess) {
+			navigate(-1); // back to previous page
+			notifications.show(t('createProductSuccess'), {
+				severity: 'success',
+				autoHideDuration: hideDuration.fast,
+			});
+		}
 	}, [
 		createProduct.isError,
 		createProduct.isSuccess,

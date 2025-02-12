@@ -1,55 +1,82 @@
 import { useTranslation } from 'react-i18next';
 import { CreateOrModifyForm } from '../../components';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-	selectProductById,
-	updateProduct,
-} from '../../redux/slices/ProductSlice';
-import { RootState } from '../../redux/store';
+import { useGetProductById, useUpdateProduct } from '../../services';
+import { useEffect } from 'react';
+import { useNotifications } from '@toolpad/core';
+import { LinearProgress } from '@mui/material';
+import { hideDuration } from '../../utils';
 
 export default function ModifyProductPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const dispatch = useDispatch();
 	const { id } = useParams<{ id: string }>(); // get product id from URL
+	const notifications = useNotifications();
 
-	const product = useSelector((state: RootState) =>
-		selectProductById(state, id!),
-	);
+	const product = useGetProductById(id!, { skip: !id });
+	useEffect(() => {
+		if (product.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
+	}, [notifications, product.isError, t]);
 
-	if (!product) {
-		alert(t('productNotFound')); // Thông báo nếu không tìm thấy sản phẩm
-		navigate(-1); // back to previous page
-		return null;
-	}
+	const [updateProductTrigger, updateProduct] = useUpdateProduct();
+	useEffect(() => {
+		if (updateProduct.isError)
+			notifications.show(t('updateProductError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
+		else if (updateProduct.isSuccess) {
+			navigate(-1);
+			notifications.show(t('updateProductSuccess'), {
+				severity: 'success',
+				autoHideDuration: hideDuration.fast,
+			});
+		}
+	}, [
+		notifications,
+		t,
+		updateProduct.isError,
+		updateProduct.isSuccess,
+		navigate,
+	]);
 
-	const handleSubmit = (data: {
+	const handleSubmit = async (data: {
 		productNameProp: string;
 		descriptionProp: string;
 	}) => {
-		const updatedProduct = {
-			...product,
-			name: data.productNameProp,
-			description: data.descriptionProp,
-			lastUpdated: new Date().toLocaleString(),
-		};
-		dispatch(updateProduct(updatedProduct));
-		navigate(-1);
+		try {
+			await updateProductTrigger({
+				productId: id!,
+				data: {
+					name: data.productNameProp,
+					description: data.descriptionProp,
+				},
+			}).unwrap();
+		} catch (error) {
+			console.error(error);
+		}
 	};
 
 	return (
 		<div>
-			<CreateOrModifyForm
-				title={t('modifyProduct')}
-				label={`${t('productName')}`}
-				showModifyValues={{
-					productNameToShow: product.name,
-					descriptionToShow: product.description,
-				}}
-				onSubmit={handleSubmit}
-				onCancel={() => navigate(-1)}
-			/>
+			{product.isLoading ? (
+				<LinearProgress />
+			) : (
+				<CreateOrModifyForm
+					title={t('modifyProduct')}
+					label={`${t('productName')}`}
+					showModifyValues={{
+						productNameToShow: product.data?.name || '',
+						descriptionToShow: product.data?.description || '',
+					}}
+					onSubmit={handleSubmit}
+					onCancel={() => navigate(-1)}
+				/>
+			)}
 		</div>
 	);
 }

@@ -27,6 +27,7 @@ import {
 import { useDialogs, useNotifications } from '@toolpad/core';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { hideDuration, RoutePaths } from '../../utils';
 
 export default function ProductManagementPage() {
 	const { t } = useTranslation('standard');
@@ -45,23 +46,39 @@ export default function ProductManagementPage() {
 	useEffect(() => {
 		if (products.isError)
 			notifications.show(t('fetchError'), { severity: 'error' });
-	}, [notifications, products.isError, t]);
+		else if (products.isSuccess && products.data?.content.length === 0)
+			notifications.show(t('noProduct'), { severity: 'info' });
+	}, [
+		notifications,
+		products.data?.content.length,
+		products.isError,
+		products.isSuccess,
+		t,
+	]);
 
-	const [currVerProps, setCurrVerProps] = useState({
-		productId: '',
-		versionName: '',
-		status: false,
-		pageNumber: 0,
-		pageSize: 5,
+	const [currVerProps, setCurrVerProps] = useState<{
+		productId: string;
+		versionName: string;
+		status: boolean;
+		pageNumber: number;
+		pageSize: number;
+	} | null>(null);
+	const versions = useGetAllVersionsByProductId(currVerProps!, {
+		skip: !currVerProps,
 	});
-	const versions = useGetAllVersionsByProductId(currVerProps);
 
 	const [deleteProductTrigger, deleteProduct] = useDeleteProduct();
 	useEffect(() => {
 		if (deleteProduct.isError)
-			notifications.show(t('deleteProductError'), { severity: 'error' });
+			notifications.show(t('deleteProductError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
 		else if (deleteProduct.isSuccess)
-			notifications.show(t('deleteProductSuccess'), { severity: 'success' });
+			notifications.show(t('deleteProductSuccess'), {
+				severity: 'success',
+				autoHideDuration: hideDuration.fast,
+			});
 	}, [deleteProduct.isError, deleteProduct.isSuccess, notifications, t]);
 	const handleDelete = async (productId: string) => {
 		const confirmed = await dialogs.confirm(t('deleteProductConfirm'), {
@@ -92,8 +109,7 @@ export default function ProductManagementPage() {
 				/>
 				<Button
 					variant="contained"
-					// onClick={() => navigate(RoutePaths.CREATE_PRODUCT)}
-					onClick={() => navigate('/create-product')}
+					onClick={() => navigate(RoutePaths.CREATE_PRODUCT)}
 				>
 					{t('addProduct')}
 				</Button>
@@ -181,14 +197,6 @@ export default function ProductManagementPage() {
 													key: 'name',
 													label: 'Phiên bản',
 												},
-												// {
-												// 	key: 'createdAt',
-												// 	label: 'Thời gian tạo',
-												// },
-												// {
-												// 	key: 'updatedAt',
-												// 	label: 'Cập nhật lần cuối',
-												// },
 												{
 													key: 'status',
 													label: 'Trạng thái',
@@ -230,36 +238,29 @@ export default function ProductManagementPage() {
 													<TableCell>
 														<Stack direction="row">
 															<IconButton size="small" onClick={() => {}}>
-																<RemoveRedEyeIcon />
+																<RemoveRedEyeIcon color="info" />
 															</IconButton>
 															<IconButton size="small" onClick={() => {}}>
-																<EditIcon />
+																<EditIcon color="info" />
 															</IconButton>
 															<IconButton size="small" onClick={() => {}}>
-																<DeleteIcon />
+																<DeleteIcon color="error" />
 															</IconButton>
-															{/* <Button size="small" onClick={() => {}}>
-																	{t('seeDetail')}
-																</Button>
-																<Button size="small" onClick={() => {}}>
-																	{t('edit')}
-																</Button>
-																<Button size="small" onClick={() => {}}>
-																	{t('delete')}
-																</Button> */}
 														</Stack>
 													</TableCell>
 												</TableRow>
 											)}
 											count={versions?.data?.totalElements ?? 0}
 											rows={versions?.data?.content ?? []}
-											onAddFilter={() =>
+											onAddClick={() =>
 												navigate(`/product/${row.id}/create-version`)
 											}
 											addButtonText={t('addVersion')}
 											onPageChange={(newPage) =>
 												setCurrVerProps({
-													...currVerProps,
+													productId: row.id,
+													versionName: currVerProps?.versionName ?? '',
+													status: currVerProps?.status ?? false,
 													...newPage,
 												})
 											}

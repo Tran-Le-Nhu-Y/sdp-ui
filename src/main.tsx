@@ -30,6 +30,7 @@ import {
 import HydrateFallback from './components/HydrateFallback.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
+import { RoutePaths } from './utils/index.ts';
 
 //import CreateModifyVersionForm from './components/CreateModifyVersionForm.tsx';
 
@@ -43,7 +44,10 @@ const router = createBrowserRouter(
 			>
 				<Route path="overview" element={<OverviewPage />} />
 				<Route path="product" element={<ProductManagementPage />} />
-				<Route path="/create-product" element={<CreateProductPage />} />
+				<Route
+					path={RoutePaths.CREATE_PRODUCT}
+					element={<CreateProductPage />}
+				/>
 				<Route path="/create-module" element={<CreateModulePage />} />
 				<Route
 					path="/product-version/:version"
