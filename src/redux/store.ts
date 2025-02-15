@@ -1,23 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import documentLabelReducer from './slices/DocumentLabelSlice';
-import fileReducer from './slices/FileSlice';
-import productReducer from './slices/ProductSlice';
-import productVersionReducer from './slices/ProductVersionSlice';
-import deployDocumentReducer from './slices/DeployDocumentSlice';
-import moduleReducer from './slices/ModuleSlice';
-import instanceReducer from './slices/InstanceSlice';
-import { documentLabelApi, productApi, productVersionApi } from '../services';
+import { documentLabelApi, softwareApi, productVersionApi } from '../services';
 
 export const store = configureStore({
 	reducer: {
-		labels: documentLabelReducer,
-		products: productReducer,
-		productVersions: productVersionReducer,
-		files: fileReducer,
-		deployDocuments: deployDocumentReducer,
-		modules: moduleReducer,
-		instances: instanceReducer,
-		[productApi.reducerPath]: productApi.reducer,
+		[softwareApi.reducerPath]: softwareApi.reducer,
 		[productVersionApi.reducerPath]: productVersionApi.reducer,
 		[documentLabelApi.reducerPath]: documentLabelApi.reducer,
 	},
@@ -25,9 +11,9 @@ export const store = configureStore({
 	// and other useful features of `rtk-query`.
 	middleware(getDefaultMiddleware) {
 		return getDefaultMiddleware().concat(
-			productApi.middleware,
+			softwareApi.middleware,
 			productVersionApi.middleware,
-			documentLabelApi.middleware,
+			documentLabelApi.middleware
 		);
 	},
 });

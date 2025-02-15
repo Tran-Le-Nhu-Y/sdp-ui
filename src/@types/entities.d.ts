@@ -27,13 +27,12 @@ declare interface ProductVersionChangelog {
 	name: string;
 }
 
-declare interface Product {
+declare interface Software {
 	id: string;
 	name: string;
-	description: string;
+	description?: string?;
 	createdAt: string;
-	updatedAt: string?;
-	status: 'ACTIVE' | 'INACTIVE';
+	updatedAt?: string?;
 }
 
 declare interface DeployDocument {

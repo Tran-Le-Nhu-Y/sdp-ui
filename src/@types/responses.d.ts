@@ -9,13 +9,12 @@ declare interface PagingWrapper<T> {
 	totalPages: number;
 }
 
-declare interface ProductResponse {
+declare interface SoftwareResponse {
 	id: string;
-	isUsed: boolean;
 	name: string;
-	description: string;
-	createdAtMillis: number;
-	updatedAtMillis: number?;
+	description: string?;
+	createdAtMs: number;
+	updatedAtMs: number?;
 }
 
 declare interface ProductVersionResponse {

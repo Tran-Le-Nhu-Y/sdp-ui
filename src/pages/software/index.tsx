@@ -1,14 +1,13 @@
-import Button from '@mui/material/Button';
 import {
 	CollapsibleTable,
 	CollapsibleTableRow,
-	FilterableTable,
-	FilterAction,
+	PaginationTable,
 	TextEditor,
 } from '../../components';
 import { useTranslation } from 'react-i18next';
 import {
 	Box,
+	Button,
 	IconButton,
 	LinearProgress,
 	Stack,
@@ -20,41 +19,64 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import {
-	useDeleteProduct,
-	useGetAllProductsByUserId,
+	useDeleteSoftware,
+	useGetAllSoftwareByUserId,
 	useGetAllVersionsByProductId,
 } from '../../services';
 import { useDialogs, useNotifications } from '@toolpad/core';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { hideDuration, RoutePaths } from '../../utils';
+import { hideDuration, PathHolders, RoutePaths } from '../../utils';
 
-export default function ProductManagementPage() {
+export default function SoftwarePage() {
 	const { t } = useTranslation('standard');
 	const navigate = useNavigate();
 	const notifications = useNotifications();
 	const dialogs = useDialogs();
 
-	const [productTablePage, setProductTablePage] = useState<TablePage>({
-		pageNumber: 0,
-		pageSize: 5,
-	});
-	const products = useGetAllProductsByUserId({
+	// const [softwareTablePage, setProductTablePage] =
+	// 	useState<GetAllSoftwareQuery | null>(null);
+	const [softwareQuery, setSoftwareQuery] = useState<GetAllSoftwareQuery>({
 		userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
-		...productTablePage,
+		softwareName: '',
+		pageNumber: 0,
+		pageSize: 6,
+	});
+	const software = useGetAllSoftwareByUserId(softwareQuery!, {
+		skip: !softwareQuery,
 	});
 	useEffect(() => {
-		if (products.isError)
-			notifications.show(t('fetchError'), { severity: 'error' });
-		else if (products.isSuccess && products.data?.content.length === 0)
-			notifications.show(t('noProduct'), { severity: 'info' });
-	}, [
-		notifications,
-		products.data?.content.length,
-		products.isError,
-		products.isSuccess,
-		t,
-	]);
+		if (software.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
+		// else if (software.isSuccess && software.data?.content.length === 0)
+		// 	notifications.show(t('noProduct'), { severity: 'info' });
+	}, [notifications, software.isError, t]);
+
+	const [deleteSoftwareTrigger, deleteSoftware] = useDeleteSoftware();
+	useEffect(() => {
+		if (deleteSoftware.isError)
+			notifications.show(t('deleteProductError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
+		else if (deleteSoftware.isSuccess)
+			notifications.show(t('deleteProductSuccess'), {
+				severity: 'success',
+				autoHideDuration: hideDuration.fast,
+			});
+	}, [deleteSoftware.isError, deleteSoftware.isSuccess, notifications, t]);
+	const handleDelete = async (productId: string) => {
+		const confirmed = await dialogs.confirm(t('deleteProductConfirm'), {
+			okText: t('yes'),
+			cancelText: t('cancel'),
+		});
+		if (!confirmed) return;
+
+		await deleteSoftwareTrigger(productId);
+	};
 
 	const [currVerProps, setCurrVerProps] = useState<{
 		productId: string;
@@ -67,32 +89,9 @@ export default function ProductManagementPage() {
 		skip: !currVerProps,
 	});
 
-	const [deleteProductTrigger, deleteProduct] = useDeleteProduct();
-	useEffect(() => {
-		if (deleteProduct.isError)
-			notifications.show(t('deleteProductError'), {
-				severity: 'error',
-				autoHideDuration: hideDuration.fast,
-			});
-		else if (deleteProduct.isSuccess)
-			notifications.show(t('deleteProductSuccess'), {
-				severity: 'success',
-				autoHideDuration: hideDuration.fast,
-			});
-	}, [deleteProduct.isError, deleteProduct.isSuccess, notifications, t]);
-	const handleDelete = async (productId: string) => {
-		const confirmed = await dialogs.confirm(t('deleteProductConfirm'), {
-			okText: t('yes'),
-			cancelText: t('cancel'),
-		});
-		if (!confirmed) return;
-
-		await deleteProductTrigger(productId);
-	};
-
 	return (
 		<Box>
-			<Stack
+			{/* <Stack
 				direction="row"
 				justifyContent="space-between"
 				alignItems="center"
@@ -111,33 +110,46 @@ export default function ProductManagementPage() {
 					variant="contained"
 					onClick={() => navigate(RoutePaths.CREATE_PRODUCT)}
 				>
-					{t('addProduct')}
+					{t('addSoftware')}
 				</Button>
-			</Stack>
+			</Stack> */}
 
-			{products.isLoading || (deleteProduct.isLoading && <LinearProgress />)}
+			<Box width="100%" display="flex" justifyContent="end">
+				<Button
+					variant="contained"
+					onClick={() => navigate(RoutePaths.CREATE_SOFTWARE)}
+				>
+					{t('addSoftware')}
+				</Button>
+			</Box>
+
+			{(software.isLoading || deleteSoftware.isLoading) && <LinearProgress />}
 			<CollapsibleTable
 				headers={
 					<>
-						<TableCell key="name">{t('productName')}</TableCell>
+						<TableCell key="name">{t('softwareName')}</TableCell>
 						<TableCell key="createdAt" align="center">
 							{t('dateCreated')}
 						</TableCell>
 						<TableCell key="updatedAt" align="center">
 							{t('lastUpdated')}
 						</TableCell>
-						<TableCell key="status" align="center">
+						{/* <TableCell key="status" align="center">
 							{t('status')}
-						</TableCell>
+						</TableCell> */}
 						<TableCell />
 						<TableCell />
 					</>
 				}
-				rows={products.data?.content ?? []}
-				count={products.data?.totalElements ?? 0}
-				pageNumber={productTablePage.pageNumber}
-				pageSize={productTablePage.pageSize}
-				onPageChange={(newPage) => setProductTablePage(newPage)}
+				rows={software.data?.content ?? []}
+				count={software.data?.totalElements ?? 0}
+				pageNumber={softwareQuery?.pageNumber}
+				pageSize={softwareQuery?.pageSize}
+				onPageChange={(newPage) =>
+					setSoftwareQuery((prev) => {
+						return { ...prev, ...newPage };
+					})
+				}
 				getCell={(row) => (
 					<CollapsibleTableRow
 						key={row.id}
@@ -148,11 +160,16 @@ export default function ProductManagementPage() {
 								</TableCell>
 								<TableCell align="center">{row.createdAt}</TableCell>
 								<TableCell align="center">{row.updatedAt ?? ''}</TableCell>
-								<TableCell align="center">{t(row.status)}</TableCell>
+								{/* <TableCell align="center">{t(row.status)}</TableCell> */}
 								<TableCell align="center">
 									<IconButton
 										onClick={() =>
-											navigate(`${RoutePaths.MODIFY_PRODUCT}/${row.id}`)
+											navigate(
+												RoutePaths.MODIFY_SOFTWARE.replace(
+													`:${PathHolders.SOFTWARE_ID}`,
+													row.id
+												)
+											)
 										}
 									>
 										<EditIcon color="info" />
@@ -187,25 +204,25 @@ export default function ProductManagementPage() {
 											width: '100%',
 										}}
 									>
-										<TextEditor value={row.description} readOnly />
+										<TextEditor value={row.description ?? ''} readOnly />
 									</Stack>
 
 									<div>
-										<FilterableTable
-											filterableCols={[
-												{
-													key: 'name',
-													label: 'Phiên bản',
-												},
-												{
-													key: 'status',
-													label: 'Trạng thái',
-												},
-											]}
+										<PaginationTable
+											// filterableCols={[
+											// 	{
+											// 		key: 'name',
+											// 		label: 'Phiên bản',
+											// 	},
+											// 	{
+											// 		key: 'status',
+											// 		label: 'Trạng thái',
+											// 	},
+											// ]}
 											headers={
 												<>
 													<TableCell key={`product-${row.id}-name`}>
-														{t('productName')}
+														{t('softwareName')}
 													</TableCell>
 													<TableCell
 														key={`product-${row.id}-createdAt`}
@@ -252,9 +269,9 @@ export default function ProductManagementPage() {
 											)}
 											count={versions?.data?.totalElements ?? 0}
 											rows={versions?.data?.content ?? []}
-											onAddClick={() =>
-												navigate(`/product/${row.id}/create-version`)
-											}
+											// onAddClick={() =>
+											// 	navigate(`/product/${row.id}/create-version`)
+											// }
 											addButtonText={t('addVersion')}
 											onPageChange={(newPage) =>
 												setCurrVerProps({

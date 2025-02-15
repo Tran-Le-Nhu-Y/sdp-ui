@@ -9,13 +9,10 @@ interface CreateOrModifyFormProps {
 	title: string;
 	label: string;
 	showModifyValues?: {
-		productNameToShow: string;
-		descriptionToShow: string;
+		name: string | null | undefined;
+		description: string | null | undefined;
 	};
-	onSubmit: (data: {
-		productNameProp: string;
-		descriptionProp: string;
-	}) => void;
+	onSubmit: (data: { name: string; description: string | null }) => void;
 	onCancel: () => void;
 }
 
@@ -26,15 +23,13 @@ const CreateOrModifyForm: React.FC<CreateOrModifyFormProps> = ({
 	onSubmit,
 	onCancel,
 }) => {
-	const [productName, setproductName] = useState(
-		showModifyValues?.productNameToShow || '',
-	);
+	const [name, setName] = useState(showModifyValues?.name ?? '');
 	const [description, setDescription] = useState(
-		showModifyValues?.descriptionToShow || '',
+		showModifyValues?.description ?? ''
 	);
 	const { t } = useTranslation();
 	const handleSubmit = () => {
-		onSubmit({ productNameProp: productName, descriptionProp: description });
+		onSubmit({ name: name, description: description });
 	};
 
 	return (
@@ -47,8 +42,8 @@ const CreateOrModifyForm: React.FC<CreateOrModifyFormProps> = ({
 					fullWidth
 					size="small"
 					label={label}
-					value={productName}
-					onChange={(e) => setproductName(e.target.value)}
+					value={name}
+					onChange={(e) => setName(e.target.value)}
 					placeholder={`${t('enter')} ${label.toLowerCase()}...`}
 				/>
 			</Box>

@@ -22,11 +22,11 @@ import {
 	useUpdateDocumentLabel,
 } from '../../services';
 import { useDialogs, useNotifications } from '@toolpad/core';
-import { FilterableTable } from '../../components';
 import { hideDuration, isValidLength, TextLength } from '../../utils';
 import CachedIcon from '@mui/icons-material/Cached';
 import { usePostDocumentLabelMutation } from '../../services/document-label';
 import { useNavigate } from 'react-router-dom';
+import { PaginationTable } from '../../components';
 
 function DocumentLabelPage() {
 	const { t } = useTranslation();
@@ -182,7 +182,7 @@ function DocumentLabelPage() {
 
 	const isLoading = useMemo(
 		() => labels.isLoading || createLabel.isLoading || updateLabel.isLoading,
-		[createLabel.isLoading, labels.isLoading, updateLabel.isLoading],
+		[createLabel.isLoading, labels.isLoading, updateLabel.isLoading]
 	);
 
 	return (
@@ -288,13 +288,13 @@ function DocumentLabelPage() {
 			{isLoading ? (
 				<LinearProgress />
 			) : (
-				<FilterableTable
-					filterableCols={[
-						{
-							key: 'name',
-							label: t('labelName'),
-						},
-					]}
+				<PaginationTable
+					// filterableCols={[
+					// 	{
+					// 		key: 'name',
+					// 		label: t('labelName'),
+					// 	},
+					// ]}
 					headers={
 						<>
 							<TableCell key={`label`}>{t('label')}</TableCell>
@@ -317,7 +317,7 @@ function DocumentLabelPage() {
 					onPageChange={(newPage) => {
 						setFilteredLabels((prev) => ({ ...prev, ...newPage }));
 					}}
-					onAddClick={() => setShowCreatingLabelPanel(true)}
+					// onAddClick={() => setShowCreatingLabelPanel(true)}
 					addButtonText={t('addDocumentLabel')}
 					getCell={(row) => (
 						<TableRow key={row.id}>
@@ -410,13 +410,13 @@ interface EditableLabelProps {
 	description?: string;
 	color?: string;
 	onNameChange: (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => void;
 	onDescriptionChange: (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => void;
 	onColorChange: (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => void;
 	onGenerateColor: () => void;
 	onSave: () => void;

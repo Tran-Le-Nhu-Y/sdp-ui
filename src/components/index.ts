@@ -6,8 +6,8 @@ import FilterAction from './FilterAction';
 import CreateOrModifyForm from './CreateOrModifyForm';
 import CreateModifyVersionForm from './CreateModifyVersionForm';
 import DragAndDropForm from './DragAndDropForm';
-import { FilterableTable } from './FilterableTable';
 import TextEditor from './TextEditor';
+import { PaginationTable } from './PaginationTable';
 
 export {
 	HydrateFallback,
@@ -19,6 +19,6 @@ export {
 	CreateOrModifyForm,
 	CreateModifyVersionForm,
 	DragAndDropForm,
-	FilterableTable,
+	PaginationTable,
 	TextEditor,
 };

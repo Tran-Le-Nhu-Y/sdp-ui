@@ -1,12 +1,13 @@
-declare interface ProductCreatingRequest {
+declare interface SoftwareCreateRequest {
 	name: string;
 	description?: string?;
 	userId: string;
 }
 
-declare interface ProductUpdatingRequest {
+declare interface SoftwareUpdateRequest {
 	name: string;
 	description?: string?;
+	softwareId: string;
 }
 
 declare interface DocumentLabelCreatingRequest {

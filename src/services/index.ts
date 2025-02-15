@@ -1,11 +1,11 @@
 import {
-	productApi,
-	useGetAllProductsByUserIdQuery as useGetAllProductsByUserId,
-	useGetProductByIdQuery as useGetProductById,
-	usePostProductMutation as useCreateProduct,
-	usePutProductMutation as useUpdateProduct,
-	useDeleteProductMutation as useDeleteProduct,
-} from './product';
+	softwareApi,
+	useGetAllSoftwareByUserIdQuery as useGetAllSoftwareByUserId,
+	useDeleteSoftwareMutation as useDeleteSoftware,
+	useGetSoftwareByIdQuery as useGetSoftwareById,
+	usePostSoftwareMutation as useCreateSoftware,
+	usePutSoftwareMutation as useUpdateSoftware,
+} from './software';
 import {
 	productVersionApi,
 	useGetAllVersionsByProductIdQuery as useGetAllVersionsByProductId,
@@ -20,12 +20,12 @@ import {
 } from './document-label';
 
 export {
-	productApi,
-	useGetAllProductsByUserId,
-	useGetProductById,
-	useCreateProduct,
-	useUpdateProduct,
-	useDeleteProduct,
+	softwareApi,
+	useGetAllSoftwareByUserId,
+	useDeleteSoftware,
+	useGetSoftwareById,
+	useCreateSoftware,
+	useUpdateSoftware,
 };
 export { productVersionApi, useGetAllVersionsByProductId };
 export {
