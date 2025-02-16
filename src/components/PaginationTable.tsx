@@ -18,7 +18,6 @@ interface PaginationTableProps<T> {
 	count: number;
 	pageNumber?: number;
 	pageSize?: number;
-	addButtonText?: string;
 	onPageChange: (newPage: TablePage) => void;
 	getCell: (row: T) => React.JSX.Element;
 }
