@@ -8,11 +8,10 @@ import {
 	MenuItem,
 	Paper,
 	Select,
-	SelectChangeEvent,
 	Stack,
 	TextField,
 } from '@mui/material';
-import { MouseEvent, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RefreshIcon from '@mui/icons-material/Refresh';
@@ -27,32 +26,30 @@ interface Filter {
 	label: string;
 }
 interface FilterResult extends Omit<Filter, 'label'> {
-	operator: 'contains' | 'equals';
+	// operator: 'contains' | 'equals';
 	value: string | number;
 }
 
 interface FilterDialogProps {
 	filters: Array<Filter>;
 	open: boolean;
-	onOpen?: (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => void;
+	title?: string | undefined;
+	onOpen?: () => void;
 	onClose?: (
-		e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent> | undefined,
-		reason: 'backdropClick' | 'escapeKeyDown' | undefined
+		reason: 'backdropClick' | 'escapeKeyDown' | 'applyClick' | 'cancelClick'
 	) => void;
-	onReset?: (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => void;
-	onAppend?: (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => void;
-	onUpdate?: (
-		e: SelectChangeEvent<unknown>,
-		updatedFilter: FilterResult
-	) => void;
-	onRemove?: (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => void;
-	onApply?: (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => void;
-	onCancel?: (e: MouseEvent<HTMLButtonElement, globalThis.MouseEvent>) => void;
+	onReset?: () => void;
+	onAppend?: () => void;
+	onUpdate?: (updatedFilter: Readonly<FilterResult>) => void;
+	onRemove?: (filter: Readonly<FilterResult>) => void;
+	onApply?: (filters: Readonly<FilterResult[]>) => void;
+	onCancel?: (prevFilters: Readonly<FilterResult[]>) => void;
 }
 
 function FilterDialog({
 	filters,
 	open,
+	title,
 	onOpen,
 	onClose,
 	onReset,
@@ -66,7 +63,6 @@ function FilterDialog({
 	const [filterResults, setFilterResults] = useState<FilterResult[]>([]);
 
 	const updateFilters = (
-		e: SelectChangeEvent<unknown>,
 		index: number,
 		key: keyof FilterResult,
 		value: string | number
@@ -74,7 +70,7 @@ function FilterDialog({
 		const newFilters = [...filterResults];
 		newFilters[index] = { ...newFilters[index], [key]: value };
 		setFilterResults(newFilters);
-		if (onUpdate) onUpdate(e, newFilters[index]);
+		if (onUpdate) onUpdate(newFilters[index]);
 	};
 
 	return (
@@ -82,10 +78,10 @@ function FilterDialog({
 			<Dialog
 				open={open}
 				onClose={(_e, reason) => {
-					if (onClose) onClose(undefined, reason);
+					if (onClose) onClose(reason);
 				}}
 			>
-				<DialogTitle>{t('filter')}</DialogTitle>
+				<DialogTitle>{title ? title : t('filter')}</DialogTitle>
 				<DialogContent>
 					{filterResults.map((filter, index) => (
 						<div
@@ -104,7 +100,7 @@ function FilterDialog({
 									const isExist = filterResults.find((f) => f.key === key);
 									if (isExist) return;
 
-									updateFilters(e, index, 'key', key);
+									updateFilters(index, 'key', key);
 								}}
 								displayEmpty
 								style={{ minWidth: '120px' }}
@@ -116,25 +112,28 @@ function FilterDialog({
 									</MenuItem>
 								))}
 							</Select>
-							<Select
+							{/* <Select
 								value={filter.operator}
 								onChange={(e) =>
-									updateFilters(e, index, 'operator', e.target.value)
+									updateFilters(index, 'operator', e.target.value)
 								}
 								style={{ minWidth: '120px' }}
 							>
 								<MenuItem value="contains">{t('contains')}</MenuItem>
 								<MenuItem value="equals">{t('equals')}</MenuItem>
-							</Select>
+							</Select> */}
 							<TextField
 								value={filter.value}
 								onChange={(e) => updateFilters(index, 'value', e.target.value)}
 								placeholder={t('enterValue')}
 							/>
 							<IconButton
-								onClick={(e) => {
-									setFilterResults(filterResults.filter((_, i) => i !== index));
-									if (onRemove) onRemove(e);
+								onClick={() => {
+									const removed = filterResults[index];
+									setFilterResults((prev) =>
+										prev.filter((_, i) => i !== index)
+									);
+									if (onRemove) onRemove(removed);
 								}}
 							>
 								<DeleteIcon />
@@ -144,12 +143,16 @@ function FilterDialog({
 					{filterResults.length !== filters.length && (
 						<Button
 							variant="contained"
-							onClick={(e) => {
+							onClick={() => {
 								setFilterResults([
 									...filterResults,
-									{ key: DEFAULT_FILTER.key, operator: 'contains', value: '' },
+									{
+										key: DEFAULT_FILTER.key,
+										// operator: 'contains',
+										value: '',
+									},
 								]);
-								if (onAppend) onAppend(e);
+								if (onAppend) onAppend();
 							}}
 						>
 							{t('add')}
@@ -158,16 +161,17 @@ function FilterDialog({
 				</DialogContent>
 				<DialogActions>
 					<Button
-						onClick={(e) => {
-							if (onCancel) onCancel(e);
+						onClick={() => {
+							if (onCancel) onCancel(filterResults);
+							if (onClose) onClose('cancelClick');
 						}}
 					>
 						{t('cancel')}
 					</Button>
 					<Button
-						onClick={(e) => {
-							if (onApply) onApply(e);
-							if (onClose) onClose(e, undefined);
+						onClick={() => {
+							if (onApply) onApply(filterResults);
+							if (onClose) onClose('applyClick');
 						}}
 					>
 						{t('submit')}
@@ -175,20 +179,21 @@ function FilterDialog({
 				</DialogActions>
 			</Dialog>
 
-			<Stack direction={'row'}>
+			<Stack direction="row">
 				<IconButton
-					onClick={(e) => {
-						if (!onReset) return;
-						onReset(e);
+					title={t('resetFilter')}
+					onClick={() => {
 						setFilterResults([]);
+						if (onReset) onReset();
 					}}
 				>
 					<RefreshIcon />
 				</IconButton>
 				<IconButton
+					title={t('openFilter')}
 					color="primary"
-					onClick={(e) => {
-						if (onOpen) onOpen(e);
+					onClick={() => {
+						if (onOpen) onOpen();
 					}}
 				>
 					<FilterAltIcon />

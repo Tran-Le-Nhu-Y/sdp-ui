@@ -1,6 +1,7 @@
 import {
 	CollapsibleTable,
 	CollapsibleTableRow,
+	FilterDialog,
 	PaginationTable,
 	TextEditor,
 } from '../../components';
@@ -33,9 +34,8 @@ export default function SoftwarePage() {
 	const navigate = useNavigate();
 	const notifications = useNotifications();
 	const dialogs = useDialogs();
+	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
-	// const [softwareTablePage, setProductTablePage] =
-	// 	useState<GetAllSoftwareQuery | null>(null);
 	const [softwareQuery, setSoftwareQuery] = useState<GetAllSoftwareQuery>({
 		userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
 		softwareName: '',
@@ -91,37 +91,48 @@ export default function SoftwarePage() {
 
 	return (
 		<Box>
-			{/* <Stack
+			<Stack
 				direction="row"
 				justifyContent="space-between"
 				alignItems="center"
 				sx={{ marginBottom: 1 }}
 			>
-				<FilterAction
-					entries={[
-						{ value: 'test', label: 'Test' },
-						{ value: 'test2', label: 'Test2' },
+				<FilterDialog
+					filters={[
+						{
+							key: 'softwareName',
+							label: t('softwareName'),
+						},
 					]}
-					onFilterClick={(value, entry) => {
-						console.log(value, entry);
+					open={filterDialogOpen}
+					onClose={() => setFilterDialogOpen(false)}
+					onOpen={() => setFilterDialogOpen(true)}
+					onApply={(filters) => {
+						const query: object = filters.reduce((pre, curr) => {
+							return { ...pre, [curr.key]: curr.value };
+						}, {});
+						setSoftwareQuery((prev) => ({ ...prev, ...query }));
+					}}
+					onReset={() => {
+						setSoftwareQuery((prev) => ({ ...prev, softwareName: '' }));
 					}}
 				/>
-				<Button
-					variant="contained"
-					onClick={() => navigate(RoutePaths.CREATE_PRODUCT)}
-				>
-					{t('addSoftware')}
-				</Button>
-			</Stack> */}
-
-			<Box width="100%" display="flex" justifyContent="end">
 				<Button
 					variant="contained"
 					onClick={() => navigate(RoutePaths.CREATE_SOFTWARE)}
 				>
 					{t('addSoftware')}
 				</Button>
-			</Box>
+			</Stack>
+
+			{/* <Box width="100%" display="flex" justifyContent="end">
+				<Button
+					variant="contained"
+					onClick={() => navigate(RoutePaths.CREATE_SOFTWARE)}
+				>
+					{t('addSoftware')}
+				</Button>
+			</Box> */}
 
 			{(software.isLoading || deleteSoftware.isLoading) && <LinearProgress />}
 			<CollapsibleTable

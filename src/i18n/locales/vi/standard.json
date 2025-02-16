@@ -30,6 +30,9 @@
 	"rowsPerPage": "Số dòng mỗi trang:",
 	"all": "Tất cả",
 
+	"resetFilter": "Tạo lại bộ lọc",
+	"openFilter": "Mở bộ lọc",
+
 	"customer": "Khách hàng",
 	"software": "Phần mềm",
 	"addSoftware": "Thêm phần mềm",

@@ -8,6 +8,7 @@ import CreateModifyVersionForm from './CreateModifyVersionForm';
 import DragAndDropForm from './DragAndDropForm';
 import TextEditor from './TextEditor';
 import { PaginationTable } from './PaginationTable';
+import { FilterDialog } from './FilterDialog';
 
 export {
 	HydrateFallback,
@@ -21,4 +22,5 @@ export {
 	DragAndDropForm,
 	PaginationTable,
 	TextEditor,
+	FilterDialog,
 };
