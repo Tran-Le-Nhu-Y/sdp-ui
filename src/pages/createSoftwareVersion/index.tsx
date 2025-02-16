@@ -16,7 +16,7 @@ export default function CreateSoftwareVersionPage() {
 		descriptionProp: string;
 		files: File[];
 	}) => {
-		TODO(CREATE SOFTWARE VERSION)
+		// TODO(CREATE SOFTWARE VERSION)
 		navigate(-1);
 	};
 

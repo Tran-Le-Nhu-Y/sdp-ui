@@ -5,7 +5,7 @@ import Box from '@mui/material/Box';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { useTranslation } from 'react-i18next';
 import { IconButton, Stack, TableCell, TableRow } from '@mui/material';
-import { FilterableTable } from '../../components';
+import { PaginationTable } from '../../components';
 import { useState } from 'react';
 import { t } from 'i18next';
 
@@ -104,13 +104,13 @@ const ProductTable = () => {
 
 	return (
 		<>
-			<FilterableTable
-				filterableCols={[
-					{
-						key: 'name',
-						label: 'Phiên bản',
-					},
-				]}
+			<PaginationTable
+				// filterableCols={[
+				// 	{
+				// 		key: 'name',
+				// 		label: 'Phiên bản',
+				// 	},
+				// ]}
 				headers={
 					<>
 						<TableCell key={`productName`}>{t('productName')}</TableCell>
@@ -190,13 +190,13 @@ const CustomerTable = () => {
 
 	return (
 		<>
-			<FilterableTable
-				filterableCols={[
-					{
-						key: 'name',
-						label: 'Phiên bản',
-					},
-				]}
+			<PaginationTable
+				// filterableCols={[
+				// 	{
+				// 		key: 'name',
+				// 		label: 'Phiên bản',
+				// 	},
+				// ]}
 				headers={
 					<>
 						<TableCell key={`customerName`}>{t('customerName')}</TableCell>
@@ -276,13 +276,13 @@ const DeploymentTable = () => {
 
 	return (
 		<>
-			<FilterableTable
-				filterableCols={[
-					{
-						key: 'name',
-						label: 'Phiên bản',
-					},
-				]}
+			<PaginationTable
+				// filterableCols={[
+				// 	{
+				// 		key: 'name',
+				// 		label: 'Phiên bản',
+				// 	},
+				// ]}
 				headers={
 					<>
 						<TableCell key={`deployFor`}>{t('deployFor')}</TableCell>

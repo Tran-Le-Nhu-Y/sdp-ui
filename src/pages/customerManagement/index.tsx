@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { FilterableTable } from '../../components';
+import { PaginationTable } from '../../components';
 
 import { IconButton, Stack, TableCell, TableRow } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -50,13 +50,13 @@ export default function CustomerManagementPage() {
 			{/* {loading ? (
 				<LinearProgress />
 			) : ( */}
-			<FilterableTable
-				filterableCols={[
-					{
-						key: 'name',
-						label: 'Phiên bản',
-					},
-				]}
+			<PaginationTable
+				// filterableCols={[
+				// 	{
+				// 		key: 'name',
+				// 		label: 'Phiên bản',
+				// 	},
+				// ]}
 				headers={
 					<>
 						<TableCell key={`customerName`}>{t('customerName')}</TableCell>
@@ -78,7 +78,7 @@ export default function CustomerManagementPage() {
 				pageNumber={customerTablePage.pageNumber}
 				pageSize={customerTablePage.pageSize}
 				onPageChange={(newPage) => setCustomerTablePage(newPage)}
-				onAddClick={() => navigate(`/create-customer`)}
+				// onAddClick={() => navigate(`/create-customer`)}
 				addButtonText={t('addCustomer')}
 				getCell={(row) => (
 					<TableRow key={row.id}>
