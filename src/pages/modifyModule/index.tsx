@@ -15,7 +15,7 @@ export default function ModifyModulePage() {
 	const { id } = useParams<{ id: string }>(); // get product id from URL
 
 	const product = useSelector((state: RootState) =>
-		selectProductById(state, id!),
+		selectProductById(state, id!)
 	);
 
 	if (!product) {
@@ -44,8 +44,8 @@ export default function ModifyModulePage() {
 				title={t('modifyModule')}
 				label={`${t('moduleName')}`}
 				showModifyValues={{
-					productNameToShow: product.name,
-					descriptionToShow: product.description,
+					name: product.name,
+					description: product.description,
 				}}
 				onSubmit={handleSubmit}
 				onCancel={() => navigate(-1)}

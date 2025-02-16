@@ -5,17 +5,18 @@ import '@fontsource/roboto/700.css';
 
 import { AppProvider } from '@toolpad/core/react-router-dom';
 import { Outlet } from 'react-router';
+import WysiwygIcon from '@mui/icons-material/Wysiwyg';
+import Diversity1Icon from '@mui/icons-material/Diversity1';
 import LogoutIcon from '@mui/icons-material/Logout';
-import GroupsIcon from '@mui/icons-material/Groups';
-import Inventory2Icon from '@mui/icons-material/Inventory2';
 import DnsIcon from '@mui/icons-material/Dns';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import DescriptionIcon from '@mui/icons-material/Description';
-import BookmarksIcon from '@mui/icons-material/Bookmarks';
 import TopicIcon from '@mui/icons-material/Topic';
-import SummarizeIcon from '@mui/icons-material/Summarize';
+import LabelIcon from '@mui/icons-material/Label';
+import TypeSpecimenIcon from '@mui/icons-material/TypeSpecimen';
 import { useTranslation } from 'react-i18next';
 import theme from './themes/theme';
+import { DashboardLayout, PageContainer } from '@toolpad/core';
+import { PathHolders } from './utils';
 
 function App() {
 	const { t } = useTranslation();
@@ -38,44 +39,37 @@ function App() {
 				{
 					segment: 'customer',
 					title: t('customer'),
-					icon: <GroupsIcon />,
+					icon: <Diversity1Icon />,
+					pattern: `customer{/:${PathHolders.CUSTOMER_ID}}*`,
 				},
 				{
-					segment: 'product',
-					title: t('productManagement'),
-					icon: <Inventory2Icon />,
+					segment: 'software',
+					title: t('software'),
+					icon: <WysiwygIcon />,
+					pattern: `software{/:${PathHolders.SOFTWARE_ID}}*`,
 				},
 				{
 					segment: 'deploy',
-					title: t('deployManagement'),
+					title: t('deploy'),
 					icon: <DnsIcon />,
+					pattern: `deploy{/:${PathHolders.DEPLOY_PROCESS_ID}}*`,
 				},
 				{
 					segment: 'document',
-					title: t('documentManagement'),
+					title: t('document'),
 					icon: <TopicIcon />,
 					children: [
 						{
 							segment: 'label',
 							title: t('documentLabel'),
-							icon: <BookmarksIcon />,
+							icon: <LabelIcon />,
 						},
 						{
 							segment: 'product-design',
-							title: t('productDesignDocument'),
-							icon: <DescriptionIcon />,
-						},
-						{
-							segment: 'module-design',
-							title: t('moduleDesignDocument'),
-							icon: <SummarizeIcon />,
+							title: t('documentType'),
+							icon: <TypeSpecimenIcon />,
 						},
 					],
-				},
-				{
-					segment: 'test',
-					title: 'Test',
-					icon: <DescriptionIcon />,
 				},
 				{
 					segment: 'logout',
@@ -84,7 +78,11 @@ function App() {
 				},
 			]}
 		>
-			<Outlet />
+			<DashboardLayout>
+				<PageContainer>
+					<Outlet />
+				</PageContainer>
+			</DashboardLayout>
 		</AppProvider>
 	);
 }

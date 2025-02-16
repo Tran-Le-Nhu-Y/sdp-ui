@@ -9,9 +9,18 @@ export enum TextLength {
 export const isValidLength = (text: string, length: TextLength) =>
 	text.length <= length;
 
+export enum PathHolders {
+	SOFTWARE_ID = 'softwareId',
+	CUSTOMER_ID = 'customerId',
+	DEPLOY_PROCESS_ID = 'processId',
+}
+
 export enum RoutePaths {
-	CREATE_PRODUCT = '/create-product',
-	MODIFY_PRODUCT = '/modify-product',
+	OVERVIEW = '/overview',
+	SOFTWARE = '/software',
+	CREATE_SOFTWARE = '/software/create',
+	MODIFY_SOFTWARE = `/software/:${PathHolders.SOFTWARE_ID}/modify`,
+	CREATE_SOFTWARE_VERSION = `/software/:${PathHolders.SOFTWARE_ID}/version/create`,
 }
 
 export enum hideDuration {

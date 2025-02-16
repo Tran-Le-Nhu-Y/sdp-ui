@@ -8,99 +8,50 @@ import {
 	Route,
 	RouterProvider,
 } from 'react-router-dom';
-import RootLayout from './layouts/RootLayout.tsx';
 import {
-	CreatDeployDocumentPage,
 	CreateCustomerPage,
 	CreateDeploymentPage,
-	CreateModulePage,
-	CreateProductPage,
-	CreateVersionProductPage,
-	CreatModuleDesignDocumentPage,
-	CreatProductDesignDocumentPage,
+	CreateSoftwarePage,
+	CreateSoftwareVersionPage,
 	CustomerManagementPage,
-	DeployManagementPage,
-	DocumentLabelPage,
 	ErrorPage,
-	ModifyProductPage,
-	ModuleDesignDocumentPage,
-	//ModuleVersionDetailPage,
+	ModifySoftwarePage,
 	OverviewPage,
-	ProductDesignDocumentPage,
-	ProductManagementPage,
-	ProductVersionDetailPage,
+	SoftwarePage,
 } from './pages/index.tsx';
 import HydrateFallback from './components/HydrateFallback.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
 import { RoutePaths } from './utils/index.ts';
 
-//import CreateModifyVersionForm from './components/CreateModifyVersionForm.tsx';
-
 const router = createBrowserRouter(
 	createRoutesFromElements(
-		<Route path="/" element={<App />}>
+		<Route
+			path="/"
+			element={<App />}
+			errorElement={<ErrorPage />}
+			hydrateFallbackElement={<HydrateFallback />}
+		>
+			<Route path={RoutePaths.OVERVIEW} element={<OverviewPage />} />
+			<Route path="customer" element={<CustomerManagementPage />} />
+			<Route path="/create-customer" element={<CreateCustomerPage />} />
+			<Route path={RoutePaths.SOFTWARE} element={<SoftwarePage />} />
 			<Route
-				element={<RootLayout />}
-				errorElement={<ErrorPage />}
-				hydrateFallbackElement={<HydrateFallback />}
-			>
-				<Route path="overview" element={<OverviewPage />} />
-				<Route path="customer" element={<CustomerManagementPage />} />
-				<Route path="/create-customer" element={<CreateCustomerPage />} />
-				<Route path="product" element={<ProductManagementPage />} />
-				<Route
-					path={RoutePaths.CREATE_PRODUCT}
-					element={<CreateProductPage />}
-				/>
-				<Route path="/create-module" element={<CreateModulePage />} />
-				<Route
-					path="/product-version/:version"
-					element={<ProductVersionDetailPage />}
-				/>
-				<Route
-					path="/product/:productId/create-version"
-					element={<CreateVersionProductPage />}
-				/>
-				<Route path="/modify-product/:id" element={<ModifyProductPage />} />
-				<Route path="deploy" element={<DeployManagementPage />} />
-				<Route
-					path="/create-deploy-document"
-					element={<CreatDeployDocumentPage />}
-				/>
-				<Route path="/create-deployment" element={<CreateDeploymentPage />} />
-				<Route path="document">
-					<Route path="label" element={<DocumentLabelPage />} />
-					<Route
-						path="product-design"
-						element={<ProductDesignDocumentPage />}
-					/>
+				path={RoutePaths.CREATE_SOFTWARE}
+				element={<CreateSoftwarePage />}
+			/>
+			<Route
+				path={RoutePaths.MODIFY_SOFTWARE}
+				element={<ModifySoftwarePage />}
+			/>
+			<Route
+				path={RoutePaths.CREATE_SOFTWARE_VERSION}
+				element={<CreateSoftwareVersionPage />}
+			/>
 
-					<Route path="module-design" element={<ModuleDesignDocumentPage />} />
-				</Route>
-				<Route
-					path="/create-product-design-document"
-					element={<CreatProductDesignDocumentPage />}
-				/>
-				<Route
-					path="/create-module-design-document"
-					element={<CreatModuleDesignDocumentPage />}
-				/>
-				{/* <Route
-					path="test"
-					element={
-						<CreateModifyVersionForm
-							label="hahaha"
-							title="ssss"
-							onSubmit={() => App}
-							onCancel={App}
-						/>
-					}
-				/> */}
-				<Route path="test" element={<CreatProductDesignDocumentPage />} />
-			</Route>
-		</Route>,
-	),
+			<Route path="/create-deployment" element={<CreateDeploymentPage />} />
+		</Route>
+	)
 );
 
 createRoot(document.getElementById('root')!).render(
@@ -108,5 +59,5 @@ createRoot(document.getElementById('root')!).render(
 		<Provider store={store}>
 			<RouterProvider router={router} />
 		</Provider>
-	</StrictMode>,
+	</StrictMode>
 );

@@ -2,7 +2,7 @@ import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
-const entityAdapter = createEntityAdapter<Product, string>({
+const entityAdapter = createEntityAdapter<Software, string>({
 	selectId: (product) => product.id,
 	// sortComparer: (a, b) => a.name.localeCompare(b.name),
 });
@@ -18,11 +18,11 @@ export const slice = createSlice({
 	name: 'products',
 	initialState,
 	reducers: {
-		createProduct: (state, action: PayloadAction<Product>) => {
+		createProduct: (state, action: PayloadAction<Software>) => {
 			const newProduct = action.payload;
 			entityAdapter.addOne(state, newProduct);
 		},
-		updateProduct: (state, action: PayloadAction<Product>) => {
+		updateProduct: (state, action: PayloadAction<Software>) => {
 			const updateProduct = action.payload;
 			entityAdapter.updateOne(state, {
 				id: updateProduct.id,

@@ -1,15 +1,37 @@
 import {
-	productApi,
-	useGetAllProductsByUserIdQuery as useGetAllProductsByUserId,
-	useGetProductByIdQuery as useGetProductById,
-	usePostProductMutation as useCreateProduct,
-	usePutProductMutation as useUpdateProduct,
-	useDeleteProductMutation as useDeleteProduct,
-} from './product';
+	softwareApi,
+	useGetAllSoftwareByUserIdQuery as useGetAllSoftwareByUserId,
+	useDeleteSoftwareMutation as useDeleteSoftware,
+	useGetSoftwareByIdQuery as useGetSoftwareById,
+	usePostSoftwareMutation as useCreateSoftware,
+	usePutSoftwareMutation as useUpdateSoftware,
+} from './software';
+export {
+	softwareApi,
+	useGetAllSoftwareByUserId,
+	useDeleteSoftware,
+	useGetSoftwareById,
+	useCreateSoftware,
+	useUpdateSoftware,
+};
+
 import {
-	productVersionApi,
-	useGetAllVersionsByProductIdQuery as useGetAllVersionsByProductId,
-} from './product-version';
+	softwareVersionApi,
+	useGetAllVersionsBySoftwareIdQuery as useGetAllVersionsBySoftwareId,
+	useGetSoftwareVersionByIdQuery as useGetSoftwareVersionById,
+	usePostSoftwareVersionMutation as useCreateSoftwareVersion,
+	usePutSoftwareVersionMutation as useUpdateSoftwareVersion,
+	useDeleteSoftwareVersionMutation as useDeleteSoftwareVersion,
+} from './software-version';
+export {
+	softwareVersionApi,
+	useGetAllVersionsBySoftwareId,
+	useGetSoftwareVersionById,
+	useCreateSoftwareVersion,
+	useUpdateSoftwareVersion,
+	useDeleteSoftwareVersion,
+};
+
 import {
 	documentLabelApi,
 	useGetAllDocumentLabelsByUserIdQuery as useGetAllDocumentLabelsByUserId,
@@ -18,16 +40,6 @@ import {
 	usePutLabelMutation as useUpdateDocumentLabel,
 	useDeleteLabelMutation as useDeleteDocumentLabel,
 } from './document-label';
-
-export {
-	productApi,
-	useGetAllProductsByUserId,
-	useGetProductById,
-	useCreateProduct,
-	useUpdateProduct,
-	useDeleteProduct,
-};
-export { productVersionApi, useGetAllVersionsByProductId };
 export {
 	documentLabelApi,
 	useGetAllDocumentLabelsByUserId,

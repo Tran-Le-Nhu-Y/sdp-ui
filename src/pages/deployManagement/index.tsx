@@ -1,9 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { FilterableTable } from '../../components';
+import { PaginationTable } from '../../components';
 import { useState } from 'react';
-
-import { IconButton, Stack, TableCell, TableRow } from '@mui/material';
+// import { useNotifications } from '@toolpad/core';
+import { Box, IconButton, Stack, TableCell, TableRow } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
@@ -44,14 +44,8 @@ export default function DeployManagementPage() {
 	};
 
 	return (
-		<>
-			<FilterableTable
-				filterableCols={[
-					{
-						key: 'name',
-						label: 'Phiên bản',
-					},
-				]}
+		<Box>
+			<PaginationTable
 				headers={
 					<>
 						<TableCell key={`deployFor`}>{t('deployFor')}</TableCell>
@@ -72,7 +66,7 @@ export default function DeployManagementPage() {
 				pageNumber={deploymentTablePage.pageNumber}
 				pageSize={deploymentTablePage.pageSize}
 				onPageChange={(newPage) => setDeploymentTablePage(newPage)}
-				onAddClick={() => navigate(`/create-deployment`)}
+				// onAddClick={() => navigate(`/create-deployment`)}
 				addButtonText={t('addDeployment')}
 				getCell={(row) => (
 					<TableRow key={row.id}>
@@ -103,6 +97,6 @@ export default function DeployManagementPage() {
 					</TableRow>
 				)}
 			/>
-		</>
+		</Box>
 	);
 }

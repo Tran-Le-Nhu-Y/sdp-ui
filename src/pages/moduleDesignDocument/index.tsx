@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { FilterableTable } from '../../components';
+import { PaginationTable } from '../../components';
 import { useEffect, useState } from 'react';
 import {
 	deleteDeployDocumentById,
@@ -51,7 +51,7 @@ export default function ModuleDesignDocumentPage() {
 
 	const handleDelete = (id: string) => {
 		const confirmDelete = window.confirm(
-			`Bạn có chắc chắn muốn xóa deployment ${id}?`,
+			`Bạn có chắc chắn muốn xóa deployment ${id}?`
 		);
 		if (confirmDelete) {
 			dispatch(deleteDeployDocumentById(id));
@@ -81,7 +81,7 @@ export default function ModuleDesignDocumentPage() {
 			{loading ? (
 				<LinearProgress />
 			) : (
-				<FilterableTable
+				<PaginationTable
 					filterableCols={[
 						{
 							key: 'name',

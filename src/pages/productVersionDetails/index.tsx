@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 import {
 	CollapsibleTable,
 	CollapsibleTableRow,
-	FilterableTable,
+	PaginationTable,
 	FilterAction,
 	TextEditor,
 } from '../../components';
@@ -79,7 +79,7 @@ const ProductVersionDetailPage = () => {
 
 	const handleDelete = (id: string) => {
 		const confirmDelete = window.confirm(
-			`Bạn có chắc chắn muốn xóa module ${id}?`,
+			`Bạn có chắc chắn muốn xóa module ${id}?`
 		);
 		if (confirmDelete) {
 			dispatch(deleteModuleById(id));
@@ -302,7 +302,7 @@ const ProductVersionDetailPage = () => {
 													<TextEditor value={row.description} readOnly />
 												</Stack>
 
-												<FilterableTable
+												<PaginationTable
 													filterableCols={[
 														{
 															key: 'name',

@@ -1,5 +1,7 @@
 {
 	"overview": "Tổng quan",
+	"document": "Tài liệu",
+	"documentType": "Loại tài liệu",
 	"productList": "Danh sách sản phẩm",
 	"customerList": "Danh sách khách hàng",
 	"deploymentList": "Danh mục triển khai",
@@ -34,6 +36,17 @@
 	"rowsPerPage": "Số dòng mỗi trang:",
 	"all": "Tất cả",
 
+	"resetFilter": "Tạo lại bộ lọc",
+	"openFilter": "Mở bộ lọc",
+
+	"software": "Phần mềm",
+	"addSoftware": "Thêm phần mềm",
+	"noSoftware": "Không có phần mềm nào",
+	"createSoftwareError": "Thêm phần mềm đã xảy ra lỗi",
+	"createSoftwareSuccess": "Thêm phần mềm thành công",
+	"updateSoftwareError": "Cập nhật thông tin phần mềm đã xảy ra lỗi",
+	"updateSoftwareSuccess": "Cập nhật thông tin phần mềm thành công",
+	"softwareName": "Tên phần mềm",
 	"customer": "Khách hàng",
 	"customerName": "Tên khách hàng",
 	"address": "Địa chỉ",
@@ -61,6 +74,7 @@
 	"status": "Trạng thái",
 	"activating": "Đang hoạt động",
 	"inactivating": "Không hoạt động",
+	"modifySoftware": "Chỉnh sửa thông tin phần mềm",
 	"modifyProduct": "Chỉnh sửa phần mềm",
 	"productNotFound": "Không tìm thấy phần mềm",
 	"changeLog": "Lịch sử thay đổi",
@@ -68,6 +82,8 @@
 	"complete": "Hoàn thành",
 	"dragAndDrop": "Kéo và thả các tập tin ở đây",
 
+	"softwareVersionName": "Tên phiên bản",
+	"addSoftwareVersion": "Thêm phiên bản",
 	"addVersionProduct": "Thêm phiên bản phần mềm",
 	"modifyVersionProduct": "Chỉnh sửa phiên bản phần mềm",
 
@@ -81,8 +97,10 @@
 	"addInstance": "Thêm Instance",
 	"instanceName": "Tên instance",
 
+	"deploy": "Triển khai",
 	"deployManagement": "Triển khai",
 	"searchDeployDocument": "Tìm kiếm tài liệu triển khai",
+	"filter": "Lọc",
 	"searchBy": "Tìm kiếm theo",
 	"operator": "Phương thức",
 	"contains": "Có chứa",
@@ -109,9 +127,9 @@
 	"deleteLabelError": "Xóa nhãn tài liệu đã xảy ra lỗi",
 	"labelNameRequired": "Tên nhãn không được để trống",
 
-	"addProductDesignDocument": "Thêm tài liệu thiết kế sản phẩm",
-	"productDesignDocumentName": "Tên tài liệu thiết kế sản phẩm",
-	"productDesignDocumentDescription": "Mô tả tài liệu thiết kế sản phẩm",
+	"addProductDesignDocument": "Thêm tài liệu thiết kế phần mềm",
+	"productDesignDocumentName": "Tên tài liệu thiết kế phần mềm",
+	"productDesignDocumentDescription": "Mô tả tài liệu thiết kế phần mềm",
 
 	"addModuleDesignDocument": "Thêm tài liệu thiết kế module",
 	"moduleDesignDocumentName": "Tên tài liệu thiết kế module",
