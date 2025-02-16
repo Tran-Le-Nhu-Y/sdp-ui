@@ -6,19 +6,6 @@ import {
 	usePostSoftwareMutation as useCreateSoftware,
 	usePutSoftwareMutation as useUpdateSoftware,
 } from './software';
-import {
-	productVersionApi,
-	useGetAllVersionsByProductIdQuery as useGetAllVersionsByProductId,
-} from './product-version';
-import {
-	documentLabelApi,
-	useGetAllDocumentLabelsByUserIdQuery as useGetAllDocumentLabelsByUserId,
-	usePostDocumentLabelMutation as useCreateDocumentLabel,
-	useGetLabelByIdQuery as useGetDocumentLabelById,
-	usePutLabelMutation as useUpdateDocumentLabel,
-	useDeleteLabelMutation as useDeleteDocumentLabel,
-} from './document-label';
-
 export {
 	softwareApi,
 	useGetAllSoftwareByUserId,
@@ -27,7 +14,32 @@ export {
 	useCreateSoftware,
 	useUpdateSoftware,
 };
-export { productVersionApi, useGetAllVersionsByProductId };
+
+import {
+	softwareVersionApi,
+	useGetAllVersionsBySoftwareIdQuery as useGetAllVersionsBySoftwareId,
+	useGetSoftwareVersionByIdQuery as useGetSoftwareVersionById,
+	usePostSoftwareVersionMutation as useCreateSoftwareVersion,
+	usePutSoftwareVersionMutation as useUpdateSoftwareVersion,
+	useDeleteSoftwareVersionMutation as useDeleteSoftwareVersion,
+} from './software-version';
+export {
+	softwareVersionApi,
+	useGetAllVersionsBySoftwareId,
+	useGetSoftwareVersionById,
+	useCreateSoftwareVersion,
+	useUpdateSoftwareVersion,
+	useDeleteSoftwareVersion,
+};
+
+import {
+	documentLabelApi,
+	useGetAllDocumentLabelsByUserIdQuery as useGetAllDocumentLabelsByUserId,
+	usePostDocumentLabelMutation as useCreateDocumentLabel,
+	useGetLabelByIdQuery as useGetDocumentLabelById,
+	usePutLabelMutation as useUpdateDocumentLabel,
+	useDeleteLabelMutation as useDeleteDocumentLabel,
+} from './document-label';
 export {
 	documentLabelApi,
 	useGetAllDocumentLabelsByUserId,

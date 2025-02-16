@@ -10,6 +10,7 @@ import {
 } from 'react-router-dom';
 import {
 	CreateSoftwarePage,
+	CreateSoftwareVersionPage,
 	ErrorPage,
 	ModifySoftwarePage,
 	OverviewPage,
@@ -37,6 +38,10 @@ const router = createBrowserRouter(
 			<Route
 				path={RoutePaths.MODIFY_SOFTWARE}
 				element={<ModifySoftwarePage />}
+			/>
+			<Route
+				path={RoutePaths.CREATE_SOFTWARE_VERSION}
+				element={<CreateSoftwareVersionPage />}
 			/>
 		</Route>
 	)

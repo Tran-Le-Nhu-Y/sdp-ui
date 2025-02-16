@@ -1,10 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { documentLabelApi, softwareApi, productVersionApi } from '../services';
+import { documentLabelApi, softwareApi, softwareVersionApi } from '../services';
 
 export const store = configureStore({
 	reducer: {
 		[softwareApi.reducerPath]: softwareApi.reducer,
-		[productVersionApi.reducerPath]: productVersionApi.reducer,
+		[softwareVersionApi.reducerPath]: softwareVersionApi.reducer,
 		[documentLabelApi.reducerPath]: documentLabelApi.reducer,
 	},
 	// Adding the api middleware enables caching, invalidation, polling,
@@ -12,7 +12,7 @@ export const store = configureStore({
 	middleware(getDefaultMiddleware) {
 		return getDefaultMiddleware().concat(
 			softwareApi.middleware,
-			productVersionApi.middleware,
+			softwareVersionApi.middleware,
 			documentLabelApi.middleware
 		);
 	},

@@ -17,12 +17,12 @@ declare interface SoftwareResponse {
 	updatedAtMs: number?;
 }
 
-declare interface ProductVersionResponse {
+declare interface SoftwareVersionResponse {
 	id: string;
-	versionName: string;
-	isUsed: boolean;
-	createdAtMillis: number;
-	updatedAtMillis: number?;
+	name: string;
+	description: string?;
+	createdAtMs: number;
+	updatedAtMs: number?;
 }
 
 declare interface ErrorResponse {

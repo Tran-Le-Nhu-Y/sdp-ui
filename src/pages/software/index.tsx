@@ -22,12 +22,128 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import {
 	useDeleteSoftware,
 	useGetAllSoftwareByUserId,
-	useGetAllVersionsByProductId,
+	useGetAllVersionsBySoftwareId,
 } from '../../services';
 import { useDialogs, useNotifications } from '@toolpad/core';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { hideDuration, PathHolders, RoutePaths } from '../../utils';
+
+function SoftwareVersionInner({
+	softwareId,
+	versionQuery,
+	onQueryChange,
+}: {
+	softwareId: string;
+	versionQuery: GetAllSoftwareVersionQuery | null;
+	onQueryChange: (query: GetAllSoftwareVersionQuery | null) => void;
+}) {
+	const navigate = useNavigate();
+	const { t } = useTranslation('standard');
+	const [filterVersionDialogOpen, setFilterVersionDialogOpen] = useState(false);
+
+	const versions = useGetAllVersionsBySoftwareId(versionQuery!, {
+		skip: !versionQuery,
+	});
+
+	return (
+		<Box>
+			<Stack
+				direction="row"
+				justifyContent="space-between"
+				alignItems="center"
+				sx={{ marginBottom: 1 }}
+			>
+				<FilterDialog
+					filters={[
+						{
+							key: 'versionName',
+							label: t('softwareVersionName'),
+						},
+					]}
+					open={filterVersionDialogOpen}
+					onClose={() => setFilterVersionDialogOpen(false)}
+					onOpen={() => setFilterVersionDialogOpen(true)}
+					onApply={(filters) => {
+						const query: object = filters.reduce((pre, curr) => {
+							return { ...pre, [curr.key]: curr.value };
+						}, {});
+						onQueryChange({ ...versionQuery, softwareId, ...query });
+					}}
+					onReset={() => {
+						onQueryChange({
+							softwareId,
+							...versionQuery,
+							versionName: '',
+						});
+					}}
+				/>
+				<Button
+					variant="contained"
+					onClick={() =>
+						navigate(
+							`${RoutePaths.CREATE_SOFTWARE_VERSION.replace(`:${PathHolders.SOFTWARE_ID}`, softwareId)}`
+						)
+					}
+				>
+					{t('addSoftwareVersion')}
+				</Button>
+			</Stack>
+			<PaginationTable
+				headers={
+					<>
+						<TableCell key={`software-${softwareId}-name`}>
+							{t('softwareVersionName')}
+						</TableCell>
+						<TableCell key={`software-${softwareId}-createdAt`} align="center">
+							{t('dateCreated')}
+						</TableCell>
+						<TableCell key={`software-${softwareId}-updatedAt`} align="center">
+							{t('lastUpdated')}
+						</TableCell>
+						{/* <TableCell key={`software-${softwareId}-status`} align="center">
+							{t('status')}
+						</TableCell> */}
+						<TableCell />
+						<TableCell />
+					</>
+				}
+				getCell={(row) => (
+					<TableRow key={`software_verion-${row.id}`}>
+						<TableCell>{row.name}</TableCell>
+						<TableCell align="center">{row.createdAt}</TableCell>
+						<TableCell align="center">{row.updatedAt}</TableCell>
+						{/* <TableCell align="center">{t(row.status)}</TableCell> */}
+						<TableCell>
+							<Stack direction="row">
+								<IconButton size="small" onClick={() => {}}>
+									<RemoveRedEyeIcon color="info" />
+								</IconButton>
+								<IconButton size="small" onClick={() => {}}>
+									<EditIcon color="info" />
+								</IconButton>
+								<IconButton size="small" onClick={() => {}}>
+									<DeleteIcon color="error" />
+								</IconButton>
+							</Stack>
+						</TableCell>
+					</TableRow>
+				)}
+				count={versions?.data?.totalElements ?? 0}
+				rows={versions?.data?.content ?? []}
+				addButtonText={t('addVersion')}
+				onPageChange={(newPage) =>
+					onQueryChange({
+						softwareId,
+						versionName: versionQuery?.versionName ?? '',
+						// status: versionQuery?.status ?? false,
+						...newPage,
+					})
+				}
+			/>
+		</Box>
+	);
+}
 
 export default function SoftwarePage() {
 	const { t } = useTranslation('standard');
@@ -78,16 +194,8 @@ export default function SoftwarePage() {
 		await deleteSoftwareTrigger(productId);
 	};
 
-	const [currVerProps, setCurrVerProps] = useState<{
-		productId: string;
-		versionName: string;
-		status: boolean;
-		pageNumber: number;
-		pageSize: number;
-	} | null>(null);
-	const versions = useGetAllVersionsByProductId(currVerProps!, {
-		skip: !currVerProps,
-	});
+	const [versionQuery, setVersionQuery] =
+		useState<GetAllSoftwareVersionQuery | null>(null);
 
 	return (
 		<Box>
@@ -124,15 +232,6 @@ export default function SoftwarePage() {
 					{t('addSoftware')}
 				</Button>
 			</Stack>
-
-			{/* <Box width="100%" display="flex" justifyContent="end">
-				<Button
-					variant="contained"
-					onClick={() => navigate(RoutePaths.CREATE_SOFTWARE)}
-				>
-					{t('addSoftware')}
-				</Button>
-			</Box> */}
 
 			{(software.isLoading || deleteSoftware.isLoading) && <LinearProgress />}
 			<CollapsibleTable
@@ -217,91 +316,18 @@ export default function SoftwarePage() {
 									>
 										<TextEditor value={row.description ?? ''} readOnly />
 									</Stack>
-
-									<div>
-										<PaginationTable
-											// filterableCols={[
-											// 	{
-											// 		key: 'name',
-											// 		label: 'Phiên bản',
-											// 	},
-											// 	{
-											// 		key: 'status',
-											// 		label: 'Trạng thái',
-											// 	},
-											// ]}
-											headers={
-												<>
-													<TableCell key={`product-${row.id}-name`}>
-														{t('softwareName')}
-													</TableCell>
-													<TableCell
-														key={`product-${row.id}-createdAt`}
-														align="center"
-													>
-														{t('dateCreated')}
-													</TableCell>
-													<TableCell
-														key={`product-${row.id}-updatedAt`}
-														align="center"
-													>
-														{t('lastUpdated')}
-													</TableCell>
-													<TableCell
-														key={`product-${row.id}-status`}
-														align="center"
-													>
-														{t('status')}
-													</TableCell>
-													<TableCell />
-													<TableCell />
-												</>
-											}
-											getCell={(row) => (
-												<TableRow key={`product_verion-${row.id}`}>
-													<TableCell>{row.name}</TableCell>
-													<TableCell align="center">{row.createdAt}</TableCell>
-													<TableCell align="center">{row.updatedAt}</TableCell>
-													<TableCell align="center">{t(row.status)}</TableCell>
-													<TableCell>
-														<Stack direction="row">
-															<IconButton size="small" onClick={() => {}}>
-																<RemoveRedEyeIcon color="info" />
-															</IconButton>
-															<IconButton size="small" onClick={() => {}}>
-																<EditIcon color="info" />
-															</IconButton>
-															<IconButton size="small" onClick={() => {}}>
-																<DeleteIcon color="error" />
-															</IconButton>
-														</Stack>
-													</TableCell>
-												</TableRow>
-											)}
-											count={versions?.data?.totalElements ?? 0}
-											rows={versions?.data?.content ?? []}
-											// onAddClick={() =>
-											// 	navigate(`/product/${row.id}/create-version`)
-											// }
-											addButtonText={t('addVersion')}
-											onPageChange={(newPage) =>
-												setCurrVerProps({
-													productId: row.id,
-													versionName: currVerProps?.versionName ?? '',
-													status: currVerProps?.status ?? false,
-													...newPage,
-												})
-											}
-										/>
-									</div>
 								</Box>
+								<SoftwareVersionInner
+									softwareId={row.id}
+									versionQuery={versionQuery}
+									onQueryChange={(query) => setVersionQuery(query)}
+								/>
 							</>
 						}
 						onExpand={() => {
-							setCurrVerProps({
-								productId: row.id,
+							setVersionQuery({
+								softwareId: row.id,
 								versionName: '',
-								status: false,
 								pageNumber: 0,
 								pageSize: 5,
 							});

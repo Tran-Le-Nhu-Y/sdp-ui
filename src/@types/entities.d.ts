@@ -12,14 +12,6 @@ declare interface DocumentLabel {
 	updatedAt: string?;
 	color: string;
 }
-declare interface ProductVersion {
-	id: string;
-	productId: string;
-	name: string;
-	createdAt: string;
-	updatedAt: string?;
-	status: 'ACTIVE' | 'INACTIVE';
-}
 
 declare interface ProductVersionChangelog {
 	id: string;
@@ -33,6 +25,14 @@ declare interface Software {
 	description?: string?;
 	createdAt: string;
 	updatedAt?: string?;
+}
+
+declare interface SoftwareVersion {
+	id: string;
+	name: string;
+	description: string?;
+	createdAt: string;
+	updatedAt: string?;
 }
 
 declare interface DeployDocument {

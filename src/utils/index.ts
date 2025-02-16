@@ -20,6 +20,7 @@ export enum RoutePaths {
 	SOFTWARE = '/software',
 	CREATE_SOFTWARE = '/software/create',
 	MODIFY_SOFTWARE = `/software/:${PathHolders.SOFTWARE_ID}/modify`,
+	CREATE_SOFTWARE_VERSION = `/software/:${PathHolders.SOFTWARE_ID}/version/create`,
 }
 
 export enum hideDuration {

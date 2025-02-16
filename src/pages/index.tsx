@@ -8,7 +8,7 @@ import ModuleDesignDocumentPage from './moduleDesignDocument';
 import CreateSoftwarePage from './createSoftware';
 import ModifySoftwarePage from './modifySoftware';
 import CreatDeployDocumentPage from './createDeployDocument';
-import CreateVersionProductPage from './createVersionProduct';
+import CreateSoftwareVersionPage from './createSoftwareVersion';
 import CreateModulePage from './createModule';
 import CreateVersionModulePage from './createVersionModule';
 import ModifyModulePage from './modifyModule';
@@ -25,7 +25,7 @@ export {
 	CreateSoftwarePage,
 	ModifySoftwarePage,
 	ProductVersionDetailPage,
-	CreateVersionProductPage,
+	CreateSoftwareVersionPage,
 	ModifyVersionProductPage,
 	CreateModulePage,
 	ModifyModulePage,
