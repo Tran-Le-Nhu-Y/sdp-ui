@@ -96,9 +96,10 @@
 
 	"addInstance": "Thêm Instance",
 	"instanceName": "Tên instance",
-
-	"deploy": "Triển khai",
-	"deployManagement": "Triển khai",
+	"goBack": "Quay trở lại",
+	"home": "trang chủ",
+	"pageNotFound": "Oops! Đường dẫn không tồn tại.",
+	"deployment": "Triển khai",
 	"searchDeployDocument": "Tìm kiếm tài liệu triển khai",
 	"filter": "Lọc",
 	"searchBy": "Tìm kiếm theo",
