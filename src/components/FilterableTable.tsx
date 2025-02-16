@@ -198,9 +198,11 @@ function FilterableTable<T>(props: FilterableTableProps<T>) {
 					</IconButton>
 				</Stack>
 
-				<Button variant="contained" onClick={onAddFilter}>
-					{addButtonText || t('add')}
-				</Button>
+				{addButtonText && (
+					<Button variant="contained" onClick={onAddFilter}>
+						{addButtonText}
+					</Button>
+				)}
 			</div>
 
 			{/* Table Section */}

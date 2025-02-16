@@ -18,9 +18,14 @@ import CreatProductDesignDocumentPage from './createProductDesignDocument';
 import CreatModuleDesignDocumentPage from './createModuleDesignDocument';
 import ProductVersionDetailPage from './productVersionDetails';
 import ModuleVersionDetailPage from './moduleVersionDetails';
+import CustomerManagementPage from './customerManagement';
+import CreateCustomerPage from './createCustomer';
+import CreateDeploymentPage from './createDeployment';
 
 export {
 	OverviewPage,
+	CustomerManagementPage,
+	CreateCustomerPage,
 	ProductManagementPage,
 	ProductVersionDetailPage,
 	CreateProductPage,
@@ -33,6 +38,7 @@ export {
 	CreateVersionModulePage,
 	ModifyVersionModulePage,
 	DeployManagementPage,
+	CreateDeploymentPage,
 	CreatDeployDocumentPage,
 	DocumentLabelPage,
 	ProductDesignDocumentPage,

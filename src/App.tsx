@@ -6,6 +6,7 @@ import '@fontsource/roboto/700.css';
 import { AppProvider } from '@toolpad/core/react-router-dom';
 import { Outlet } from 'react-router';
 import LogoutIcon from '@mui/icons-material/Logout';
+import GroupsIcon from '@mui/icons-material/Groups';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import DnsIcon from '@mui/icons-material/Dns';
 import DashboardIcon from '@mui/icons-material/Dashboard';
@@ -27,13 +28,18 @@ function App() {
 			// 	title: 'MUI',
 			// 	homeUrl: '/toolpad/core/introduction',
 			// }}
+
 			navigation={[
 				{
 					segment: 'overview',
 					title: t('overview'),
 					icon: <DashboardIcon />,
 				},
-
+				{
+					segment: 'customer',
+					title: t('customer'),
+					icon: <GroupsIcon />,
+				},
 				{
 					segment: 'product',
 					title: t('productManagement'),

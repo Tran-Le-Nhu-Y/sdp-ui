@@ -11,11 +11,14 @@ import {
 import RootLayout from './layouts/RootLayout.tsx';
 import {
 	CreatDeployDocumentPage,
+	CreateCustomerPage,
+	CreateDeploymentPage,
 	CreateModulePage,
 	CreateProductPage,
 	CreateVersionProductPage,
 	CreatModuleDesignDocumentPage,
 	CreatProductDesignDocumentPage,
+	CustomerManagementPage,
 	DeployManagementPage,
 	DocumentLabelPage,
 	ErrorPage,
@@ -43,6 +46,8 @@ const router = createBrowserRouter(
 				hydrateFallbackElement={<HydrateFallback />}
 			>
 				<Route path="overview" element={<OverviewPage />} />
+				<Route path="customer" element={<CustomerManagementPage />} />
+				<Route path="/create-customer" element={<CreateCustomerPage />} />
 				<Route path="product" element={<ProductManagementPage />} />
 				<Route
 					path={RoutePaths.CREATE_PRODUCT}
@@ -63,6 +68,7 @@ const router = createBrowserRouter(
 					path="/create-deploy-document"
 					element={<CreatDeployDocumentPage />}
 				/>
+				<Route path="/create-deployment" element={<CreateDeploymentPage />} />
 				<Route path="document">
 					<Route path="label" element={<DocumentLabelPage />} />
 					<Route
