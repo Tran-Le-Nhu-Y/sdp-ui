@@ -27,7 +27,6 @@ export default function CreatDeployDocumentPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const [product, setProduct] = useState('');
-	const [module, setModule] = useState('');
 	const [, setFiles] = useState<FileAttachment[]>([]);
 
 	const handleSubmit = () => {
@@ -44,66 +43,28 @@ export default function CreatDeployDocumentPage() {
 	return (
 		<Stack>
 			<Typography variant="h5" mb={3} textAlign="center">
-				{t('addDeployDocument')}
+				{t('addDocument')}
 			</Typography>
 			<Stack mb={2}>
-				{/* Product Selection */}
-				<Stack direction="row" spacing={2} mb={2}>
-					<FormControl fullWidth size="small">
-						<InputLabel>{t('productName')}</InputLabel>
-						<Select
-							label={t('productName')}
-							value={product}
-							onChange={(e) => setProduct(e.target.value)}
-						>
-							<MenuItem value="Product 1">Product 1</MenuItem>
-							<MenuItem value="Product 2">Product 2</MenuItem>
-						</Select>
-					</FormControl>
-					<FormControl fullWidth size="small">
-						<InputLabel>{t('version')}</InputLabel>
-						<Select
-							label={t('version')}
-							value={module}
-							onChange={(e) => setModule(e.target.value)}
-						>
-							<MenuItem value="Module 1">Module 1</MenuItem>
-							<MenuItem value="Module 2">Module 2</MenuItem>
-						</Select>
-					</FormControl>
-				</Stack>
-				<Stack direction="row" spacing={2}>
-					<FormControl fullWidth size="small">
-						<InputLabel>{t('moduleName')}</InputLabel>
-						<Select
-							label={t('moduleName')}
-							value={product}
-							onChange={(e) => setProduct(e.target.value)}
-						>
-							<MenuItem value="Product 1">Product 1</MenuItem>
-							<MenuItem value="Product 2">Product 2</MenuItem>
-						</Select>
-					</FormControl>
-					<FormControl fullWidth size="small">
-						<InputLabel>{t('version')}</InputLabel>
-						<Select
-							label={t('version')}
-							value={module}
-							onChange={(e) => setModule(e.target.value)}
-						>
-							<MenuItem value="Module 1">Module 1</MenuItem>
-							<MenuItem value="Module 2">Module 2</MenuItem>
-						</Select>
-					</FormControl>
-				</Stack>
+				<FormControl fullWidth size="small">
+					<InputLabel>{t('documentType')}</InputLabel>
+					<Select
+						label={t('productName')}
+						value={product}
+						onChange={(e) => setProduct(e.target.value)}
+					>
+						<MenuItem value="Product 1">Product 1</MenuItem>
+						<MenuItem value="Product 2">Product 2</MenuItem>
+					</Select>
+				</FormControl>
 			</Stack>
 
 			<TextField
 				size="small"
-				label={t('deployDocumentName')}
+				label={t('documentName')}
 				value={''}
 				onChange={(e) => e.target.value}
-				placeholder={`${t('enter')} ${t('deployDocumentName').toLowerCase()}...`}
+				placeholder={`${t('enter')} ${t('documentName').toLowerCase()}...`}
 			/>
 
 			<Stack mt={1}>
@@ -116,7 +77,7 @@ export default function CreatDeployDocumentPage() {
 						size="medium"
 						value={''}
 						onChange={(e) => e.target.value}
-						placeholder={`${t('enter')} ${t('deployDocumentDescription').toLowerCase()}...`}
+						placeholder={`${t('enter')} ${t('documentDescription').toLowerCase()}...`}
 						multiline
 						rows={4}
 					/>
