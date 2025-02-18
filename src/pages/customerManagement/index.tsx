@@ -6,11 +6,10 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 export default function CustomerManagementPage() {
 	const { t } = useTranslation();
-	const navigate = useNavigate();
+	//const navigate = useNavigate();
 
 	const [customerTablePage, setCustomerTablePage] = useState<TablePage>({
 		pageNumber: 0,
@@ -79,7 +78,7 @@ export default function CustomerManagementPage() {
 				pageSize={customerTablePage.pageSize}
 				onPageChange={(newPage) => setCustomerTablePage(newPage)}
 				// onAddClick={() => navigate(`/create-customer`)}
-				addButtonText={t('addCustomer')}
+				//addButtonText={t('addCustomer')}
 				getCell={(row) => (
 					<TableRow key={row.id}>
 						<TableCell key={`customerName`}>{row.name}</TableCell>

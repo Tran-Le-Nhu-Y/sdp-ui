@@ -9,6 +9,7 @@ import {
 	RouterProvider,
 } from 'react-router-dom';
 import {
+	CreatDeployDocumentPage,
 	CreateCustomerPage,
 	CreateDeploymentPage,
 	CreateSoftwarePage,
@@ -16,8 +17,10 @@ import {
 	CustomerManagementPage,
 	ErrorPage,
 	ModifySoftwarePage,
+	ModifySoftwareVersioPage,
 	OverviewPage,
 	SoftwarePage,
+	SoftwareVersionDetailPage,
 } from './pages/index.tsx';
 import HydrateFallback from './components/HydrateFallback.tsx';
 import { Provider } from 'react-redux';
@@ -48,10 +51,19 @@ const router = createBrowserRouter(
 				path={RoutePaths.CREATE_SOFTWARE_VERSION}
 				element={<CreateSoftwareVersionPage />}
 			/>
+			<Route
+				path={RoutePaths.MODIFY_SOFTWARE_VERSION}
+				element={<ModifySoftwareVersioPage />}
+			/>
+			<Route
+				path={RoutePaths.SOFTWARE_VERSION_DETAIL}
+				element={<SoftwareVersionDetailPage />}
+			/>
 
 			<Route path="/create-deployment" element={<CreateDeploymentPage />} />
-		</Route>
-	)
+			<Route path="test" element={<CreatDeployDocumentPage />} />
+		</Route>,
+	),
 );
 
 createRoot(document.getElementById('root')!).render(
@@ -59,5 +71,5 @@ createRoot(document.getElementById('root')!).render(
 		<Provider store={store}>
 			<RouterProvider router={router} />
 		</Provider>
-	</StrictMode>
+	</StrictMode>,
 );

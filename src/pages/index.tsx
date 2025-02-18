@@ -2,7 +2,6 @@ import OverviewPage from './overview';
 import ErrorPage from './error';
 import SoftwarePage from './software';
 import DeployManagementPage from './deployManagement';
-import DocumentLabelPage from './documentlabel';
 import ProductDesignDocumentPage from './productDesignDocument';
 import ModuleDesignDocumentPage from './moduleDesignDocument';
 import CreateSoftwarePage from './createSoftware';
@@ -13,14 +12,15 @@ import CreateModulePage from './createModule';
 import CreateVersionModulePage from './createVersionModule';
 import ModifyModulePage from './modifyModule';
 import ModifyVersionModulePage from './modifyVersionModule';
-import ModifyVersionProductPage from './modifyVersionProduct';
+import ModifySoftwareVersioPage from './modifySoftwareVersion';
 import CreatProductDesignDocumentPage from './createProductDesignDocument';
 import CreatModuleDesignDocumentPage from './createModuleDesignDocument';
-import ProductVersionDetailPage from './productVersionDetails';
+import SoftwareVersionDetailPage from './softwareVersionDetail';
 import ModuleVersionDetailPage from './moduleVersionDetails';
 import CustomerManagementPage from './customerManagement';
 import CreateCustomerPage from './createCustomer';
 import CreateDeploymentPage from './createDeployment';
+import DocumentLabelPage from './documentLabel';
 
 export {
 	OverviewPage,
@@ -29,9 +29,9 @@ export {
 	ModifySoftwarePage,
 	CustomerManagementPage,
 	CreateCustomerPage,
-	ProductVersionDetailPage,
+	SoftwareVersionDetailPage,
 	CreateSoftwareVersionPage,
-	ModifyVersionProductPage,
+	ModifySoftwareVersioPage,
 	CreateModulePage,
 	ModifyModulePage,
 	ModuleVersionDetailPage,
