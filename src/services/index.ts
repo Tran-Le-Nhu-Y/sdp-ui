@@ -33,6 +33,23 @@ export {
 };
 
 import {
+	deploymentProcessApi,
+	useGetAllProcessesQuery as useGetAllDeploymentProcesses,
+	useGetProcessQuery as useGetDeploymentProcess,
+	usePostProcessMutation as useCreateDeploymentProcess,
+	usePutProcessMutation as useUpdateDeploymentProcess,
+	useDeleteProcessMutation as useDeleteDeploymentProcess,
+} from './deployment-process';
+export {
+	deploymentProcessApi,
+	useGetAllDeploymentProcesses,
+	useGetDeploymentProcess,
+	useCreateDeploymentProcess,
+	useUpdateDeploymentProcess,
+	useDeleteDeploymentProcess,
+};
+
+import {
 	documentLabelApi,
 	useGetAllDocumentLabelsByUserIdQuery as useGetAllDocumentLabelsByUserId,
 	usePostDocumentLabelMutation as useCreateDocumentLabel,

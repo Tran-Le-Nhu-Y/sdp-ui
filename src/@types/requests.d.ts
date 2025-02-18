@@ -22,6 +22,17 @@ declare interface SoftwareVersionUpdateRequest {
 	versionId: string;
 }
 
+declare interface DeploymentProcessCreateRequest {
+	userId: string;
+	softwareVersionId: string;
+	customerId: string;
+}
+
+declare interface DeploymentProcessUpdateRequest {
+	processId: string;
+	status: DeploymentProcessStatus;
+}
+
 declare interface DocumentLabelCreatingRequest {
 	name: string;
 	description?: string?;

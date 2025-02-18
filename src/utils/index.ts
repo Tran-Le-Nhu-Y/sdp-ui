@@ -27,7 +27,7 @@ export enum RoutePaths {
 	CREATE_DEPLOYMENT_PROCESS = '/deployment/create',
 }
 
-export enum HideDuration {
+export enum hideDuration {
 	fast = 3000,
 	slow = 5000,
 }

@@ -131,7 +131,6 @@ function SoftwareVersionInner({
 				)}
 				count={versions?.data?.totalElements ?? 0}
 				rows={versions?.data?.content ?? []}
-				addButtonText={t('addVersion')}
 				onPageChange={(newPage) =>
 					onQueryChange({
 						softwareId,

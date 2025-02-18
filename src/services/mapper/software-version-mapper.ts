@@ -6,7 +6,7 @@ function toEntity(response: SoftwareVersionResponse): SoftwareVersion {
 		createdAt: new Date(response.createdAtMs).toLocaleString(),
 		updatedAt: response.updatedAtMs
 			? new Date(response.updatedAtMs).toLocaleString()
-			: '',
+			: null,
 	};
 	return version;
 }

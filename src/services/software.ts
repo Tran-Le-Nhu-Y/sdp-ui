@@ -24,12 +24,19 @@ export const softwareApi = createApi({
 				},
 			}),
 			providesTags(result) {
-				return [
-					{
-						type: 'PagingSoftware',
-						id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
-					} as const,
-				];
+				const pagingTag = {
+					type: 'PagingSoftware',
+					id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
+				} as const;
+
+				return result
+					? [
+							...result.content.map(
+								({ id }) => ({ type: 'Software', id }) as const
+							),
+							pagingTag,
+						]
+					: [pagingTag];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
@@ -52,7 +59,7 @@ export const softwareApi = createApi({
 					? [
 							{
 								type: 'Software',
-								id: result?.id,
+								id: result.id,
 							} as const,
 						]
 					: [];

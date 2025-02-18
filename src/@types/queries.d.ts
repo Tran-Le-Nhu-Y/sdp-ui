@@ -11,3 +11,11 @@ declare interface GetAllSoftwareVersionQuery {
 	pageNumber?: number?;
 	pageSize?: number?;
 }
+
+declare interface GetAllDeploymentProcessQuery {
+	softwareVersionName?: string?;
+	customerName?: string?;
+	status?: DeploymentProcessStatus?;
+	pageNumber?: number?;
+	pageSize?: number?;
+}

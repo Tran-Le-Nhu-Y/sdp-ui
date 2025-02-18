@@ -13,12 +13,6 @@ declare interface DocumentLabel {
 	color: string;
 }
 
-declare interface ProductVersionChangelog {
-	id: string;
-	versionId: string;
-	name: string;
-}
-
 declare interface Software {
 	id: string;
 	name: string;
@@ -35,6 +29,26 @@ declare interface SoftwareVersion {
 	updatedAt: string?;
 }
 
+declare interface DeploymentProcess {
+	id: number;
+	status: DeploymentProcessStatus;
+	createdAt: string;
+	updatedAt?: string?;
+	software: {
+		name: string;
+		version: string;
+	};
+	customer: {
+		name: string;
+	};
+}
+
+declare type DeploymentProcessStatus =
+	| 'INIT'
+	| 'PENDING'
+	| 'IN_PROGRESS'
+	| 'DONE';
+
 declare interface DeployDocument {
 	id: string;
 	name: string;
@@ -42,15 +56,6 @@ declare interface DeployDocument {
 	moduleId: string;
 	createdAt: string;
 	updatedAt: string?;
-}
-
-declare interface Instance {
-	id: string;
-	name: string;
-	description: string;
-	createdAt: string;
-	updatedAt: string?;
-	status: 'ACTIVE' | 'INACTIVE';
 }
 
 declare interface Instance {

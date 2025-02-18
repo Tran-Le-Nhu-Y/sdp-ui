@@ -1,13 +1,12 @@
 import OverviewPage from './overview';
 import ErrorPage from './error';
 import SoftwarePage from './software';
-import DeployManagementPage from './deployManagement';
+import DeploymentProcessPage from './deploymentProcess';
 import DocumentLabelPage from './documentlabel';
 import ProductDesignDocumentPage from './productDesignDocument';
 import ModuleDesignDocumentPage from './moduleDesignDocument';
 import CreateSoftwarePage from './createSoftware';
 import ModifySoftwarePage from './modifySoftware';
-import CreatDeployDocumentPage from './createDeployDocument';
 import CreateSoftwareVersionPage from './createSoftwareVersion';
 import CreateModulePage from './createModule';
 import CreateVersionModulePage from './createVersionModule';
@@ -37,9 +36,8 @@ export {
 	ModuleVersionDetailPage,
 	CreateVersionModulePage,
 	ModifyVersionModulePage,
-	DeployManagementPage,
+	DeploymentProcessPage,
 	CreateDeploymentPage,
-	CreatDeployDocumentPage,
 	DocumentLabelPage,
 	ProductDesignDocumentPage,
 	CreatProductDesignDocumentPage,

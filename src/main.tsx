@@ -14,6 +14,7 @@ import {
 	CreateSoftwarePage,
 	CreateSoftwareVersionPage,
 	CustomerManagementPage,
+	DeploymentProcessPage,
 	ErrorPage,
 	ModifySoftwarePage,
 	OverviewPage,
@@ -33,8 +34,13 @@ const router = createBrowserRouter(
 			hydrateFallbackElement={<HydrateFallback />}
 		>
 			<Route path={RoutePaths.OVERVIEW} element={<OverviewPage />} />
-			<Route path="customer" element={<CustomerManagementPage />} />
-			<Route path="/create-customer" element={<CreateCustomerPage />} />
+
+			<Route path={RoutePaths.CUSTOMER} element={<CustomerManagementPage />} />
+			<Route
+				path={RoutePaths.CREATE_CUSTOMER}
+				element={<CreateCustomerPage />}
+			/>
+
 			<Route path={RoutePaths.SOFTWARE} element={<SoftwarePage />} />
 			<Route
 				path={RoutePaths.CREATE_SOFTWARE}
@@ -49,7 +55,14 @@ const router = createBrowserRouter(
 				element={<CreateSoftwareVersionPage />}
 			/>
 
-			<Route path="/create-deployment" element={<CreateDeploymentPage />} />
+			<Route
+				path={RoutePaths.DEPLOYMENT_PROCESS}
+				element={<DeploymentProcessPage />}
+			/>
+			<Route
+				path={RoutePaths.CREATE_DEPLOYMENT_PROCESS}
+				element={<CreateDeploymentPage />}
+			/>
 		</Route>
 	)
 );

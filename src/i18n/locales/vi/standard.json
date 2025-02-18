@@ -109,6 +109,7 @@
 	"enterValue": "Nhập giá trị",
 	"addDocument": "Thêm tài liệu",
 	"addDeployDocument": "Thêm tài liệu triển khai",
+	"createDeployProcess": "Thêm quá trình triển khai",
 	"deployDocumentName": "Tên tài liệu triển khai",
 	"deployDocumentDescription": "Mô tả tài liệu triển khai",
 
@@ -131,6 +132,10 @@
 	"addProductDesignDocument": "Thêm tài liệu thiết kế phần mềm",
 	"productDesignDocumentName": "Tên tài liệu thiết kế phần mềm",
 	"productDesignDocumentDescription": "Mô tả tài liệu thiết kế phần mềm",
+
+	"deleteDeploymentProcessConfirm": "Bạn có chắc chắn muốn xóa quá trình triển khai này không?",
+	"deleteDeploymentProcessSuccess": "Đã xóa quá trình triển khai",
+	"deleteDeploymentProcessError": "Xóa quá trình triển khai đã xảy ra lỗi",
 
 	"addModuleDesignDocument": "Thêm tài liệu thiết kế module",
 	"moduleDesignDocumentName": "Tên tài liệu thiết kế module",
