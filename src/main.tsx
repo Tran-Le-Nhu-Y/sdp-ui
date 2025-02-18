@@ -9,6 +9,7 @@ import {
 	RouterProvider,
 } from 'react-router-dom';
 import {
+	CreatDeployDocumentPage,
 	CreateCustomerPage,
 	CreateDeploymentPage,
 	CreateSoftwarePage,
@@ -17,8 +18,10 @@ import {
 	DeploymentProcessPage,
 	ErrorPage,
 	ModifySoftwarePage,
+	ModifySoftwareVersioPage,
 	OverviewPage,
 	SoftwarePage,
+	SoftwareVersionDetailPage,
 } from './pages/index.tsx';
 import HydrateFallback from './components/HydrateFallback.tsx';
 import { Provider } from 'react-redux';
@@ -53,6 +56,14 @@ const router = createBrowserRouter(
 			<Route
 				path={RoutePaths.CREATE_SOFTWARE_VERSION}
 				element={<CreateSoftwareVersionPage />}
+			/>
+			<Route
+				path={RoutePaths.MODIFY_SOFTWARE_VERSION}
+				element={<ModifySoftwareVersioPage />}
+			/>
+			<Route
+				path={RoutePaths.SOFTWARE_VERSION_DETAIL}
+				element={<SoftwareVersionDetailPage />}
 			/>
 
 			<Route

@@ -1,11 +1,9 @@
 {
 	"overview": "Tổng quan",
 	"document": "Tài liệu",
-	"documentType": "Loại tài liệu",
 	"productList": "Danh sách sản phẩm",
 	"customerList": "Danh sách khách hàng",
 	"deploymentList": "Danh mục triển khai",
-
 	"documentManagement": "Tài liệu",
 	"productDesignDocument": "Tài liệu thiết kế sản phẩm",
 	"moduleDesignDocument": "Tài liệu thiết kế module",
@@ -32,7 +30,6 @@
 	"add": "Thêm",
 	"enterDescription": "Nhập mô tả tại đây...",
 	"noFileUpload": "Không có file nào được tải lên",
-	"documentName": "Tên tài liệu",
 	"rowsPerPage": "Số dòng mỗi trang:",
 	"all": "Tất cả",
 
@@ -83,9 +80,15 @@
 	"dragAndDrop": "Kéo và thả các tập tin ở đây",
 
 	"softwareVersionName": "Tên phiên bản",
-	"addSoftwareVersion": "Thêm phiên bản",
-	"addVersionProduct": "Thêm phiên bản phần mềm",
-	"modifyVersionProduct": "Chỉnh sửa phiên bản phần mềm",
+	"addSoftwareVersion": "Thêm phiên bản phần mềm",
+	"modifySoftwareVersion": "Chỉnh sửa phiên bản phần mềm",
+	"createSoftwareVersionSuccess": "Thêm phiên bản phần mềm thành công",
+	"updateSoftwareVersionError": "Thêm phiên bản phần mềm đã xảy ra lỗi",
+	"createSoftwareVersionError": "Cập nhật phiên bản phần mềm đã xảy ra lỗi",
+	"updateSoftwareVersionSuccess": "Cập nhật phiên bản phần mềm thành công",
+	"deleteSoftwareVersionConfirm": "Bạn có chắc chắn muốn xóa phiên bản phần mềm này không?",
+	"deleteSoftwareVersionSuccess": "Đã xóa phiên bản phần mềm",
+	"deleteSoftwareVersionError": "Xóa phiên bản phần mềm đã xảy ra lỗi",
 
 	"addModule": "Thêm Module",
 	"moduleName": "Tên Module",
@@ -128,6 +131,12 @@
 	"deleteLabelSuccess": "Đã xóa nhãn tài liệu",
 	"deleteLabelError": "Xóa nhãn tài liệu đã xảy ra lỗi",
 	"labelNameRequired": "Tên nhãn không được để trống",
+
+	"addDocument": "Thêm tài liệu",
+	"documentType": "Loại tài liệu",
+	"documentName": "Tên tài liệu",
+	"documentDescription": "Mô tả tài liệu",
+	"documentsOfVersion": "Các tài liệu của phiên bản",
 
 	"addProductDesignDocument": "Thêm tài liệu thiết kế phần mềm",
 	"productDesignDocumentName": "Tên tài liệu thiết kế phần mềm",

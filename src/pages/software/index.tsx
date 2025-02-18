@@ -21,6 +21,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import {
 	useDeleteSoftware,
+	useDeleteSoftwareVersion,
 	useGetAllSoftwareByUserId,
 	useGetAllVersionsBySoftwareId,
 } from '../../services';
@@ -40,11 +41,51 @@ function SoftwareVersionInner({
 }) {
 	const navigate = useNavigate();
 	const { t } = useTranslation('standard');
+	const notifications = useNotifications();
+	const dialogs = useDialogs();
 	const [filterVersionDialogOpen, setFilterVersionDialogOpen] = useState(false);
 
 	const versions = useGetAllVersionsBySoftwareId(versionQuery!, {
 		skip: !versionQuery,
 	});
+	useEffect(() => {
+		if (versions.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
+		// else if (software.isSuccess && software.data?.content.length === 0)
+		// 	notifications.show(t('noProduct'), { severity: 'info' });
+	}, [notifications, versions.isError, t]);
+
+	const [deleteSoftwareVersionTrigger, deleteSoftwareVersion] =
+		useDeleteSoftwareVersion();
+	useEffect(() => {
+		if (deleteSoftwareVersion.isError)
+			notifications.show(t('deleteSoftwareVersionError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
+		else if (deleteSoftwareVersion.isSuccess)
+			notifications.show(t('deleteSoftwareVersionSuccess'), {
+				severity: 'success',
+				autoHideDuration: hideDuration.fast,
+			});
+	}, [
+		deleteSoftwareVersion.isError,
+		deleteSoftwareVersion.isSuccess,
+		notifications,
+		t,
+	]);
+	const handleDelete = async (versionId: string) => {
+		const confirmed = await dialogs.confirm(t('deleteSoftwareVersionConfirm'), {
+			okText: t('yes'),
+			cancelText: t('cancel'),
+		});
+		if (!confirmed) return;
+
+		await deleteSoftwareVersionTrigger(versionId);
+	};
 
 	return (
 		<Box>
@@ -89,6 +130,7 @@ function SoftwareVersionInner({
 					{t('addSoftwareVersion')}
 				</Button>
 			</Stack>
+			{deleteSoftwareVersion.isLoading && <LinearProgress />}
 			<PaginationTable
 				headers={
 					<>
@@ -101,44 +143,61 @@ function SoftwareVersionInner({
 						<TableCell key={`software-${softwareId}-updatedAt`} align="center">
 							{t('lastUpdated')}
 						</TableCell>
-						{/* <TableCell key={`software-${softwareId}-status`} align="center">
-							{t('status')}
-						</TableCell> */}
-						<TableCell />
 						<TableCell />
 					</>
 				}
-				getCell={(row) => (
-					<TableRow key={`software_verion-${row.id}`}>
-						<TableCell>{row.name}</TableCell>
-						<TableCell align="center">{row.createdAt}</TableCell>
-						<TableCell align="center">{row.updatedAt}</TableCell>
-						{/* <TableCell align="center">{t(row.status)}</TableCell> */}
-						<TableCell>
-							<Stack direction="row">
-								<IconButton size="small" onClick={() => {}}>
-									<RemoveRedEyeIcon color="info" />
-								</IconButton>
-								<IconButton size="small" onClick={() => {}}>
-									<EditIcon color="info" />
-								</IconButton>
-								<IconButton size="small" onClick={() => {}}>
-									<DeleteIcon color="error" />
-								</IconButton>
-							</Stack>
-						</TableCell>
-					</TableRow>
-				)}
 				count={versions?.data?.totalElements ?? 0}
 				rows={versions?.data?.content ?? []}
 				onPageChange={(newPage) =>
 					onQueryChange({
 						softwareId,
 						versionName: versionQuery?.versionName ?? '',
-						// status: versionQuery?.status ?? false,
 						...newPage,
 					})
 				}
+				getCell={(row) => (
+					<TableRow key={`software_verion-${row.id}`}>
+						<TableCell>{row.name}</TableCell>
+						<TableCell align="center">{row.createdAt}</TableCell>
+						<TableCell align="center">{row.updatedAt}</TableCell>
+						<TableCell>
+							<Stack direction="row">
+								<IconButton
+									size="small"
+									onClick={() =>
+										navigate(
+											RoutePaths.SOFTWARE_VERSION_DETAIL.replace(
+												`:${PathHolders.SOFTWARE_VERSION_ID}`,
+												row.id
+											)
+										)
+									}
+								>
+									<RemoveRedEyeIcon color="info" />
+								</IconButton>
+								<IconButton
+									size="small"
+									onClick={() =>
+										navigate(
+											RoutePaths.MODIFY_SOFTWARE_VERSION.replace(
+												`:${PathHolders.SOFTWARE_VERSION_ID}`,
+												row.id
+											)
+										)
+									}
+								>
+									<EditIcon color="info" />
+								</IconButton>
+								<IconButton
+									size="small"
+									onClick={async () => handleDelete(row.id)}
+								>
+									<DeleteIcon color="error" />
+								</IconButton>
+							</Stack>
+						</TableCell>
+					</TableRow>
+				)}
 			/>
 		</Box>
 	);
@@ -243,9 +302,6 @@ export default function SoftwarePage() {
 						<TableCell key="updatedAt" align="center">
 							{t('lastUpdated')}
 						</TableCell>
-						{/* <TableCell key="status" align="center">
-							{t('status')}
-						</TableCell> */}
 						<TableCell />
 						<TableCell />
 					</>

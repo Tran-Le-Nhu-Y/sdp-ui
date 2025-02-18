@@ -77,6 +77,11 @@ function App() {
 					title: t('logOut'),
 					icon: <LogoutIcon />,
 				},
+				{
+					segment: 'test',
+					title: t('logOut'),
+					icon: <LogoutIcon />,
+				},
 			]}
 		>
 			<DashboardLayout>

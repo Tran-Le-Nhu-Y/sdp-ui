@@ -34,13 +34,13 @@ function PaginationTable<T>(props: PaginationTableProps<T>) {
 
 	const handleChangePage = (
 		_event: React.MouseEvent<HTMLButtonElement> | null,
-		newPage: number
+		newPage: number,
 	) => {
 		onPageChange({ pageNumber: newPage, pageSize: rowsPerPage });
 	};
 
 	const handleChangeRowsPerPage = (
-		event: React.ChangeEvent<HTMLInputElement>
+		event: React.ChangeEvent<HTMLInputElement>,
 	) => {
 		onPageChange({ pageNumber: 0, pageSize: parseInt(event.target.value, 10) });
 	};

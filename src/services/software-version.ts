@@ -64,7 +64,7 @@ export const softwareVersionApi = createApi({
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
 			},
-			transformResponse(rawResult: SoftwareResponse) {
+			transformResponse(rawResult: SoftwareVersionResponse) {
 				return toEntity(rawResult);
 			},
 		}),
