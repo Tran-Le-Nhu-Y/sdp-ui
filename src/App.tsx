@@ -14,15 +14,55 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import LabelIcon from '@mui/icons-material/Label';
 import { useTranslation } from 'react-i18next';
 import theme from './themes/theme';
-import { DashboardLayout, PageContainer } from '@toolpad/core';
+import { DashboardLayout, PageContainer, Session } from '@toolpad/core';
 import { PathHolders } from './utils';
+import { useEffect, useState } from 'react';
+import keycloak from './services/keycloak';
+import { HydrateFallback } from './components';
 
 function App() {
 	const { t } = useTranslation();
+	const [session, setSession] = useState<Session>();
+
+	const login = async () => {
+		const retrieveSession = async () => {
+			const { id, email, firstName, lastName } =
+				await keycloak.loadUserProfile();
+
+			const session: Session = {
+				user: {
+					id: id,
+					name: `${lastName} ${firstName}`,
+					email: email,
+				},
+			};
+			return session;
+		};
+
+		if (keycloak.didInitialize) return await retrieveSession();
+
+		const authenticated = await keycloak.init({ onLoad: 'login-required' });
+		if (!authenticated) return null;
+
+		return await retrieveSession();
+	};
+
+	useEffect(() => {
+		login()
+			.then((session) => {
+				if (session) setSession(session);
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+	}, []);
+
+	if (!session) return <HydrateFallback />;
 
 	return (
 		<AppProvider
 			theme={theme}
+			session={session}
 			// branding={{
 			// 	logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
 			// 	title: 'MUI',

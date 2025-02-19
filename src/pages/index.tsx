@@ -18,9 +18,11 @@ import CreateDeploymentPage from './createDeployment';
 import DocumentTypePage from './documentType';
 import SoftwareDocumentDetailPage from './softwareDocumentDetail';
 import ModifySoftwareDocumentPage from './modifySoftwareDocument';
+import LogoutPage from './logout';
 
 export {
 	OverviewPage,
+	LogoutPage,
 	SoftwarePage,
 	CreateSoftwarePage,
 	ModifySoftwarePage,

@@ -25,6 +25,7 @@ import {
 	SoftwareDocumentDetailPage,
 	SoftwarePage,
 	SoftwareVersionDetailPage,
+	LogoutPage,
 } from './pages/index.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
@@ -34,6 +35,8 @@ const router = createBrowserRouter(
 	createRoutesFromElements(
 		<Route path="/" element={<App />} errorElement={<ErrorPage />}>
 			<Route path={RoutePaths.OVERVIEW} element={<OverviewPage />} />
+
+			<Route path={RoutePaths.LOGOUT} element={<LogoutPage />} />
 
 			<Route
 				path={RoutePaths.CREATE_CUSTOMER}

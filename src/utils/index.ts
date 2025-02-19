@@ -20,6 +20,7 @@ export enum PathHolders {
 
 export enum RoutePaths {
 	OVERVIEW = '/overview',
+	LOGOUT = '/logout',
 
 	CUSTOMER = '/customer',
 	CREATE_CUSTOMER = '/customer/create',
