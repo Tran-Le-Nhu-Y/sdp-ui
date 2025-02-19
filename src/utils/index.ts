@@ -12,6 +12,7 @@ export const isValidLength = (text: string, length: TextLength) =>
 export enum PathHolders {
 	SOFTWARE_ID = 'softwareId',
 	SOFTWARE_VERSION_ID = 'versionId',
+	SOFTWARE_DOCUMENT_ID = 'documentId',
 	CUSTOMER_ID = 'customerId',
 	DEPLOY_PROCESS_ID = 'processId',
 }
@@ -24,6 +25,9 @@ export enum RoutePaths {
 	CREATE_SOFTWARE_VERSION = `/software/:${PathHolders.SOFTWARE_ID}/version/create`,
 	MODIFY_SOFTWARE_VERSION = `/software/version/:${PathHolders.SOFTWARE_VERSION_ID}/modify`,
 	SOFTWARE_VERSION_DETAIL = `/software/version/:${PathHolders.SOFTWARE_VERSION_ID}/detail`,
+	CREATE_SOFTWARE_DOCUMENT = `/software/version/:${PathHolders.SOFTWARE_VERSION_ID}/document/create`,
+	SOFTWARE_DOCUMENT_DETAIL = `/software/version/document/:${PathHolders.SOFTWARE_DOCUMENT_ID}/detail`,
+	MODIFY_SOFTWARE_DOCUMENT = `/software/version/document/:${PathHolders.SOFTWARE_DOCUMENT_ID}/modify`,
 }
 
 export enum hideDuration {

@@ -22,15 +22,29 @@ declare interface SoftwareVersionUpdateRequest {
 	versionId: string;
 }
 
-declare interface DocumentLabelCreatingRequest {
+declare interface DocumentTypeCreatingRequest {
 	name: string;
 	description?: string?;
-	color?: string?;
 	userId: string;
 }
 
-declare interface DocumentLabelUpdatingRequest {
+declare interface DocumentTypeUpdatingRequest {
 	name: string;
 	description?: string?;
-	color: string;
+	typeId: string;
+}
+
+declare interface SoftwareDocumentCreatingRequest {
+	name: string;
+	description?: string?;
+	documentTypeId: string;
+	softwareVersionId: string;
+	attachmentIds?: string[]?;
+}
+
+declare interface SoftwareDocumentUpdatingRequest {
+	name: string;
+	description?: string?;
+	attachmentIds: string[];
+	softwareDocumentId: string;
 }

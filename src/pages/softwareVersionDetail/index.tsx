@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// import { useEffect, useState } from 'react';
 import {
 	Typography,
 	IconButton,
@@ -9,6 +7,7 @@ import {
 	TableRow,
 	Button,
 	Divider,
+	LinearProgress,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -28,18 +27,13 @@ import { Delete, Edit } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
+	useDeleteSoftwareDocument,
 	useDeleteSoftwareVersion,
+	useGetAllSoftwareDocumentByUserId,
 	useGetSoftwareVersionById,
 } from '../../services';
 import { useDialogs, useNotifications } from '@toolpad/core';
 import { hideDuration, PathHolders, RoutePaths } from '../../utils';
-// import { useDispatch, useSelector } from 'react-redux';
-// import { selectAllFiles } from '../../redux/slices/FileSlice';
-// import { useNavigate } from 'react-router-dom';
-// import {
-// 	deleteModuleById,
-// 	selectAllModules,
-// } from '../../redux/slices/ModuleSlice';
 
 function DocumentsOfVersionTable({
 	versionId,
@@ -47,41 +41,55 @@ function DocumentsOfVersionTable({
 	onQueryChange,
 }: {
 	versionId: string;
-	documentQuery: GetAllSoftwareVersionQuery | null;
-	onQueryChange: (query: GetAllSoftwareVersionQuery | null) => void;
+	documentQuery: GetAllSoftwareDocumentQuery | null;
+	onQueryChange: (query: GetAllSoftwareDocumentQuery | null) => void;
 }) {
-	//const navigate = useNavigate();
+	const navigate = useNavigate();
 	const { t } = useTranslation('standard');
-	//const notifications = useNotifications();
-	//const dialogs = useDialogs();
+	const notifications = useNotifications();
+	const dialogs = useDialogs();
 	const [filterVersionDialogOpen, setFilterVersionDialogOpen] = useState(false);
 
-	const documents = [
-		{
-			id: '1',
-			type: 'DTYC',
-			name: 'A',
-			createAt: '01/01/2025',
-			updateAt: '01/01/2025',
-		},
-		{
-			id: '2',
-			type: 'DTYC',
-			name: 'B',
-			createAt: '01/01/2025',
-			updateAt: '01/01/2025',
-		},
-		{
-			id: '3',
-			type: 'DTYC',
-			name: 'C',
-			createAt: '01/01/2025',
-			updateAt: '01/01/2025',
-		},
-	];
+	const documents = useGetAllSoftwareDocumentByUserId(documentQuery!, {
+		skip: !documentQuery,
+	});
+	useEffect(() => {
+		if (documents.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
+		// else if (software.isSuccess && software.data?.content.length === 0)
+		// 	notifications.show(t('noProduct'), { severity: 'info' });
+	}, [notifications, documents.isError, t]);
 
-	const handleDelete = (id: string) => {
-		alert(`Xóa khách hàng có ID: ${id}`);
+	const [deleteSoftwareDocumentTrigger, deleteSoftwareDocument] =
+		useDeleteSoftwareDocument();
+	useEffect(() => {
+		if (deleteSoftwareDocument.isError)
+			notifications.show(t('deleteSoftwareVersionError'), {
+				severity: 'error',
+				autoHideDuration: hideDuration.fast,
+			});
+		else if (deleteSoftwareDocument.isSuccess)
+			notifications.show(t('deleteSoftwareVersionSuccess'), {
+				severity: 'success',
+				autoHideDuration: hideDuration.fast,
+			});
+	}, [
+		deleteSoftwareDocument.isError,
+		deleteSoftwareDocument.isSuccess,
+		notifications,
+		t,
+	]);
+	const handleDelete = async (versionId: string) => {
+		const confirmed = await dialogs.confirm(t('deleteSoftwareVersionConfirm'), {
+			okText: t('yes'),
+			cancelText: t('cancel'),
+		});
+		if (!confirmed) return;
+
+		await deleteSoftwareDocumentTrigger(versionId);
 	};
 
 	return (
@@ -108,28 +116,27 @@ function DocumentsOfVersionTable({
 						}, {});
 						onQueryChange({
 							...documentQuery,
-							softwareId: versionId,
+							softwareVersionId: versionId,
 							...query,
 						});
 					}}
 					onReset={() => {
 						onQueryChange({
-							softwareId: versionId,
+							softwareVersionId: versionId,
 							...documentQuery,
-							versionName: '',
+							softwareDocumentName: '',
 						});
 					}}
 				/>
 				<Button
 					variant="contained"
-					onClick={
-						() => {}
-						// navigate(
-						// 	`${RoutePaths.CREATE_SOFTWARE_VERSION.replace(`:${PathHolders.SOFTWARE_ID}`, softwareId)}`,
-						// )
+					onClick={() =>
+						navigate(
+							`${RoutePaths.CREATE_SOFTWARE_DOCUMENT.replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, versionId)}`,
+						)
 					}
 				>
-					{t('addSoftwareVersion')}
+					{t('addDocument')}
 				</Button>
 			</Stack>
 			{/* {deleteSoftwareVersion.isLoading && <LinearProgress />} */}
@@ -151,33 +158,32 @@ function DocumentsOfVersionTable({
 						<TableCell />
 					</>
 				}
-				count={documents.length ?? 0}
-				rows={documents}
+				count={documents?.data?.totalElements ?? 0}
+				rows={documents?.data?.content ?? []}
 				onPageChange={(newPage) =>
 					onQueryChange({
-						softwareId: versionId,
-						versionName: documentQuery?.versionName ?? '',
+						softwareVersionId: versionId,
+						softwareDocumentName: documentQuery?.softwareDocumentName ?? '',
 						...newPage,
 					})
 				}
 				getCell={(row) => (
 					<TableRow key={`software_verion-${row.id}`}>
-						<TableCell>{row.type}</TableCell>
+						<TableCell>{row.typeName}</TableCell>
 						<TableCell>{row.name}</TableCell>
-						<TableCell align="center">{row.createAt}</TableCell>
-						<TableCell align="center">{row.updateAt}</TableCell>
+						<TableCell align="center">{row.createdAt}</TableCell>
+						<TableCell align="center">{row.updatedAt}</TableCell>
 						<TableCell>
 							<Stack direction="row">
 								<IconButton
 									size="small"
-									onClick={
-										() => {}
-										// navigate(
-										// 	RoutePaths.SOFTWARE_VERSION_DETAIL.replace(
-										// 		`:${PathHolders.SOFTWARE_VERSION_ID}`,
-										// 		row.id,
-										// 	),
-										// )
+									onClick={() =>
+										navigate(
+											RoutePaths.SOFTWARE_DOCUMENT_DETAIL.replace(
+												`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
+												row.id,
+											),
+										)
 									}
 								>
 									<RemoveRedEyeIcon color="info" />
@@ -216,6 +222,7 @@ const SoftwareVersionDetailPage = () => {
 	const [showDocumentTable, setShowDocumentTable] = useState(false);
 	const notifications = useNotifications();
 	const versionId = useParams()[PathHolders.SOFTWARE_VERSION_ID];
+
 	const softwareVersion = useGetSoftwareVersionById(versionId!, {
 		skip: !versionId,
 	});
@@ -226,6 +233,14 @@ const SoftwareVersionDetailPage = () => {
 				autoHideDuration: hideDuration.fast,
 			});
 	}, [notifications, softwareVersion.isError, t]);
+
+	const [documentQuery, setDocumentQuery] =
+		useState<GetAllSoftwareDocumentQuery | null>({
+			softwareVersionId: versionId!,
+			softwareDocumentName: '',
+			pageSize: 5,
+			pageNumber: 0,
+		});
 
 	const [moduleTablePage, setModuleTablePage] = useState<TablePage>({
 		pageNumber: 0,
@@ -285,6 +300,7 @@ const SoftwareVersionDetailPage = () => {
 		await deleteSoftwareVersionTrigger(versionId);
 	};
 
+	if (softwareVersion.isLoading) return <LinearProgress />;
 	return (
 		<Stack>
 			<Stack alignItems={'center'}>
@@ -380,15 +396,9 @@ const SoftwareVersionDetailPage = () => {
 						{showDocumentTable && (
 							<Stack mt={1}>
 								<DocumentsOfVersionTable
-									versionId={''}
-									documentQuery={null}
-									onQueryChange={function (
-										_query: GetAllSoftwareVersionQuery | null,
-									): void {
-										throw new Error('Function not implemented.');
-									}} // versionId={row.id}
-									// documentQuery={versionQuery}
-									// onQueryChange={(query) => setVersionQuery(query)}
+									versionId={versionId ?? ''}
+									documentQuery={documentQuery}
+									onQueryChange={(query) => setDocumentQuery(query)}
 								/>
 							</Stack>
 						)}
@@ -536,8 +546,6 @@ const SoftwareVersionDetailPage = () => {
 												pageNumber={moduleTablePage.pageNumber}
 												pageSize={moduleTablePage.pageSize}
 												onPageChange={(newPage) => setModuleTablePage(newPage)}
-												//onAddClick={() => navigate(`/create-deploy-document`)}
-												//addButtonText={t('addDocument')}
 												getCell={(row) => (
 													<TableRow key={row.id}>
 														<TableCell key={`moduleName`}>{row.name}</TableCell>

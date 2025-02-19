@@ -4,13 +4,12 @@ declare interface File {
 	size: number;
 	status: string;
 }
-declare interface DocumentLabel {
+declare interface SdpDocumentType {
 	id: string;
 	name: string;
-	description: string;
+	description?: string?;
 	createdAt: string;
-	updatedAt: string?;
-	color: string;
+	updatedAt?: string?;
 }
 
 declare interface ProductVersionChangelog {
@@ -35,11 +34,11 @@ declare interface SoftwareVersion {
 	updatedAt: string?;
 }
 
-declare interface DeployDocument {
+declare interface SoftwareDocument {
 	id: string;
+	typeName: string;
 	name: string;
-	productId: string;
-	moduleId: string;
+	description: string?;
 	createdAt: string;
 	updatedAt: string?;
 }
