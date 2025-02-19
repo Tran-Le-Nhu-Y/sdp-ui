@@ -31,11 +31,20 @@ declare interface ErrorResponse {
 	severity?: 'warn' | 'error';
 }
 
-declare interface DocumentLabelResponse {
+declare interface DocumentTypeResponse {
 	id: string;
 	name: string;
-	description: string;
-	createdAtMillis: number;
-	updatedAtMillis: number?;
-	color: string;
+	description: string?;
+	createdAtMs: number;
+	updatedAtMs: number?;
+}
+
+declare interface SoftwareDocumentResponse {
+	id: string;
+	name: string;
+	description: string?;
+	createdAtMs: number;
+	updatedAtMs: number?;
+	type: { name: string };
+	version: { name: string };
 }

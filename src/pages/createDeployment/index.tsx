@@ -210,7 +210,7 @@ export default function CreateDeploymentPage() {
 						size="medium"
 						value={''}
 						onChange={(e) => e.target.value}
-						placeholder={`${t('enter')} ${t('deployDocumentDescription').toLowerCase()}...`}
+						placeholder={`${t('enter')} ${t('description').toLowerCase()}...`}
 						multiline
 						rows={4}
 					/>

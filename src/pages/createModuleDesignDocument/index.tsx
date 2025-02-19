@@ -92,7 +92,7 @@ export default function CreatModuleDesignDocumentPage() {
 				label={t('moduleDesignDocumentName')}
 				value={''}
 				onChange={(e) => e.target.value}
-				placeholder={`${t('enter')} ${t('deployDocumentName').toLowerCase()}...`}
+				placeholder={`${t('enter')} ${t('documentName').toLowerCase()}...`}
 			/>
 
 			<Stack mt={1}>

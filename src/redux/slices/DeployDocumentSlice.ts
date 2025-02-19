@@ -2,7 +2,7 @@ import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
-const entityAdapter = createEntityAdapter<DeployDocument, string>({
+const entityAdapter = createEntityAdapter<SoftwareDocument, string>({
 	selectId: (deploydocument) => deploydocument.id,
 	// sortComparer: (a, b) => a.name.localeCompare(b.name),
 });
@@ -18,11 +18,11 @@ export const slice = createSlice({
 	name: 'deployDocuments',
 	initialState,
 	reducers: {
-		createDeployDocument: (state, action: PayloadAction<DeployDocument>) => {
+		createDeployDocument: (state, action: PayloadAction<SoftwareDocument>) => {
 			const newDeployDocument = action.payload;
 			entityAdapter.addOne(state, newDeployDocument);
 		},
-		updateDeployDocument: (state, action: PayloadAction<DeployDocument>) => {
+		updateDeployDocument: (state, action: PayloadAction<SoftwareDocument>) => {
 			const updateDeployDocument = action.payload;
 			entityAdapter.updateOne(state, {
 				id: updateDeployDocument.id,

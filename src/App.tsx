@@ -10,9 +10,7 @@ import Diversity1Icon from '@mui/icons-material/Diversity1';
 import LogoutIcon from '@mui/icons-material/Logout';
 import DnsIcon from '@mui/icons-material/Dns';
 import DashboardIcon from '@mui/icons-material/Dashboard';
-import TopicIcon from '@mui/icons-material/Topic';
 import LabelIcon from '@mui/icons-material/Label';
-import TypeSpecimenIcon from '@mui/icons-material/TypeSpecimen';
 import { useTranslation } from 'react-i18next';
 import theme from './themes/theme';
 import { DashboardLayout, PageContainer } from '@toolpad/core';
@@ -55,21 +53,9 @@ function App() {
 					pattern: `deploy{/:${PathHolders.DEPLOY_PROCESS_ID}}*`,
 				},
 				{
-					segment: 'document',
-					title: t('document'),
-					icon: <TopicIcon />,
-					children: [
-						{
-							segment: 'label',
-							title: t('documentLabel'),
-							icon: <LabelIcon />,
-						},
-						{
-							segment: 'product-design',
-							title: t('documentType'),
-							icon: <TypeSpecimenIcon />,
-						},
-					],
+					segment: 'document-type',
+					title: t('documentType'),
+					icon: <LabelIcon />,
 				},
 				{
 					segment: 'logout',
