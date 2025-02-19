@@ -1,38 +1,33 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { toEntity } from './mapper/software-mapper';
+import { toEntity } from './mapper/deployment-phase';
 
-export const softwareApi = createApi({
-	reducerPath: 'softwareApi',
+export const deploymentPhaseApi = createApi({
+	reducerPath: 'deploymentPhaseApi',
 	baseQuery: fetchBaseQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software`,
+		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/deployment-process/phase`,
 		jsonContentType: 'application/json',
 		timeout: 300000,
 	}),
-	tagTypes: ['PagingSoftware', 'Software'],
+	tagTypes: ['PagingDeploymentPhases', 'DeploymentPhase'],
 	endpoints: (builder) => ({
-		getAllSoftwareByUserId: builder.query<
-			PagingWrapper<Software>,
-			GetAllSoftwareQuery
+		getAllPhasesByProcessId: builder.query<
+			PagingWrapper<DeploymentPhase>,
+			GetAllDeploymentPhaseQuery
 		>({
-			query: ({ userId, softwareName, pageNumber, pageSize }) => ({
-				url: `/${userId}/user`,
+			query: ({ processId }) => ({
+				url: `${processId}/process`,
 				method: 'GET',
-				params: {
-					name: softwareName,
-					pageNumber,
-					pageSize,
-				},
 			}),
 			providesTags(result) {
 				const pagingTag = {
-					type: 'PagingSoftware',
+					type: 'PagingDeploymentPhases',
 					id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
 				} as const;
 
 				return result
 					? [
 							...result.content.map(
-								({ id }) => ({ type: 'Software', id }) as const
+								({ id }) => ({ type: 'DeploymentPhase', id }) as const
 							),
 							pagingTag,
 						]
@@ -41,7 +36,7 @@ export const softwareApi = createApi({
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
 			},
-			transformResponse(rawResult: PagingWrapper<SoftwareResponse>) {
+			transformResponse(rawResult: PagingWrapper<DeploymentPhaseResponse>) {
 				const content = rawResult.content.map(toEntity);
 				return {
 					...rawResult,
@@ -49,16 +44,16 @@ export const softwareApi = createApi({
 				};
 			},
 		}),
-		getSoftwareById: builder.query<Software, string>({
-			query: (softwareId: string) => ({
-				url: `/${softwareId}`,
+		getPhaseById: builder.query<DeploymentPhase, string>({
+			query: (phaseId: string) => ({
+				url: `/${phaseId}`,
 				method: 'GET',
 			}),
 			providesTags(result) {
 				return result
 					? [
 							{
-								type: 'Software',
+								type: 'DeploymentPhase',
 								id: result.id,
 							} as const,
 						]
@@ -67,50 +62,51 @@ export const softwareApi = createApi({
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
 			},
-			transformResponse(rawResult: SoftwareResponse) {
+			transformResponse(rawResult: DeploymentPhaseResponse) {
 				return toEntity(rawResult);
 			},
 		}),
-		postSoftware: builder.mutation<Software, SoftwareCreateRequest>({
-			query: (data: SoftwareCreateRequest) => ({
-				url: `/${data.userId}`,
+		postPhase: builder.mutation<DeploymentPhase, DeploymentPhaseCreateRequest>({
+			query: ({ processId, numOrder, description, typeId }) => ({
+				url: `/${processId}`,
 				method: 'POST',
 				body: {
-					name: data.name,
-					description: data.description,
+					numOrder: numOrder,
+					description: description,
+					phaseTypeId: typeId,
 				},
 			}),
 			invalidatesTags() {
-				return [{ type: 'PagingSoftware' } as const];
+				return [{ type: 'PagingDeploymentPhases' } as const];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
 			},
-			transformResponse(rawResult: SoftwareResponse) {
+			transformResponse(rawResult: DeploymentPhaseResponse) {
 				return toEntity(rawResult);
 			},
 		}),
-		putSoftware: builder.mutation<void, SoftwareUpdateRequest>({
-			query: (data: SoftwareUpdateRequest) => ({
-				url: `/${data.softwareId}`,
+		putPhase: builder.mutation<void, DeploymentPhaseUpdateRequest>({
+			query: ({ phaseId, numOrder, description }) => ({
+				url: `/${phaseId}`,
 				method: 'PUT',
 				body: {
-					name: data.name,
-					description: data.description,
+					numOrder: numOrder,
+					description: description,
 				},
 			}),
 			invalidatesTags(_result, _error, arg) {
-				const { softwareId } = arg;
+				const { phaseId } = arg;
 				return [
-					{ type: 'PagingSoftware' } as const,
-					{ type: 'Software', id: softwareId } as const,
+					{ type: 'PagingDeploymentPhases' } as const,
+					{ type: 'DeploymentPhase', id: phaseId } as const,
 				];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
 			},
 		}),
-		deleteSoftware: builder.mutation<void, string>({
+		deletePhase: builder.mutation<void, string>({
 			query: (softwareId: string) => ({
 				url: `/${softwareId}`,
 				method: 'DELETE',
@@ -118,8 +114,8 @@ export const softwareApi = createApi({
 			invalidatesTags(_result, _error, arg) {
 				const productId = arg;
 				return [
-					{ type: 'PagingSoftware' } as const,
-					{ type: 'Software', id: productId } as const,
+					{ type: 'PagingDeploymentPhases' } as const,
+					{ type: 'DeploymentPhase', id: productId } as const,
 				];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
@@ -132,9 +128,9 @@ export const softwareApi = createApi({
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
 export const {
-	useGetAllSoftwareByUserIdQuery,
-	useDeleteSoftwareMutation,
-	useGetSoftwareByIdQuery,
-	usePostSoftwareMutation,
-	usePutSoftwareMutation,
-} = softwareApi;
+	useGetAllPhasesByProcessIdQuery,
+	useGetPhaseByIdQuery,
+	usePostPhaseMutation,
+	usePutPhaseMutation,
+	useDeletePhaseMutation,
+} = deploymentPhaseApi;

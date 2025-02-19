@@ -2,6 +2,7 @@ import '@fontsource/roboto/300.css';
 import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
+import './App.css';
 
 import { AppProvider } from '@toolpad/core/react-router-dom';
 import { Outlet } from 'react-router';
@@ -47,10 +48,23 @@ function App() {
 					pattern: `software{/:${PathHolders.SOFTWARE_ID}}*`,
 				},
 				{
-					segment: 'deploy',
-					title: t('deploy'),
+					segment: 'deployment',
+					title: t('deployment'),
 					icon: <DnsIcon />,
-					pattern: `deploy{/:${PathHolders.DEPLOY_PROCESS_ID}}*`,
+					children: [
+						{
+							segment: 'process',
+							title: t('deploymentProcess'),
+							icon: <DnsIcon />,
+							pattern: `process{/:${PathHolders.DEPLOYMENT_PROCESS_ID}}*`,
+						},
+						{
+							segment: 'phase-type',
+							title: t('deploymentPhaseType'),
+							icon: <LabelIcon />,
+							pattern: `phase-type{/:${PathHolders.DEPLOYMENT_PHASE_TYPE_ID}}*`,
+						},
+					],
 				},
 				{
 					segment: 'document-type',
@@ -59,11 +73,6 @@ function App() {
 				},
 				{
 					segment: 'logout',
-					title: t('logOut'),
-					icon: <LogoutIcon />,
-				},
-				{
-					segment: 'test',
 					title: t('logOut'),
 					icon: <LogoutIcon />,
 				},

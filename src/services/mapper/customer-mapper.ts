@@ -1,14 +1,14 @@
-function toEntity(response: SoftwareVersionResponse): SoftwareVersion {
-	const version: SoftwareVersion = {
+function toEntity(response: CustomerResponse): Customer {
+	const customer: Customer = {
 		id: response.id,
 		name: response.name,
-		description: response.description,
+		email: response.email,
 		createdAt: new Date(response.createdAtMs).toLocaleString(),
 		updatedAt: response.updatedAtMs
 			? new Date(response.updatedAtMs).toLocaleString()
 			: null,
 	};
-	return version;
+	return customer;
 }
 
 export { toEntity };

@@ -12,10 +12,12 @@ declare interface SdpDocumentType {
 	updatedAt?: string?;
 }
 
-declare interface ProductVersionChangelog {
+declare interface Customer {
 	id: string;
-	versionId: string;
 	name: string;
+	email: string;
+	createdAt: string;
+	updatedAt?: string?;
 }
 
 declare interface Software {
@@ -29,9 +31,48 @@ declare interface Software {
 declare interface SoftwareVersion {
 	id: string;
 	name: string;
-	description: string?;
+	description?: string?;
 	createdAt: string;
-	updatedAt: string?;
+	updatedAt?: string?;
+}
+
+declare interface DeploymentProcess {
+	id: number;
+	status: DeploymentProcessStatus;
+	createdAt: string;
+	updatedAt?: string?;
+	software: {
+		name: string;
+		version: string;
+	};
+	customer: {
+		name: string;
+	};
+}
+
+declare type DeploymentProcessStatus =
+	| 'INIT'
+	| 'PENDING'
+	| 'IN_PROGRESS'
+	| 'DONE';
+
+declare interface DeploymentPhaseType {
+	id: string;
+	name: string;
+	description?: string?;
+	createdAt: string;
+	updatedAt?: string?;
+}
+
+declare interface DeploymentPhase {
+	id: string;
+	numOrder: number;
+	description?: string?;
+	createdAt: string;
+	updatedAt?: string?;
+	type: {
+		name: string;
+	};
 }
 
 declare interface SoftwareDocument {
@@ -41,22 +82,4 @@ declare interface SoftwareDocument {
 	description: string?;
 	createdAt: string;
 	updatedAt: string?;
-}
-
-declare interface Instance {
-	id: string;
-	name: string;
-	description: string;
-	createdAt: string;
-	updatedAt: string?;
-	status: 'ACTIVE' | 'INACTIVE';
-}
-
-declare interface Instance {
-	id: string;
-	name: string;
-	description: string;
-	createdAt: string;
-	updatedAt: string?;
-	status: 'ACTIVE' | 'INACTIVE';
 }

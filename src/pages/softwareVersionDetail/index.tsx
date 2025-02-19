@@ -33,7 +33,7 @@ import {
 	useGetSoftwareVersionById,
 } from '../../services';
 import { useDialogs, useNotifications } from '@toolpad/core';
-import { hideDuration, PathHolders, RoutePaths } from '../../utils';
+import { HideDuration, PathHolders, RoutePaths } from '../../utils';
 
 function DocumentsOfVersionTable({
 	versionId,
@@ -57,7 +57,7 @@ function DocumentsOfVersionTable({
 		if (documents.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		// else if (software.isSuccess && software.data?.content.length === 0)
 		// 	notifications.show(t('noProduct'), { severity: 'info' });
@@ -69,12 +69,12 @@ function DocumentsOfVersionTable({
 		if (deleteSoftwareDocument.isError)
 			notifications.show(t('deleteSoftwareVersionError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		else if (deleteSoftwareDocument.isSuccess)
 			notifications.show(t('deleteSoftwareVersionSuccess'), {
 				severity: 'success',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 	}, [
 		deleteSoftwareDocument.isError,
@@ -132,7 +132,7 @@ function DocumentsOfVersionTable({
 					variant="contained"
 					onClick={() =>
 						navigate(
-							`${RoutePaths.CREATE_SOFTWARE_DOCUMENT.replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, versionId)}`,
+							`${RoutePaths.CREATE_SOFTWARE_DOCUMENT.replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, versionId)}`
 						)
 					}
 				>
@@ -179,10 +179,10 @@ function DocumentsOfVersionTable({
 									size="small"
 									onClick={() =>
 										navigate(
-											RoutePaths.SOFTWARE_DOCUMENT_DETAIL.replace(
+											RoutePaths.SOFTWARE_DOCUMENT.replace(
 												`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
-												row.id,
-											),
+												row.id
+											)
 										)
 									}
 								>
@@ -230,7 +230,7 @@ const SoftwareVersionDetailPage = () => {
 		if (softwareVersion.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 	}, [notifications, softwareVersion.isError, t]);
 
@@ -274,13 +274,13 @@ const SoftwareVersionDetailPage = () => {
 		if (deleteSoftwareVersion.isError)
 			notifications.show(t('deleteSoftwareVersionError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		else if (deleteSoftwareVersion.isSuccess) {
 			navigate(-1);
 			notifications.show(t('deleteSoftwareVersionSuccess'), {
 				severity: 'success',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		}
 	}, [
@@ -342,8 +342,8 @@ const SoftwareVersionDetailPage = () => {
 										navigate(
 											RoutePaths.MODIFY_SOFTWARE_VERSION.replace(
 												`:${PathHolders.SOFTWARE_VERSION_ID}`,
-												versionId || '',
-											),
+												versionId || ''
+											)
 										)
 									}
 								>

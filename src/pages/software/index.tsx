@@ -28,7 +28,7 @@ import {
 import { useDialogs, useNotifications } from '@toolpad/core';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { hideDuration, PathHolders, RoutePaths } from '../../utils';
+import { HideDuration, PathHolders, RoutePaths } from '../../utils';
 
 function SoftwareVersionInner({
 	softwareId,
@@ -52,7 +52,7 @@ function SoftwareVersionInner({
 		if (versions.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		// else if (software.isSuccess && software.data?.content.length === 0)
 		// 	notifications.show(t('noProduct'), { severity: 'info' });
@@ -64,12 +64,12 @@ function SoftwareVersionInner({
 		if (deleteSoftwareVersion.isError)
 			notifications.show(t('deleteSoftwareVersionError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		else if (deleteSoftwareVersion.isSuccess)
 			notifications.show(t('deleteSoftwareVersionSuccess'), {
 				severity: 'success',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 	}, [
 		deleteSoftwareVersion.isError,
@@ -123,7 +123,7 @@ function SoftwareVersionInner({
 					variant="contained"
 					onClick={() =>
 						navigate(
-							`${RoutePaths.CREATE_SOFTWARE_VERSION.replace(`:${PathHolders.SOFTWARE_ID}`, softwareId)}`,
+							`${RoutePaths.CREATE_SOFTWARE_VERSION.replace(`:${PathHolders.SOFTWARE_ID}`, softwareId)}`
 						)
 					}
 				>
@@ -166,10 +166,10 @@ function SoftwareVersionInner({
 									size="small"
 									onClick={() =>
 										navigate(
-											RoutePaths.SOFTWARE_VERSION_DETAIL.replace(
+											RoutePaths.SOFTWARE_VERSION.replace(
 												`:${PathHolders.SOFTWARE_VERSION_ID}`,
-												row.id,
-											),
+												row.id
+											)
 										)
 									}
 								>
@@ -181,8 +181,8 @@ function SoftwareVersionInner({
 										navigate(
 											RoutePaths.MODIFY_SOFTWARE_VERSION.replace(
 												`:${PathHolders.SOFTWARE_VERSION_ID}`,
-												row.id,
-											),
+												row.id
+											)
 										)
 									}
 								>
@@ -223,7 +223,7 @@ export default function SoftwarePage() {
 		if (software.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		// else if (software.isSuccess && software.data?.content.length === 0)
 		// 	notifications.show(t('noProduct'), { severity: 'info' });
@@ -234,12 +234,12 @@ export default function SoftwarePage() {
 		if (deleteSoftware.isError)
 			notifications.show(t('deleteProductError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		else if (deleteSoftware.isSuccess)
 			notifications.show(t('deleteProductSuccess'), {
 				severity: 'success',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 	}, [deleteSoftware.isError, deleteSoftware.isSuccess, notifications, t]);
 	const handleDelete = async (productId: string) => {
@@ -332,8 +332,8 @@ export default function SoftwarePage() {
 											navigate(
 												RoutePaths.MODIFY_SOFTWARE.replace(
 													`:${PathHolders.SOFTWARE_ID}`,
-													row.id,
-												),
+													row.id
+												)
 											)
 										}
 									>

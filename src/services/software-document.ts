@@ -74,9 +74,9 @@ export const softwareDocumentApi = createApi({
 
 		postSoftwareDocument: builder.mutation<
 			SoftwareDocument,
-			SoftwareDocumentCreatingRequest
+			SoftwareDocumentCreateRequest
 		>({
-			query: (data: SoftwareDocumentCreatingRequest) => ({
+			query: (data: SoftwareDocumentCreateRequest) => ({
 				url: `/${data.softwareVersionId}`,
 				method: 'POST',
 				body: {
@@ -96,11 +96,8 @@ export const softwareDocumentApi = createApi({
 				return toEntity(rawResult);
 			},
 		}),
-		putSoftwareDocument: builder.mutation<
-			void,
-			SoftwareDocumentUpdatingRequest
-		>({
-			query: (data: SoftwareDocumentUpdatingRequest) => ({
+		putSoftwareDocument: builder.mutation<void, SoftwareDocumentUpdateRequest>({
+			query: (data: SoftwareDocumentUpdateRequest) => ({
 				url: `/${data.softwareDocumentId}`,
 				method: 'PUT',
 				body: {

@@ -95,11 +95,13 @@
 	"addVersionModule": "Thêm phiên bản Module",
 	"modifyVersionModule": "Chỉnh sửa phiên bản Module",
 
-	"addInstance": "Thêm Instance",
-	"instanceName": "Tên instance",
+	"deploymentProcess": "Quá trình triển khai",
+	"deploymentPhaseType": "Dạng giai đoạn",
 
-	"deploy": "Triển khai",
-	"deployManagement": "Triển khai",
+	"goBack": "Quay trở lại",
+	"home": "trang chủ",
+	"pageNotFound": "Oops! Đường dẫn không tồn tại.",
+	"deployment": "Triển khai",
 	"searchDeployDocument": "Tìm kiếm tài liệu triển khai",
 	"filter": "Lọc",
 	"searchBy": "Tìm kiếm theo",
@@ -107,6 +109,10 @@
 	"contains": "Có chứa",
 	"equals": "Bằng với",
 	"enterValue": "Nhập giá trị",
+	"addDeployDocument": "Thêm tài liệu triển khai",
+	"createDeployProcess": "Thêm quá trình triển khai",
+	"deployDocumentName": "Tên tài liệu triển khai",
+	"deployDocumentDescription": "Mô tả tài liệu triển khai",
 
 	"documentLabel": "Nhãn tài liệu",
 	"addDocumentLabel": "Thêm nhãn tài liệu",
@@ -145,6 +151,10 @@
 	"addProductDesignDocument": "Thêm tài liệu thiết kế phần mềm",
 	"productDesignDocumentName": "Tên tài liệu thiết kế phần mềm",
 	"productDesignDocumentDescription": "Mô tả tài liệu thiết kế phần mềm",
+
+	"deleteDeploymentProcessConfirm": "Bạn có chắc chắn muốn xóa quá trình triển khai này không?",
+	"deleteDeploymentProcessSuccess": "Đã xóa quá trình triển khai",
+	"deleteDeploymentProcessError": "Xóa quá trình triển khai đã xảy ra lỗi",
 
 	"addModuleDesignDocument": "Thêm tài liệu thiết kế module",
 	"moduleDesignDocumentName": "Tên tài liệu thiết kế module",

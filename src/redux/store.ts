@@ -4,6 +4,10 @@ import {
 	softwareDocumentApi,
 	softwareVersionApi,
 	documentTypeApi,
+	customerApi,
+	deploymentPhaseApi,
+	deploymentPhaseTypeApi,
+	deploymentProcessApi,
 } from '../services';
 
 export const store = configureStore({
@@ -12,6 +16,10 @@ export const store = configureStore({
 		[softwareVersionApi.reducerPath]: softwareVersionApi.reducer,
 		[documentTypeApi.reducerPath]: documentTypeApi.reducer,
 		[softwareDocumentApi.reducerPath]: softwareDocumentApi.reducer,
+		[deploymentProcessApi.reducerPath]: deploymentProcessApi.reducer,
+		[customerApi.reducerPath]: customerApi.reducer,
+		[deploymentPhaseApi.reducerPath]: deploymentPhaseApi.reducer,
+		[deploymentPhaseTypeApi.reducerPath]: deploymentPhaseTypeApi.reducer,
 	},
 	// Adding the api middleware enables caching, invalidation, polling,
 	// and other useful features of `rtk-query`.
@@ -21,6 +29,10 @@ export const store = configureStore({
 			softwareVersionApi.middleware,
 			documentTypeApi.middleware,
 			softwareDocumentApi.middleware,
+			deploymentProcessApi.middleware,
+			customerApi.middleware,
+			deploymentPhaseApi.middleware,
+			deploymentPhaseTypeApi.middleware
 		);
 	},
 });

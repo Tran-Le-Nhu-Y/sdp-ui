@@ -1,38 +1,39 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { toEntity } from './mapper/software-mapper';
+import { toEntity } from './mapper/customer-mapper';
 
-export const softwareApi = createApi({
-	reducerPath: 'softwareApi',
+export const customerApi = createApi({
+	reducerPath: 'customerApi',
 	baseQuery: fetchBaseQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software`,
+		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/customer`,
 		jsonContentType: 'application/json',
 		timeout: 300000,
 	}),
-	tagTypes: ['PagingSoftware', 'Software'],
+	tagTypes: ['PagingCustomers', 'Customer'],
 	endpoints: (builder) => ({
-		getAllSoftwareByUserId: builder.query<
-			PagingWrapper<Software>,
-			GetAllSoftwareQuery
+		getAllCustomers: builder.query<
+			PagingWrapper<Customer>,
+			GetAllCustomerQuery
 		>({
-			query: ({ userId, softwareName, pageNumber, pageSize }) => ({
-				url: `/${userId}/user`,
+			query: ({ email, name, pageNumber, pageSize }) => ({
+				url: ``,
 				method: 'GET',
 				params: {
-					name: softwareName,
-					pageNumber,
-					pageSize,
+					email: email,
+					name: name,
+					pageNumber: pageNumber,
+					pageSize: pageSize,
 				},
 			}),
 			providesTags(result) {
 				const pagingTag = {
-					type: 'PagingSoftware',
+					type: 'PagingCustomers',
 					id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
 				} as const;
 
 				return result
 					? [
 							...result.content.map(
-								({ id }) => ({ type: 'Software', id }) as const
+								({ id }) => ({ type: 'Customer', id }) as const
 							),
 							pagingTag,
 						]
@@ -41,7 +42,7 @@ export const softwareApi = createApi({
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
 			},
-			transformResponse(rawResult: PagingWrapper<SoftwareResponse>) {
+			transformResponse(rawResult: PagingWrapper<CustomerResponse>) {
 				const content = rawResult.content.map(toEntity);
 				return {
 					...rawResult,
@@ -49,16 +50,16 @@ export const softwareApi = createApi({
 				};
 			},
 		}),
-		getSoftwareById: builder.query<Software, string>({
-			query: (softwareId: string) => ({
-				url: `/${softwareId}`,
+		getCustomerById: builder.query<Customer, string>({
+			query: (customerId: string) => ({
+				url: `/${customerId}`,
 				method: 'GET',
 			}),
 			providesTags(result) {
 				return result
 					? [
 							{
-								type: 'Software',
+								type: 'Customer',
 								id: result.id,
 							} as const,
 						]
@@ -67,50 +68,50 @@ export const softwareApi = createApi({
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
 			},
-			transformResponse(rawResult: SoftwareResponse) {
+			transformResponse(rawResult: CustomerResponse) {
 				return toEntity(rawResult);
 			},
 		}),
-		postSoftware: builder.mutation<Software, SoftwareCreateRequest>({
-			query: (data: SoftwareCreateRequest) => ({
-				url: `/${data.userId}`,
+		postCustomer: builder.mutation<Customer, CustomerCreateRequest>({
+			query: ({ name, email, userId }) => ({
+				url: `/${userId}`,
 				method: 'POST',
 				body: {
-					name: data.name,
-					description: data.description,
+					name: name,
+					email: email,
 				},
 			}),
 			invalidatesTags() {
-				return [{ type: 'PagingSoftware' } as const];
+				return [{ type: 'PagingCustomers' } as const];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
 			},
-			transformResponse(rawResult: SoftwareResponse) {
+			transformResponse(rawResult: CustomerResponse) {
 				return toEntity(rawResult);
 			},
 		}),
-		putSoftware: builder.mutation<void, SoftwareUpdateRequest>({
-			query: (data: SoftwareUpdateRequest) => ({
-				url: `/${data.softwareId}`,
+		putCustomer: builder.mutation<void, CustomerUpdateRequest>({
+			query: ({ name, email, customerId }) => ({
+				url: `/${customerId}`,
 				method: 'PUT',
 				body: {
-					name: data.name,
-					description: data.description,
+					name: name,
+					email: email,
 				},
 			}),
 			invalidatesTags(_result, _error, arg) {
-				const { softwareId } = arg;
+				const { customerId } = arg;
 				return [
-					{ type: 'PagingSoftware' } as const,
-					{ type: 'Software', id: softwareId } as const,
+					{ type: 'PagingCustomers' } as const,
+					{ type: 'Customer', id: customerId } as const,
 				];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
 			},
 		}),
-		deleteSoftware: builder.mutation<void, string>({
+		deleteCustomer: builder.mutation<void, string>({
 			query: (softwareId: string) => ({
 				url: `/${softwareId}`,
 				method: 'DELETE',
@@ -118,8 +119,8 @@ export const softwareApi = createApi({
 			invalidatesTags(_result, _error, arg) {
 				const productId = arg;
 				return [
-					{ type: 'PagingSoftware' } as const,
-					{ type: 'Software', id: productId } as const,
+					{ type: 'PagingCustomers' } as const,
+					{ type: 'Customer', id: productId } as const,
 				];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
@@ -132,9 +133,9 @@ export const softwareApi = createApi({
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
 export const {
-	useGetAllSoftwareByUserIdQuery,
-	useDeleteSoftwareMutation,
-	useGetSoftwareByIdQuery,
-	usePostSoftwareMutation,
-	usePutSoftwareMutation,
-} = softwareApi;
+	useGetAllCustomersQuery,
+	useGetCustomerByIdQuery,
+	usePostCustomerMutation,
+	usePutCustomerMutation,
+	useDeleteCustomerMutation,
+} = customerApi;

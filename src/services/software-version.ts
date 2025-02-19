@@ -26,14 +26,19 @@ export const softwareVersionApi = createApi({
 				},
 			}),
 			providesTags(result) {
+				const pagingTag = {
+					type: 'PagingSoftwareVersions',
+					id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
+				} as const;
+
 				return result
 					? [
-							{
-								type: 'PagingSoftwareVersions',
-								id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
-							},
+							...result.content.map(
+								({ id }) => ({ type: 'SoftwareVersion', id }) as const
+							),
+							pagingTag,
 						]
-					: [];
+					: [pagingTag];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;

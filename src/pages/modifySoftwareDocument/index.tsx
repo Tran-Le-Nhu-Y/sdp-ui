@@ -16,7 +16,7 @@ import {
 	useUpdateSoftwareDocument,
 } from '../../services';
 import {
-	hideDuration,
+	HideDuration,
 	isValidLength,
 	PathHolders,
 	TextLength,
@@ -35,12 +35,12 @@ export default function ModifySoftwareDocumentPage() {
 		if (softwareDocument.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 	}, [notifications, softwareDocument.isError, t]);
 
 	const [softwareDocumentUpdating, setSoftwareDocumentUpdating] =
-		useState<SoftwareDocumentUpdatingRequest>({
+		useState<SoftwareDocumentUpdateRequest>({
 			softwareDocumentId: documentId!,
 			name: '',
 			description: '',
@@ -65,7 +65,7 @@ export default function ModifySoftwareDocumentPage() {
 		if (!softwareDocumentUpdating.name.trim()) {
 			notifications.show(t('softwareDocumentNameRequired'), {
 				severity: 'warning',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 			return;
 		}
@@ -79,12 +79,12 @@ export default function ModifySoftwareDocumentPage() {
 			navigate(-1);
 			notifications.show(t('createSoftwareDocumentSuccess'), {
 				severity: 'success',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		} catch (error) {
 			notifications.show(t('createSoftwareDocumentError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 			console.error(error);
 		}

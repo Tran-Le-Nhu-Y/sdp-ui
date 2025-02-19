@@ -1,5 +1,5 @@
-function toEntity(response: SoftwareVersionResponse): SoftwareVersion {
-	const version: SoftwareVersion = {
+function toEntity(response: DeploymentPhaseTypeResponse): DeploymentPhaseType {
+	const type: DeploymentPhaseType = {
 		id: response.id,
 		name: response.name,
 		description: response.description,
@@ -8,7 +8,7 @@ function toEntity(response: SoftwareVersionResponse): SoftwareVersion {
 			? new Date(response.updatedAtMs).toLocaleString()
 			: null,
 	};
-	return version;
+	return type;
 }
 
 export { toEntity };

@@ -1,3 +1,15 @@
+declare interface CustomerCreateRequest {
+	name: string;
+	email: string;
+	userId: string;
+}
+
+declare interface CustomerUpdateRequest {
+	name: string;
+	email: string;
+	customerId: string;
+}
+
 declare interface SoftwareCreateRequest {
 	name: string;
 	description?: string?;
@@ -22,19 +34,55 @@ declare interface SoftwareVersionUpdateRequest {
 	versionId: string;
 }
 
-declare interface DocumentTypeCreatingRequest {
+declare interface DeploymentProcessCreateRequest {
+	userId: string;
+	softwareVersionId: string;
+	customerId: string;
+}
+
+declare interface DeploymentProcessUpdateRequest {
+	processId: string;
+	status: DeploymentProcessStatus;
+}
+
+declare interface DeploymentPhaseTypeCreateRequest {
+	userId: string;
+	name: string;
+	description?: string?;
+}
+
+declare interface DeploymentPhaseTypeUpdateRequest {
+	typeId: string;
+	name: string;
+	description?: string?;
+}
+
+declare interface DeploymentPhaseCreateRequest {
+	processId: string;
+	numOrder: number;
+	description?: string?;
+	typeId: string;
+}
+
+declare interface DeploymentPhaseUpdateRequest {
+	phaseId: string;
+	numOrder: number;
+	description?: string?;
+}
+
+declare interface DocumentTypeCreateRequest {
 	name: string;
 	description?: string?;
 	userId: string;
 }
 
-declare interface DocumentTypeUpdatingRequest {
+declare interface DocumentTypeUpdateRequest {
 	name: string;
 	description?: string?;
 	typeId: string;
 }
 
-declare interface SoftwareDocumentCreatingRequest {
+declare interface SoftwareDocumentCreateRequest {
 	name: string;
 	description?: string?;
 	documentTypeId: string;
@@ -42,7 +90,7 @@ declare interface SoftwareDocumentCreatingRequest {
 	attachmentIds?: string[]?;
 }
 
-declare interface SoftwareDocumentUpdatingRequest {
+declare interface SoftwareDocumentUpdateRequest {
 	name: string;
 	description?: string?;
 	attachmentIds: string[];

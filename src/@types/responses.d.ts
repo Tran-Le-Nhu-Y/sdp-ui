@@ -9,6 +9,14 @@ declare interface PagingWrapper<T> {
 	totalPages: number;
 }
 
+declare interface CustomerResponse {
+	id: string;
+	name: string;
+	email: string;
+	createdAtMs: number;
+	updatedAtMs: number?;
+}
+
 declare interface SoftwareResponse {
 	id: string;
 	name: string;
@@ -18,6 +26,39 @@ declare interface SoftwareResponse {
 }
 
 declare interface SoftwareVersionResponse {
+	id: string;
+	name: string;
+	description: string?;
+	createdAtMs: number;
+	updatedAtMs: number?;
+}
+
+declare interface DeploymentProcessResponse {
+	id: number;
+	status: DeploymentProcessStatus;
+	createdAtMs: number;
+	updatedAtMs?: number?;
+	software: {
+		name: string;
+		versionName: string;
+	};
+	customer: {
+		name: string;
+	};
+}
+
+declare interface DeploymentPhaseResponse {
+	id: string;
+	numOrder: number;
+	description: string?;
+	createdAtMs: number;
+	updatedAtMs?: number?;
+	type: {
+		name: string;
+	};
+}
+
+declare interface DeploymentPhaseTypeResponse {
 	id: string;
 	name: string;
 	description: string?;

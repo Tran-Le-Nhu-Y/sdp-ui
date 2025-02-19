@@ -12,7 +12,7 @@ import {
 	Typography,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { hideDuration, PathHolders, RoutePaths } from '../../utils';
+import { HideDuration, PathHolders, RoutePaths } from '../../utils';
 import { useGetSoftwareDocumentById } from '../../services';
 import { useNotifications } from '@toolpad/core';
 import { Delete, Edit } from '@mui/icons-material';
@@ -32,7 +32,7 @@ export default function SoftwareDocumentDetailPage() {
 		if (softwareDocument.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 	}, [notifications, softwareDocument.isError, t]);
 
@@ -54,8 +54,8 @@ export default function SoftwareDocumentDetailPage() {
 							navigate(
 								RoutePaths.MODIFY_SOFTWARE_DOCUMENT.replace(
 									`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
-									documentId || '',
-								),
+									documentId || ''
+								)
 							)
 						}
 					>
