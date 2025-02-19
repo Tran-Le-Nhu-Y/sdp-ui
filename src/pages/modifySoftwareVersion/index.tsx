@@ -10,7 +10,7 @@ import {
 	useUpdateSoftwareVersion,
 } from '../../services';
 
-export default function ModifySoftwareVersioPage() {
+export default function ModifySoftwareVersionPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const notifications = useNotifications();

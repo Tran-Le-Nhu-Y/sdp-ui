@@ -101,18 +101,36 @@ export {
 };
 
 import {
-	documentLabelApi,
-	useGetAllDocumentLabelsByUserIdQuery as useGetAllDocumentLabelsByUserId,
-	usePostDocumentLabelMutation as useCreateDocumentLabel,
-	useGetLabelByIdQuery as useGetDocumentLabelById,
-	usePutLabelMutation as useUpdateDocumentLabel,
-	useDeleteLabelMutation as useDeleteDocumentLabel,
-} from './document-label';
+	documentTypeApi,
+	useGetAllDocumentTypesByUserIdQuery as useGetAllDocumentTypesByUserId,
+	useGetDocumentTypeByIdQuery as useGetDocumentTypeById,
+	usePostDocumentTypeMutation as useCreateDocumentType,
+	usePutDocumentTypeMutation as useUpdateDocumentType,
+	useDeleteDocumentTypeMutation as useDeleteDocumentType,
+} from './document-type';
 export {
-	documentLabelApi,
-	useGetAllDocumentLabelsByUserId,
-	useCreateDocumentLabel,
-	useGetDocumentLabelById,
-	useUpdateDocumentLabel,
-	useDeleteDocumentLabel,
+	documentTypeApi,
+	useGetAllDocumentTypesByUserId,
+	useGetDocumentTypeById,
+	useCreateDocumentType,
+	useUpdateDocumentType,
+	useDeleteDocumentType,
+};
+
+import {
+	softwareDocumentApi,
+	useGetAllSoftwareDocumentsByUserIdQuery as useGetAllSoftwareDocumentByUserId,
+	useGetSoftwareDocumentByIdQuery as useGetSoftwareDocumentById,
+	usePostSoftwareDocumentMutation as useCreateSoftwareDocument,
+	usePutSoftwareDocumentMutation as useUpdateSoftwareDocument,
+	useDeleteSoftwareDocumentMutation as useDeleteSoftwareDocument,
+} from './software-document';
+
+export {
+	softwareDocumentApi,
+	useGetAllSoftwareDocumentByUserId,
+	useGetSoftwareDocumentById,
+	useCreateSoftwareDocument,
+	useUpdateSoftwareDocument,
+	useDeleteSoftwareDocument,
 };

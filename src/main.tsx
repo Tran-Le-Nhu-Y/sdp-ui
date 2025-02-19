@@ -9,17 +9,20 @@ import {
 	RouterProvider,
 } from 'react-router-dom';
 import {
-	CreatDeployDocumentPage,
 	CreateCustomerPage,
 	CreateDeploymentPage,
+	CreateSoftwareDocumentPage,
 	CreateSoftwarePage,
 	CreateSoftwareVersionPage,
 	CustomerManagementPage,
+	DocumentTypePage,
 	DeploymentProcessPage,
 	ErrorPage,
+	ModifySoftwareDocumentPage,
 	ModifySoftwarePage,
-	ModifySoftwareVersioPage,
+	ModifySoftwareVersionPage,
 	OverviewPage,
+	SoftwareDocumentDetailPage,
 	SoftwarePage,
 	SoftwareVersionDetailPage,
 } from './pages/index.tsx';
@@ -59,12 +62,26 @@ const router = createBrowserRouter(
 			/>
 			<Route
 				path={RoutePaths.MODIFY_SOFTWARE_VERSION}
-				element={<ModifySoftwareVersioPage />}
+				element={<ModifySoftwareVersionPage />}
 			/>
 			<Route
 				path={RoutePaths.SOFTWARE_VERSION_DETAIL}
 				element={<SoftwareVersionDetailPage />}
 			/>
+			<Route
+				path={RoutePaths.CREATE_SOFTWARE_DOCUMENT}
+				element={<CreateSoftwareDocumentPage />}
+			/>
+			<Route
+				path={RoutePaths.SOFTWARE_DOCUMENT_DETAIL}
+				element={<SoftwareDocumentDetailPage />}
+			/>
+			<Route
+				path={RoutePaths.MODIFY_SOFTWARE_DOCUMENT}
+				element={<ModifySoftwareDocumentPage />}
+			/>
+
+			<Route path="document-type" element={<DocumentTypePage />} />
 
 			<Route
 				path={RoutePaths.DEPLOYMENT_PROCESS}

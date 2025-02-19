@@ -2,7 +2,7 @@ import { createEntityAdapter, createSlice } from '@reduxjs/toolkit';
 import type { PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 
-const entityAdapter = createEntityAdapter<DocumentLabel, string>({
+const entityAdapter = createEntityAdapter<SdpDocumentType, string>({
 	selectId: (label) => label.id,
 	// sortComparer: (a, b) => a.name.localeCompare(b.name),
 });
@@ -18,11 +18,11 @@ export const slice = createSlice({
 	name: 'labels',
 	initialState,
 	reducers: {
-		createNewLabel: (state, action: PayloadAction<DocumentLabel>) => {
+		createNewLabel: (state, action: PayloadAction<SdpDocumentType>) => {
 			const newLabel = action.payload;
 			entityAdapter.addOne(state, newLabel);
 		},
-		updateLabel: (state, action: PayloadAction<DocumentLabel>) => {
+		updateLabel: (state, action: PayloadAction<SdpDocumentType>) => {
 			const updateLabel = action.payload;
 			entityAdapter.updateOne(state, {
 				id: updateLabel.id,

@@ -1,19 +1,21 @@
 import { configureStore } from '@reduxjs/toolkit';
 import {
+	softwareApi,
+	softwareDocumentApi,
+	softwareVersionApi,
+	documentTypeApi,
 	customerApi,
 	deploymentPhaseApi,
 	deploymentPhaseTypeApi,
 	deploymentProcessApi,
-	documentLabelApi,
-	softwareApi,
-	softwareVersionApi,
 } from '../services';
 
 export const store = configureStore({
 	reducer: {
 		[softwareApi.reducerPath]: softwareApi.reducer,
 		[softwareVersionApi.reducerPath]: softwareVersionApi.reducer,
-		[documentLabelApi.reducerPath]: documentLabelApi.reducer,
+		[documentTypeApi.reducerPath]: documentTypeApi.reducer,
+		[softwareDocumentApi.reducerPath]: softwareDocumentApi.reducer,
 		[deploymentProcessApi.reducerPath]: deploymentProcessApi.reducer,
 		[customerApi.reducerPath]: customerApi.reducer,
 		[deploymentPhaseApi.reducerPath]: deploymentPhaseApi.reducer,
@@ -25,7 +27,8 @@ export const store = configureStore({
 		return getDefaultMiddleware().concat(
 			softwareApi.middleware,
 			softwareVersionApi.middleware,
-			documentLabelApi.middleware,
+			documentTypeApi.middleware,
+			softwareDocumentApi.middleware,
 			deploymentProcessApi.middleware,
 			customerApi.middleware,
 			deploymentPhaseApi.middleware,
