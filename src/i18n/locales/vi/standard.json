@@ -42,6 +42,7 @@
 	"updateSoftwareError": "Cập nhật thông tin phần mềm đã xảy ra lỗi",
 	"updateSoftwareSuccess": "Cập nhật thông tin phần mềm thành công",
 	"softwareName": "Tên phần mềm",
+
 	"customer": "Khách hàng",
 	"customerName": "Tên khách hàng",
 	"address": "Địa chỉ",

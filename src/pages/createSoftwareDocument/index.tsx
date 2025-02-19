@@ -39,7 +39,7 @@ export default function CreateSoftwareDocumentPage() {
 	const [createSoftwareDocumentTrigger] = useCreateSoftwareDocument();
 	const [documentTypeQuery] = useState<GetAllDocumentTypeQuery>({
 		userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
-		documentTypeName: '',
+		typeName: '',
 		pageNumber: 0,
 		pageSize: 6,
 	});
@@ -55,7 +55,7 @@ export default function CreateSoftwareDocumentPage() {
 	}, [notifications, documentTypes.error, t]);
 
 	const [softwareDocumentCreating, setSoftwareDocumentCreating] =
-		useState<SoftwareDocumentCreatingRequest>({
+		useState<SoftwareDocumentCreateRequest>({
 			softwareVersionId: '',
 			documentTypeId: '',
 			name: '',
@@ -63,7 +63,7 @@ export default function CreateSoftwareDocumentPage() {
 
 	const handleSubmit = async () => {
 		if (!softwareVersionId) return;
-		const newSoftwareDoc: SoftwareDocumentCreatingRequest = {
+		const newSoftwareDoc: SoftwareDocumentCreateRequest = {
 			softwareVersionId: softwareVersionId,
 			documentTypeId: softwareDocumentCreating.documentTypeId,
 			name: softwareDocumentCreating.name,

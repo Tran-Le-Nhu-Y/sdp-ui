@@ -19,6 +19,9 @@ export enum PathHolders {
 
 export enum RoutePaths {
 	OVERVIEW = '/overview',
+	CUSTOMER = '/customer',
+	CREATE_CUSTOMER = '/customer/create',
+	MODIFY_CUSTOMER = `/customer/:${PathHolders.CUSTOMER_ID}/modify`,
 	SOFTWARE = '/software',
 	CREATE_SOFTWARE = '/software/create',
 	MODIFY_SOFTWARE = `/software/:${PathHolders.SOFTWARE_ID}/modify`,

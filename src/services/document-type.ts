@@ -10,31 +10,26 @@ export const documentTypeApi = createApi({
 		jsonContentType: 'application/json',
 		timeout: 300000,
 	}),
-	tagTypes: ['PagingSoftwareDocument', 'SoftwareDocument'],
+	tagTypes: ['PagingCustomer', 'Customer'],
 	endpoints: (builder) => ({
 		getAllDocumentTypesByUserId: builder.query<
 			PagingWrapper<SdpDocumentType>,
 			GetAllDocumentTypeQuery
 		>({
-			query: ({
-				userId,
-				documentTypeName: typeName,
-				pageNumber,
-				pageSize,
-			}) => ({
+			query: ({ userId, typeName, pageNumber, pageSize }) => ({
 				url: `${userId}/user`,
 				method: 'GET',
 				params: {
-					typeName,
-					pageNumber,
-					pageSize,
+					typeName: typeName,
+					pageNumber: pageNumber,
+					pageSize: pageSize,
 				},
 			}),
 			providesTags(result, _error, arg) {
 				return [
 					{
-						type: 'PagingSoftwareDocument',
-						id: `${arg.documentTypeName}-${arg.pageNumber}-${arg.pageSize}-${result?.numberOfElements}-${result?.totalPages}-${result?.totalElements}`,
+						type: 'PagingCustomer',
+						id: `${arg.typeName}-${arg.pageNumber}-${arg.pageSize}-${result?.numberOfElements}-${result?.totalPages}-${result?.totalElements}`,
 					},
 				];
 			},
@@ -57,7 +52,7 @@ export const documentTypeApi = createApi({
 			providesTags(result) {
 				return [
 					{
-						type: 'SoftwareDocument',
+						type: 'Customer',
 						id: result?.id,
 					} as const,
 				];
@@ -72,9 +67,9 @@ export const documentTypeApi = createApi({
 
 		postDocumentType: builder.mutation<
 			SdpDocumentType,
-			DocumentTypeCreatingRequest
+			DocumentTypeCreateRequest
 		>({
-			query: (data: DocumentTypeCreatingRequest) => ({
+			query: (data: DocumentTypeCreateRequest) => ({
 				url: `/${data.userId}`,
 				method: 'POST',
 				body: {
@@ -83,7 +78,7 @@ export const documentTypeApi = createApi({
 				},
 			}),
 			invalidatesTags() {
-				return [{ type: 'PagingSoftwareDocument' } as const];
+				return [{ type: 'PagingCustomer' } as const];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
@@ -92,8 +87,8 @@ export const documentTypeApi = createApi({
 				return toEntity(rawResult);
 			},
 		}),
-		putDocumentType: builder.mutation<void, DocumentTypeUpdatingRequest>({
-			query: (data: DocumentTypeUpdatingRequest) => ({
+		putDocumentType: builder.mutation<void, DocumentTypeUpdateRequest>({
+			query: (data: DocumentTypeUpdateRequest) => ({
 				url: `/${data.typeId}`,
 				method: 'PUT',
 				body: {
@@ -104,8 +99,8 @@ export const documentTypeApi = createApi({
 			invalidatesTags(_result, _error, arg) {
 				const { typeId } = arg;
 				return [
-					{ type: 'PagingSoftwareDocument' } as const,
-					{ type: 'SoftwareDocument', id: typeId } as const,
+					{ type: 'PagingCustomer' } as const,
+					{ type: 'Customer', id: typeId } as const,
 				];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
@@ -120,8 +115,8 @@ export const documentTypeApi = createApi({
 			invalidatesTags(_result, _error, arg) {
 				const typeId = arg;
 				return [
-					{ type: 'PagingSoftwareDocument' } as const,
-					{ type: 'SoftwareDocument', id: typeId } as const,
+					{ type: 'PagingCustomer' } as const,
+					{ type: 'Customer', id: typeId } as const,
 				];
 			},
 		}),

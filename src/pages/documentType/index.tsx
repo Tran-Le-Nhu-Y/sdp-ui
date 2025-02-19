@@ -63,7 +63,7 @@ function DocumentTypePage() {
 	const [documentTypeQuery, setDocumentTypeQuery] =
 		useState<GetAllDocumentTypeQuery>({
 			userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
-			documentTypeName: '',
+			typeName: '',
 			pageNumber: 0,
 			pageSize: 6,
 		});
@@ -281,7 +281,7 @@ function DocumentTypePage() {
 							onReset={() => {
 								setDocumentTypeQuery((prev) => ({
 									...prev,
-									documentTypeName: '',
+									typeName: '',
 								}));
 							}}
 						/>

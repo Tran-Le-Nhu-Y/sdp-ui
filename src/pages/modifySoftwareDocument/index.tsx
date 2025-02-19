@@ -40,7 +40,7 @@ export default function ModifySoftwareDocumentPage() {
 	}, [notifications, softwareDocument.isError, t]);
 
 	const [softwareDocumentUpdating, setSoftwareDocumentUpdating] =
-		useState<SoftwareDocumentUpdatingRequest>({
+		useState<SoftwareDocumentUpdateRequest>({
 			softwareDocumentId: documentId!,
 			name: '',
 			description: '',
