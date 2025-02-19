@@ -9,6 +9,14 @@ declare interface PagingWrapper<T> {
 	totalPages: number;
 }
 
+declare interface CustomerResponse {
+	id: string;
+	name: string;
+	email: string;
+	createdAtMs: number;
+	updatedAtMs: number?;
+}
+
 declare interface SoftwareResponse {
 	id: string;
 	name: string;

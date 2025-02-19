@@ -22,19 +22,19 @@ declare interface SoftwareVersionUpdateRequest {
 	versionId: string;
 }
 
-declare interface DocumentTypeCreatingRequest {
+declare interface DocumentTypeCreateRequest {
 	name: string;
 	description?: string?;
 	userId: string;
 }
 
-declare interface DocumentTypeUpdatingRequest {
+declare interface DocumentTypeUpdateRequest {
 	name: string;
 	description?: string?;
 	typeId: string;
 }
 
-declare interface SoftwareDocumentCreatingRequest {
+declare interface SoftwareDocumentCreateRequest {
 	name: string;
 	description?: string?;
 	documentTypeId: string;
@@ -42,9 +42,20 @@ declare interface SoftwareDocumentCreatingRequest {
 	attachmentIds?: string[]?;
 }
 
-declare interface SoftwareDocumentUpdatingRequest {
+declare interface SoftwareDocumentUpdateRequest {
 	name: string;
 	description?: string?;
 	attachmentIds: string[];
 	softwareDocumentId: string;
+}
+
+declare interface CustomerCreateRequest {
+	name: string;
+	email: string;
+	userId: string;
+}
+declare interface CustomerUpdateRequest {
+	name: string;
+	email: string;
+	customerId: string;
 }

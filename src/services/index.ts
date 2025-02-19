@@ -66,3 +66,20 @@ export {
 	useUpdateSoftwareDocument,
 	useDeleteSoftwareDocument,
 };
+
+import {
+	customerApi,
+	useGetAllCustomerQuery as useGetAllCustomer,
+	useGetCustomerByIdQuery as useGetCustomerById,
+	usePostCustomerMutation as useCreateCustomer,
+	usePutCustomerMutation as useUpdateCustomer,
+	useDeleteCustomerMutation as useDeleteCustomer,
+} from './customer';
+export {
+	customerApi,
+	useGetAllCustomer,
+	useGetCustomerById,
+	useCreateCustomer,
+	useUpdateCustomer,
+	useDeleteCustomer,
+};

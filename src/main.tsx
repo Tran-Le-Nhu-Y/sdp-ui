@@ -39,8 +39,12 @@ const router = createBrowserRouter(
 			hydrateFallbackElement={<HydrateFallback />}
 		>
 			<Route path={RoutePaths.OVERVIEW} element={<OverviewPage />} />
-			<Route path="customer" element={<CustomerManagementPage />} />
-			<Route path="/create-customer" element={<CreateCustomerPage />} />
+			<Route path={RoutePaths.CUSTOMER} element={<CustomerManagementPage />} />
+			<Route
+				path={RoutePaths.CREATE_CUSTOMER}
+				element={<CreateCustomerPage />}
+			/>
+			{/* <Route path={RoutePaths.MODIFY_CUSTOMER} element={<CreateCustomerPage />} /> */}
 			<Route path={RoutePaths.SOFTWARE} element={<SoftwarePage />} />
 			<Route
 				path={RoutePaths.CREATE_SOFTWARE}

@@ -4,6 +4,14 @@ declare interface File {
 	size: number;
 	status: string;
 }
+
+declare interface Customer {
+	id: string;
+	name: string;
+	email: string;
+	createdAt: string;
+	updatedAt?: string?;
+}
 declare interface SdpDocumentType {
 	id: string;
 	name: string;

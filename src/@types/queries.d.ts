@@ -1,3 +1,10 @@
+declare interface GetAllCustomerQuery {
+	email?: string;
+	name?: string;
+	pageNumber?: number?;
+	pageSize?: number?;
+}
+
 declare interface GetAllSoftwareQuery {
 	userId: string;
 	softwareName?: string?;
@@ -22,7 +29,7 @@ declare interface GetAllSoftwareDocumentQuery {
 
 declare interface GetAllDocumentTypeQuery {
 	userId: string;
-	documentTypeName?: string?;
+	typeName?: string?;
 	pageNumber?: number?;
 	pageSize?: number?;
 }
