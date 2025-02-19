@@ -72,9 +72,9 @@ export const documentTypeApi = createApi({
 
 		postDocumentType: builder.mutation<
 			SdpDocumentType,
-			DocumentTypeCreatingRequest
+			DocumentTypeCreateRequest
 		>({
-			query: (data: DocumentTypeCreatingRequest) => ({
+			query: (data: DocumentTypeCreateRequest) => ({
 				url: `/${data.userId}`,
 				method: 'POST',
 				body: {
@@ -92,8 +92,8 @@ export const documentTypeApi = createApi({
 				return toEntity(rawResult);
 			},
 		}),
-		putDocumentType: builder.mutation<void, DocumentTypeUpdatingRequest>({
-			query: (data: DocumentTypeUpdatingRequest) => ({
+		putDocumentType: builder.mutation<void, DocumentTypeUpdateRequest>({
+			query: (data: DocumentTypeUpdateRequest) => ({
 				url: `/${data.typeId}`,
 				method: 'PUT',
 				body: {

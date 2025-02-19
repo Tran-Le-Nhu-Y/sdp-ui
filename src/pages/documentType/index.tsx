@@ -21,7 +21,7 @@ import {
 	useCreateDocumentType,
 } from '../../services';
 import { useDialogs, useNotifications } from '@toolpad/core';
-import { hideDuration, isValidLength, TextLength } from '../../utils';
+import { HideDuration, isValidLength, TextLength } from '../../utils';
 import { FilterDialog, PaginationTable } from '../../components';
 
 function DocumentTypePage() {
@@ -46,12 +46,12 @@ function DocumentTypePage() {
 		if (createDocumentType.isSuccess)
 			notifications.show(t('createDocumentTypeSuccess'), {
 				severity: 'success',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		else if (createDocumentType.isError)
 			notifications.show(t('createDocumentTypeError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 	}, [
 		createDocumentType.isError,
@@ -74,7 +74,7 @@ function DocumentTypePage() {
 		if (documentTypes.error)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 	}, [notifications, documentTypes.error, t]);
 
@@ -83,7 +83,7 @@ function DocumentTypePage() {
 		if (documentType.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		else if (documentType.isSuccess) setCurrentDocumentType(documentType.data);
 	}, [
@@ -107,7 +107,7 @@ function DocumentTypePage() {
 		if (!documentTypeCreating.name.trim()) {
 			notifications.show(t('documentTypeNameRequired'), {
 				severity: 'warning',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 			return;
 		}
@@ -136,12 +136,12 @@ function DocumentTypePage() {
 			await deleteDocumentTypeTrigger(typeId);
 			notifications.show(t('deleteDocumentTypeSuccess'), {
 				severity: 'success',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		} catch (error) {
 			notifications.show(t('deleteDocumentTypeError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 			console.error(error);
 		}
@@ -162,12 +162,12 @@ function DocumentTypePage() {
 				}).unwrap();
 				notifications.show(t('updateDocumentTypeSuccess'), {
 					severity: 'success',
-					autoHideDuration: hideDuration.fast,
+					autoHideDuration: HideDuration.fast,
 				});
 			} catch (error) {
 				notifications.show(t('updateDocumentTypeError'), {
 					severity: 'error',
-					autoHideDuration: hideDuration.fast,
+					autoHideDuration: HideDuration.fast,
 				});
 				console.error(error);
 			}
@@ -187,7 +187,7 @@ function DocumentTypePage() {
 			createDocumentType.isLoading,
 			documentTypes.isLoading,
 			updateDocumentType.isLoading,
-		],
+		]
 	);
 
 	return (
@@ -386,10 +386,10 @@ interface EditableDocumentTypeProps {
 	description?: string;
 
 	onNameChange: (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => void;
 	onDescriptionChange: (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => void;
 
 	onSave: () => void;

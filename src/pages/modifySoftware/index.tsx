@@ -5,7 +5,7 @@ import { useGetSoftwareById, useUpdateSoftware } from '../../services';
 import { useEffect } from 'react';
 import { useNotifications } from '@toolpad/core';
 import { LinearProgress } from '@mui/material';
-import { hideDuration, PathHolders } from '../../utils';
+import { HideDuration, PathHolders } from '../../utils';
 
 export default function ModifySoftwarePage() {
 	const { t } = useTranslation();
@@ -18,7 +18,7 @@ export default function ModifySoftwarePage() {
 		if (software.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 	}, [notifications, software.isError, t]);
 
@@ -27,13 +27,13 @@ export default function ModifySoftwarePage() {
 		if (updateSoftware.isError)
 			notifications.show(t('updateSoftwareError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		else if (updateSoftware.isSuccess) {
 			navigate(-1);
 			notifications.show(t('updateSoftwareSuccess'), {
 				severity: 'success',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		}
 	}, [

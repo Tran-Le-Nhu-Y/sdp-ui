@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useNotifications } from '@toolpad/core';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
-import { hideDuration, PathHolders } from '../../utils';
+import { HideDuration, PathHolders } from '../../utils';
 import { Box, LinearProgress } from '@mui/material';
 import { CreateOrModifyForm } from '../../components';
 import { useCreateSoftwareVersion } from '../../services';
@@ -19,13 +19,13 @@ export default function CreateSoftwareVersionPage() {
 		if (createSoftwareVersion.isError)
 			notifications.show(t('updateSoftwareVersionError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		else if (createSoftwareVersion.isSuccess) {
 			navigate(-1); // back to previous page
 			notifications.show(t('createSoftwareVersionSuccess'), {
 				severity: 'success',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		}
 	}, [

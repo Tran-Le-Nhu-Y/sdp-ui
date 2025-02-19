@@ -26,12 +26,7 @@ import {
 } from '../../components';
 import { Delete, Edit } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectAllFiles } from '../../redux/slices/FileSlice';
 import { useNavigate } from 'react-router-dom';
-import {
-	deleteInstanceById,
-	selectAllInstances,
-} from '../../redux/slices/InstanceSlice';
 
 const ModuleVersionDetailPage = () => {
 	const { t } = useTranslation();
@@ -45,9 +40,6 @@ const ModuleVersionDetailPage = () => {
 		pageSize: 5,
 	});
 
-	const files = useSelector(selectAllFiles);
-
-	const instances = useSelector(selectAllInstances);
 	// const products = useGetAllProductsByUserId({
 	// 	userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
 	// 	...productTablePage,
@@ -76,12 +68,12 @@ const ModuleVersionDetailPage = () => {
 
 	const handleDelete = (id: string) => {
 		const confirmDelete = window.confirm(
-			`Bạn có chắc chắn muốn xóa module ${id}?`,
+			`Bạn có chắc chắn muốn xóa module ${id}?`
 		);
-		if (confirmDelete) {
-			dispatch(deleteInstanceById(id));
-			alert(`Đã xóa module ${id}`);
-		}
+		// if (confirmDelete) {
+		// 	dispatch(deleteInstanceById(id));
+		// 	alert(`Đã xóa module ${id}`);
+		// }
 	};
 
 	return (
@@ -236,17 +228,17 @@ const ModuleVersionDetailPage = () => {
 									<TableCell />
 								</>
 							}
-							rows={instances}
-							count={instances.length ?? 0}
+							rows={[]}
+							count={0}
 							pageNumber={instanceTablePage.pageNumber}
 							pageSize={instanceTablePage.pageSize}
 							onPageChange={(newPage) => setInstanceTablePage(newPage)}
 							getCell={(row) => (
 								<CollapsibleTableRow
-									key={row.id}
+									key={''}
 									cells={
 										<>
-											<TableCell align="justify" component="th" scope="row">
+											{/* <TableCell align="justify" component="th" scope="row">
 												{row.name}
 											</TableCell>
 											<TableCell align="center">{row.createdAt}</TableCell>
@@ -265,7 +257,7 @@ const ModuleVersionDetailPage = () => {
 												<IconButton onClick={() => handleDelete(row.id)}>
 													<DeleteIcon color="error" />
 												</IconButton>
-											</TableCell>
+											</TableCell> */}
 										</>
 									}
 									inner={
@@ -275,7 +267,7 @@ const ModuleVersionDetailPage = () => {
 												gutterBottom
 												component="div"
 											>
-												ID: {row.id}
+												{/* ID: {row.id} */}
 											</Typography>
 											<Box
 												component="form"
@@ -296,19 +288,19 @@ const ModuleVersionDetailPage = () => {
 														width: '100%',
 													}}
 												>
-													<TextEditor value={row.description} readOnly />
+													{/* <TextEditor value={row.description} readOnly /> */}
 												</Stack>
 											</Box>
 										</>
 									}
 									onExpand={() => {
-										setCurrVerProps({
-											productId: row.id,
-											versionName: '',
-											status: false,
-											pageNumber: 0,
-											pageSize: 5,
-										});
+										// setCurrVerProps({
+										// 	productId: row.id,
+										// 	versionName: '',
+										// 	status: false,
+										// 	pageNumber: 0,
+										// 	pageSize: 5,
+										// });
 									}}
 								/>
 							)}

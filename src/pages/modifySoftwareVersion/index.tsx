@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useNotifications } from '@toolpad/core';
 import { LinearProgress } from '@mui/material';
-import { hideDuration, PathHolders } from '../../utils';
+import { HideDuration, PathHolders } from '../../utils';
 import {
 	useGetSoftwareVersionById,
 	useUpdateSoftwareVersion,
@@ -22,7 +22,7 @@ export default function ModifySoftwareVersionPage() {
 		if (softwareVersion.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 	}, [notifications, softwareVersion.isError, t]);
 
@@ -32,13 +32,13 @@ export default function ModifySoftwareVersionPage() {
 		if (updateSoftwareVersion.isError)
 			notifications.show(t('updateSoftwareVersionError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		else if (updateSoftwareVersion.isSuccess) {
 			navigate(-1);
 			notifications.show(t('updateSoftwareVersionSuccess'), {
 				severity: 'success',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		}
 	}, [

@@ -11,7 +11,7 @@ import CreateVersionModulePage from './createVersionModule';
 import ModifySoftwareVersionPage from './modifySoftwareVersion';
 import CreatModuleDesignDocumentPage from './createModuleDesignDocument';
 import SoftwareVersionDetailPage from './softwareVersionDetail';
-import ModuleVersionDetailPage from './moduleVersionDetails';
+// import ModuleVersionDetailPage from './moduleVersionDetails';
 import CustomerManagementPage from './customerManagement';
 import CreateCustomerPage from './createCustomer';
 import CreateDeploymentPage from './createDeployment';
@@ -30,7 +30,7 @@ export {
 	CreateSoftwareVersionPage,
 	ModifySoftwareVersionPage,
 	CreateModulePage,
-	ModuleVersionDetailPage,
+	// ModuleVersionDetailPage,
 	CreateVersionModulePage,
 	DeploymentProcessPage,
 	CreateDeploymentPage,

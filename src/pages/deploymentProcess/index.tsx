@@ -14,7 +14,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { hideDuration, RoutePaths } from '../../utils';
+import { HideDuration, RoutePaths } from '../../utils';
 import {
 	useDeleteDeploymentProcess,
 	useGetAllDeploymentProcesses,
@@ -41,7 +41,7 @@ export default function DeploymentProcessPage() {
 		if (processes.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 	}, [notifications, processes.isError, t]);
 
@@ -60,12 +60,12 @@ export default function DeploymentProcessPage() {
 			await deleteProcessTrigger(processId);
 			notifications.show(t('deleteDeploymentProcessSuccess'), {
 				severity: 'success',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		} catch (error) {
 			notifications.show(t('deleteDeploymentProcessError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 			console.error(error);
 		}

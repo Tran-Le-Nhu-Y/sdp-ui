@@ -95,8 +95,9 @@
 	"addVersionModule": "Thêm phiên bản Module",
 	"modifyVersionModule": "Chỉnh sửa phiên bản Module",
 
-	"addInstance": "Thêm Instance",
-	"instanceName": "Tên instance",
+	"deploymentProcess": "Quá trình triển khai",
+	"deploymentPhaseType": "Dạng giai đoạn",
+
 	"goBack": "Quay trở lại",
 	"home": "trang chủ",
 	"pageNotFound": "Oops! Đường dẫn không tồn tại.",
@@ -108,7 +109,6 @@
 	"contains": "Có chứa",
 	"equals": "Bằng với",
 	"enterValue": "Nhập giá trị",
-	"addDocument": "Thêm tài liệu",
 	"addDeployDocument": "Thêm tài liệu triển khai",
 	"createDeployProcess": "Thêm quá trình triển khai",
 	"deployDocumentName": "Tên tài liệu triển khai",

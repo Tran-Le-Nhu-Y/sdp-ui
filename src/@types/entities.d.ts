@@ -83,12 +83,3 @@ declare interface SoftwareDocument {
 	createdAt: string;
 	updatedAt: string?;
 }
-
-declare interface Instance {
-	id: string;
-	name: string;
-	description: string;
-	createdAt: string;
-	updatedAt: string?;
-	status: 'ACTIVE' | 'INACTIVE';
-}

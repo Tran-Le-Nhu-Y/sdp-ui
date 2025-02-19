@@ -19,7 +19,7 @@ import {
 	useCreateSoftwareDocument,
 	useGetAllDocumentTypesByUserId,
 } from '../../services';
-import { hideDuration, PathHolders } from '../../utils';
+import { HideDuration, PathHolders } from '../../utils';
 
 interface FileAttachment {
 	id: number;
@@ -50,12 +50,12 @@ export default function CreateSoftwareDocumentPage() {
 		if (documentTypes.error)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 	}, [notifications, documentTypes.error, t]);
 
 	const [softwareDocumentCreating, setSoftwareDocumentCreating] =
-		useState<SoftwareDocumentCreatingRequest>({
+		useState<SoftwareDocumentCreateRequest>({
 			softwareVersionId: '',
 			documentTypeId: '',
 			name: '',
@@ -63,7 +63,7 @@ export default function CreateSoftwareDocumentPage() {
 
 	const handleSubmit = async () => {
 		if (!softwareVersionId) return;
-		const newSoftwareDoc: SoftwareDocumentCreatingRequest = {
+		const newSoftwareDoc: SoftwareDocumentCreateRequest = {
 			softwareVersionId: softwareVersionId,
 			documentTypeId: softwareDocumentCreating.documentTypeId,
 			name: softwareDocumentCreating.name,
@@ -73,7 +73,7 @@ export default function CreateSoftwareDocumentPage() {
 		if (!softwareDocumentCreating.name.trim()) {
 			notifications.show(t('softwareDocumentNameRequired'), {
 				severity: 'warning',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 			return;
 		}
@@ -82,12 +82,12 @@ export default function CreateSoftwareDocumentPage() {
 			navigate(-1);
 			notifications.show(t('createSoftwareDocumentSuccess'), {
 				severity: 'success',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 		} catch (error) {
 			notifications.show(t('createSoftwareDocumentError'), {
 				severity: 'error',
-				autoHideDuration: hideDuration.fast,
+				autoHideDuration: HideDuration.fast,
 			});
 			console.error(error);
 		}

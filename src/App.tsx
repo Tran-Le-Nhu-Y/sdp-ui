@@ -51,7 +51,20 @@ function App() {
 					segment: 'deployment',
 					title: t('deployment'),
 					icon: <DnsIcon />,
-					pattern: `deployment{/:${PathHolders.DEPLOYMENT_PROCESS_ID}}*`,
+					children: [
+						{
+							segment: 'process',
+							title: t('deploymentProcess'),
+							icon: <DnsIcon />,
+							pattern: `process{/:${PathHolders.DEPLOYMENT_PROCESS_ID}}*`,
+						},
+						{
+							segment: 'phase-type',
+							title: t('deploymentPhaseType'),
+							icon: <LabelIcon />,
+							pattern: `phase-type{/:${PathHolders.DEPLOYMENT_PHASE_TYPE_ID}}*`,
+						},
+					],
 				},
 				{
 					segment: 'document-type',
@@ -60,11 +73,6 @@ function App() {
 				},
 				{
 					segment: 'logout',
-					title: t('logOut'),
-					icon: <LogoutIcon />,
-				},
-				{
-					segment: 'test',
 					title: t('logOut'),
 					icon: <LogoutIcon />,
 				},
