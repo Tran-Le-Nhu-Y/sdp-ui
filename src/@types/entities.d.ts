@@ -13,6 +13,14 @@ declare interface DocumentLabel {
 	color: string;
 }
 
+declare interface Customer {
+	id: string;
+	name: string;
+	email: string;
+	createdAt: string;
+	updatedAt?: string?;
+}
+
 declare interface Software {
 	id: string;
 	name: string;
@@ -24,9 +32,9 @@ declare interface Software {
 declare interface SoftwareVersion {
 	id: string;
 	name: string;
-	description: string?;
+	description?: string?;
 	createdAt: string;
-	updatedAt: string?;
+	updatedAt?: string?;
 }
 
 declare interface DeploymentProcess {
@@ -48,6 +56,25 @@ declare type DeploymentProcessStatus =
 	| 'PENDING'
 	| 'IN_PROGRESS'
 	| 'DONE';
+
+declare interface DeploymentPhaseType {
+	id: string;
+	name: string;
+	description?: string?;
+	createdAt: string;
+	updatedAt?: string?;
+}
+
+declare interface DeploymentPhase {
+	id: string;
+	numOrder: number;
+	description?: string?;
+	createdAt: string;
+	updatedAt?: string?;
+	type: {
+		name: string;
+	};
+}
 
 declare interface DeployDocument {
 	id: string;

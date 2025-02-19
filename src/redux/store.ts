@@ -1,5 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 import {
+	customerApi,
+	deploymentPhaseApi,
+	deploymentPhaseTypeApi,
 	deploymentProcessApi,
 	documentLabelApi,
 	softwareApi,
@@ -12,6 +15,9 @@ export const store = configureStore({
 		[softwareVersionApi.reducerPath]: softwareVersionApi.reducer,
 		[documentLabelApi.reducerPath]: documentLabelApi.reducer,
 		[deploymentProcessApi.reducerPath]: deploymentProcessApi.reducer,
+		[customerApi.reducerPath]: customerApi.reducer,
+		[deploymentPhaseApi.reducerPath]: deploymentPhaseApi.reducer,
+		[deploymentPhaseTypeApi.reducerPath]: deploymentPhaseTypeApi.reducer,
 	},
 	// Adding the api middleware enables caching, invalidation, polling,
 	// and other useful features of `rtk-query`.
@@ -20,7 +26,10 @@ export const store = configureStore({
 			softwareApi.middleware,
 			softwareVersionApi.middleware,
 			documentLabelApi.middleware,
-			deploymentProcessApi.middleware
+			deploymentProcessApi.middleware,
+			customerApi.middleware,
+			deploymentPhaseApi.middleware,
+			deploymentPhaseTypeApi.middleware
 		);
 	},
 });

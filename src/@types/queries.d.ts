@@ -19,3 +19,21 @@ declare interface GetAllDeploymentProcessQuery {
 	pageNumber?: number?;
 	pageSize?: number?;
 }
+
+declare interface GetAllCustomerQuery {
+	email?: string?;
+	name?: string?;
+	pageNumber?: number?;
+	pageSize?: number?;
+}
+
+declare interface GetAllDeploymentPhaseQuery {
+	processId: number;
+}
+
+declare interface GetAllDeploymentPhaseTypeQuery {
+	userId: string;
+	name?: string?;
+	pageNumber?: number?;
+	pageSize?: number?;
+}

@@ -1,3 +1,15 @@
+declare interface CustomerCreateRequest {
+	name: string;
+	email: string;
+	userId: string;
+}
+
+declare interface CustomerUpdateRequest {
+	name: string;
+	email: string;
+	customerId: string;
+}
+
 declare interface SoftwareCreateRequest {
 	name: string;
 	description?: string?;
@@ -31,6 +43,31 @@ declare interface DeploymentProcessCreateRequest {
 declare interface DeploymentProcessUpdateRequest {
 	processId: string;
 	status: DeploymentProcessStatus;
+}
+
+declare interface DeploymentPhaseTypeCreateRequest {
+	userId: string;
+	name: string;
+	description?: string?;
+}
+
+declare interface DeploymentPhaseTypeUpdateRequest {
+	typeId: string;
+	name: string;
+	description?: string?;
+}
+
+declare interface DeploymentPhaseCreateRequest {
+	processId: string;
+	numOrder: number;
+	description?: string?;
+	typeId: string;
+}
+
+declare interface DeploymentPhaseUpdateRequest {
+	phaseId: string;
+	numOrder: number;
+	description?: string?;
 }
 
 declare interface DocumentLabelCreatingRequest {
