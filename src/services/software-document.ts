@@ -10,7 +10,7 @@ export const softwareDocumentApi = createApi({
 		jsonContentType: 'application/json',
 		timeout: 300000,
 	}),
-	tagTypes: ['PagingCustomer', 'Customer'],
+	tagTypes: ['PagingSoftwareDocument', 'SoftwareDocument'],
 	endpoints: (builder) => ({
 		getAllSoftwareDocumentsByUserId: builder.query<
 			PagingWrapper<SoftwareDocument>,
@@ -35,7 +35,7 @@ export const softwareDocumentApi = createApi({
 			providesTags(result, _error, arg) {
 				return [
 					{
-						type: 'PagingCustomer',
+						type: 'PagingSoftwareDocument',
 						id: `${arg.documentTypeName}-${arg.softwareDocumentName}-${arg.pageNumber}-${arg.pageSize}-${result?.numberOfElements}-${result?.totalPages}-${result?.totalElements}`,
 					},
 				];
@@ -59,7 +59,7 @@ export const softwareDocumentApi = createApi({
 			providesTags(result) {
 				return [
 					{
-						type: 'Customer',
+						type: 'SoftwareDocument',
 						id: result?.id,
 					} as const,
 				];
@@ -87,7 +87,7 @@ export const softwareDocumentApi = createApi({
 				},
 			}),
 			invalidatesTags() {
-				return [{ type: 'PagingCustomer' } as const];
+				return [{ type: 'PagingSoftwareDocument' } as const];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
@@ -109,8 +109,8 @@ export const softwareDocumentApi = createApi({
 			invalidatesTags(_result, _error, arg) {
 				const { softwareDocumentId } = arg;
 				return [
-					{ type: 'PagingCustomer' } as const,
-					{ type: 'Customer', id: softwareDocumentId } as const,
+					{ type: 'PagingSoftwareDocument' } as const,
+					{ type: 'SoftwareDocument', id: softwareDocumentId } as const,
 				];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
@@ -125,8 +125,8 @@ export const softwareDocumentApi = createApi({
 			invalidatesTags(_result, _error, arg) {
 				const softwareDocumentId = arg;
 				return [
-					{ type: 'PagingCustomer' } as const,
-					{ type: 'Customer', id: softwareDocumentId } as const,
+					{ type: 'PagingSoftwareDocument' } as const,
+					{ type: 'SoftwareDocument', id: softwareDocumentId } as const,
 				];
 			},
 		}),
