@@ -39,11 +39,9 @@ function App() {
 			return session;
 		};
 
-		if (keycloak.didInitialize) return await retrieveSession();
+		if (keycloak.authenticated) return await retrieveSession();
 
-		const authenticated = await keycloak.init({ onLoad: 'login-required' });
-		if (!authenticated) return null;
-
+		await keycloak.login();
 		return await retrieveSession();
 	};
 

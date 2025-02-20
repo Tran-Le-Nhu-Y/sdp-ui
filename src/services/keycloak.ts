@@ -6,6 +6,8 @@ const keycloak = new Keycloak({
 	clientId: 'react-app',
 });
 
+await keycloak.init({ onLoad: 'login-required' });
+
 export async function refreshToken() {
 	if (!keycloak.didInitialize) return;
 	try {
