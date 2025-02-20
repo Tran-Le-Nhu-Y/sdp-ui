@@ -34,6 +34,30 @@ declare interface SoftwareVersionUpdateRequest {
 	versionId: string;
 }
 
+declare interface ModuleCreateRequest {
+	name: string;
+	description?: string?;
+	softwareVersionId: string;
+}
+
+declare interface ModuleUpdateRequest {
+	name: string;
+	description?: string?;
+	moduleId: string;
+}
+
+declare interface ModuleVersionCreateRequest {
+	name: string;
+	description?: string?;
+	moduleId: string;
+}
+
+declare interface ModuleVersionUpdateRequest {
+	name: string;
+	description?: string?;
+	moduleVersionId: string;
+}
+
 declare interface DeploymentProcessCreateRequest {
 	userId: string;
 	softwareVersionId: string;

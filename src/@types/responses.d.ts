@@ -33,6 +33,22 @@ declare interface SoftwareVersionResponse {
 	updatedAtMs: number?;
 }
 
+declare interface ModuleResponse {
+	id: string;
+	name: string;
+	description: string?;
+	createdAtMs: number;
+	updatedAtMs: number?;
+}
+
+declare interface ModuleVersionResponse {
+	id: string;
+	name: string;
+	description: string?;
+	createdAtMs: number;
+	updatedAtMs: number?;
+}
+
 declare interface DeploymentProcessResponse {
 	id: number;
 	status: DeploymentProcessStatus;

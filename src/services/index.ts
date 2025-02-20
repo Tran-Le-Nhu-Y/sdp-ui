@@ -50,6 +50,40 @@ export {
 };
 
 import {
+	moduleApi,
+	useGetAllModuleBySoftwareVersionIdQuery as useGetAllModuleBySoftwareVersionId,
+	useGetModuleByIdQuery as useGetModuleById,
+	usePostModuleMutation as useCreateModule,
+	usePutModuleMutation as useUpdateModule,
+	useDeleteModuleMutation as useDeleteModule,
+} from './module';
+export {
+	moduleApi,
+	useGetAllModuleBySoftwareVersionId,
+	useGetModuleById,
+	useCreateModule,
+	useUpdateModule,
+	useDeleteModule,
+};
+
+import {
+	moduleVersionApi,
+	useGetAllModuleVersionsByModuleIdQuery as useGetAllModuleVersionsByModuleId,
+	useGetModuleVersionByIdQuery as useGetModuleVersionById,
+	usePostModuleVersionMutation as useCreateModuleVersion,
+	usePutModuleVersionMutation as useUpdateModuleVersion,
+	useDeleteModuleVersionMutation as useDeleteModuleVersion,
+} from './module-version';
+export {
+	moduleVersionApi,
+	useGetAllModuleVersionsByModuleId,
+	useGetModuleVersionById,
+	useCreateModuleVersion,
+	useUpdateModuleVersion,
+	useDeleteModuleVersion,
+};
+
+import {
 	deploymentProcessApi,
 	useGetAllProcessesQuery as useGetAllDeploymentProcesses,
 	useGetProcessQuery as useGetDeploymentProcess,

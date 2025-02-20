@@ -36,6 +36,22 @@ declare interface SoftwareVersion {
 	updatedAt?: string?;
 }
 
+declare interface Module {
+	id: string;
+	name: string;
+	description?: string?;
+	createdAt: string;
+	updatedAt?: string?;
+}
+
+declare interface ModuleVersion {
+	id: string;
+	name: string;
+	description?: string?;
+	createdAt: string;
+	updatedAt?: string?;
+}
+
 declare interface DeploymentProcess {
 	id: number;
 	status: DeploymentProcessStatus;

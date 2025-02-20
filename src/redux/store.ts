@@ -9,6 +9,8 @@ import {
 	deploymentPhaseTypeApi,
 	deploymentProcessApi,
 } from '../services';
+import { moduleApi } from '../services/module';
+import { moduleVersionApi } from '../services/module-version';
 
 export const store = configureStore({
 	reducer: {
@@ -20,6 +22,8 @@ export const store = configureStore({
 		[customerApi.reducerPath]: customerApi.reducer,
 		[deploymentPhaseApi.reducerPath]: deploymentPhaseApi.reducer,
 		[deploymentPhaseTypeApi.reducerPath]: deploymentPhaseTypeApi.reducer,
+		[moduleApi.reducerPath]: moduleApi.reducer,
+		[moduleVersionApi.reducerPath]: moduleVersionApi.reducer,
 	},
 	// Adding the api middleware enables caching, invalidation, polling,
 	// and other useful features of `rtk-query`.
@@ -32,7 +36,9 @@ export const store = configureStore({
 			deploymentProcessApi.middleware,
 			customerApi.middleware,
 			deploymentPhaseApi.middleware,
-			deploymentPhaseTypeApi.middleware
+			deploymentPhaseTypeApi.middleware,
+			moduleApi.middleware,
+			moduleVersionApi.middleware,
 		);
 	},
 });
