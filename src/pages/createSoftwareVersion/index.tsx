@@ -1,40 +1,18 @@
 import { useTranslation } from 'react-i18next';
 import { useNotifications } from '@toolpad/core';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useEffect } from 'react';
 import { HideDuration, PathHolders } from '../../utils';
-import { Box, LinearProgress } from '@mui/material';
+import { Box } from '@mui/material';
 import { CreateOrModifyForm } from '../../components';
 import { useCreateSoftwareVersion } from '../../services';
 
 export default function CreateSoftwareVersionPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const [createSoftwareVersionTrigger, createSoftwareVersion] =
-		useCreateSoftwareVersion();
+	const [createSoftwareVersionTrigger] = useCreateSoftwareVersion();
 	const notifications = useNotifications();
 	const softwareId = useParams()[PathHolders.SOFTWARE_ID];
 
-	useEffect(() => {
-		if (createSoftwareVersion.isError)
-			notifications.show(t('updateSoftwareVersionError'), {
-				severity: 'error',
-				autoHideDuration: HideDuration.fast,
-			});
-		else if (createSoftwareVersion.isSuccess) {
-			navigate(-1); // back to previous page
-			notifications.show(t('createSoftwareVersionSuccess'), {
-				severity: 'success',
-				autoHideDuration: HideDuration.fast,
-			});
-		}
-	}, [
-		createSoftwareVersion.isError,
-		createSoftwareVersion.isSuccess,
-		navigate,
-		notifications,
-		t,
-	]);
 	const handleSubmit = async (data: {
 		name: string;
 		description: string | null;
@@ -44,15 +22,34 @@ export default function CreateSoftwareVersionPage() {
 			description: data.description,
 			softwareId: softwareId || 'no-id',
 		};
-		await createSoftwareVersionTrigger(newSoftwareVersion);
+		if (!data.name.trim()) {
+			notifications.show(t('softwareVersionNameRequired'), {
+				severity: 'warning',
+				autoHideDuration: HideDuration.fast,
+			});
+			return;
+		}
+		try {
+			await createSoftwareVersionTrigger(newSoftwareVersion);
+			notifications.show(t('createSoftwareVersionSuccess'), {
+				severity: 'success',
+				autoHideDuration: HideDuration.fast,
+			});
+			navigate(-1);
+		} catch (error) {
+			notifications.show(t('createSoftwareVersionError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+			console.error(error);
+		}
 	};
 
 	return (
 		<Box>
-			{createSoftwareVersion.isLoading && <LinearProgress />}
 			<CreateOrModifyForm
 				title={t('addSoftwareVersion')}
-				label={t('softwareVersionName')}
+				label={t('versionName')}
 				onSubmit={handleSubmit}
 				onCancel={() => navigate(-1)}
 			/>

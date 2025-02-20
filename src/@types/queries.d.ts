@@ -12,6 +12,20 @@ declare interface GetAllSoftwareVersionQuery {
 	pageSize?: number?;
 }
 
+declare interface GetAllModuleQuery {
+	softwareVersionId: string;
+	moduleName?: string?;
+	pageNumber?: number?;
+	pageSize?: number?;
+}
+
+declare interface GetAllModuleVersionQuery {
+	moduleId: string;
+	moduleVersionName?: string?;
+	pageNumber?: number?;
+	pageSize?: number?;
+}
+
 declare interface GetAllSoftwareDocumentQuery {
 	softwareVersionId: string;
 	documentTypeName?: string?;

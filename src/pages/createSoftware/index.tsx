@@ -21,6 +21,13 @@ export default function CreateSoftwarePage() {
 			description: data.description,
 			userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
 		};
+		if (!data.name.trim()) {
+			notifications.show(t('softwareNameRequired'), {
+				severity: 'warning',
+				autoHideDuration: HideDuration.fast,
+			});
+			return;
+		}
 		try {
 			await createSoftwareTrigger(newSoftware);
 			notifications.show(t('createSoftwareSuccess'), {
@@ -39,7 +46,6 @@ export default function CreateSoftwarePage() {
 
 	return (
 		<Box>
-			{/* {createSoftware.isLoading && <LinearProgress />} */}
 			<CreateOrModifyForm
 				title={t('addSoftware')}
 				label={t('softwareName')}

@@ -25,6 +25,11 @@ import {
 	SoftwareDocumentDetailPage,
 	SoftwarePage,
 	SoftwareVersionDetailPage,
+	CreateModulePage,
+	ModifyModulePage,
+	CreateModuleVersionPage,
+	ModuleVersionDetailPage,
+	ModifyModuleVersionPage,
 } from './pages/index.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
@@ -41,11 +46,11 @@ const router = createBrowserRouter(
 			/>
 			<Route path={RoutePaths.CUSTOMER} element={<CustomerManagementPage />} />
 
+			<Route path={RoutePaths.SOFTWARE} element={<SoftwarePage />} />
 			<Route
 				path={RoutePaths.CREATE_SOFTWARE}
 				element={<CreateSoftwarePage />}
 			/>
-			<Route path={RoutePaths.SOFTWARE} element={<SoftwarePage />} />
 			<Route
 				path={RoutePaths.MODIFY_SOFTWARE}
 				element={<ModifySoftwarePage />}
@@ -64,6 +69,21 @@ const router = createBrowserRouter(
 				element={<ModifySoftwareVersionPage />}
 			/>
 
+			<Route path={RoutePaths.CREATE_MODULE} element={<CreateModulePage />} />
+			<Route path={RoutePaths.MODIFY_MODULE} element={<ModifyModulePage />} />
+
+			<Route
+				path={RoutePaths.MODULE_VERSION}
+				element={<ModuleVersionDetailPage />}
+			/>
+			<Route
+				path={RoutePaths.CREATE_MODULE_VERSION}
+				element={<CreateModuleVersionPage />}
+			/>
+			<Route
+				path={RoutePaths.MODIFY_MODULE_VERSION}
+				element={<ModifyModuleVersionPage />}
+			/>
 			<Route
 				path={RoutePaths.CREATE_SOFTWARE_DOCUMENT}
 				element={<CreateSoftwareDocumentPage />}
@@ -96,8 +116,8 @@ const router = createBrowserRouter(
 				path={RoutePaths.CREATE_DEPLOYMENT_PHASE_TYPE}
 				element={<CreateDeploymentPage />}
 			/>
-		</Route>
-	)
+		</Route>,
+	),
 );
 
 createRoot(document.getElementById('root')!).render(
@@ -105,5 +125,5 @@ createRoot(document.getElementById('root')!).render(
 		<Provider store={store}>
 			<RouterProvider router={router} />
 		</Provider>
-	</StrictMode>
+	</StrictMode>,
 );

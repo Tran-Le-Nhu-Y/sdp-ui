@@ -22,27 +22,7 @@ export default function ModifySoftwarePage() {
 			});
 	}, [notifications, software.isError, t]);
 
-	const [updateSoftwareTrigger, updateSoftware] = useUpdateSoftware();
-	useEffect(() => {
-		if (updateSoftware.isError)
-			notifications.show(t('updateSoftwareError'), {
-				severity: 'error',
-				autoHideDuration: HideDuration.fast,
-			});
-		else if (updateSoftware.isSuccess) {
-			navigate(-1);
-			notifications.show(t('updateSoftwareSuccess'), {
-				severity: 'success',
-				autoHideDuration: HideDuration.fast,
-			});
-		}
-	}, [
-		notifications,
-		t,
-		updateSoftware.isError,
-		updateSoftware.isSuccess,
-		navigate,
-	]);
+	const [updateSoftwareTrigger] = useUpdateSoftware();
 
 	const handleSubmit = async (data: {
 		name: string;
@@ -50,11 +30,31 @@ export default function ModifySoftwarePage() {
 	}) => {
 		if (!softwareId) return;
 
-		await updateSoftwareTrigger({
-			softwareId: softwareId,
-			name: data.name,
-			description: data.description,
-		});
+		if (!data.name.trim()) {
+			notifications.show(t('softwareNameRequired'), {
+				severity: 'warning',
+				autoHideDuration: HideDuration.fast,
+			});
+			return;
+		}
+		try {
+			await updateSoftwareTrigger({
+				softwareId: softwareId,
+				name: data.name,
+				description: data.description,
+			});
+			navigate(-1);
+			notifications.show(t('updateSoftwareSuccess'), {
+				severity: 'success',
+				autoHideDuration: HideDuration.fast,
+			});
+		} catch (error) {
+			notifications.show(t('updateSoftwareError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+			console.error(error);
+		}
 	};
 
 	if (software.isLoading) return <LinearProgress />;
