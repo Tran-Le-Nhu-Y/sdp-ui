@@ -12,7 +12,7 @@ import CreatModuleDesignDocumentPage from './createModuleDesignDocument';
 import SoftwareVersionDetailPage from './softwareVersionDetail';
 import CustomerManagementPage from './customerManagement';
 import CreateCustomerPage from './createCustomer';
-import CreateDeploymentPage from './createDeployment';
+import CreateDeploymentProcessPage from './createDeploymentProcess';
 import DocumentTypePage from './documentType';
 import SoftwareDocumentDetailPage from './softwareDocumentDetail';
 import ModifySoftwareDocumentPage from './modifySoftwareDocument';
@@ -37,7 +37,7 @@ export {
 	CreateModuleVersionPage,
 	ModifyModuleVersionPage,
 	DeploymentProcessPage,
-	CreateDeploymentPage,
+	CreateDeploymentProcessPage,
 	CreateSoftwareDocumentPage,
 	SoftwareDocumentDetailPage,
 	ModifySoftwareDocumentPage,

@@ -100,7 +100,7 @@
 	"deleteModuleError": "Xóa Module đã xảy ra lỗi",
 	"moduleList": "Danh sách Module",
 	"moduleNameRequired": "Tên Module không được để trống",
-
+	"notSelected": "chưa chọn",
 	"addModuleVersion": "Thêm phiên bản Module",
 	"modifyVersionModule": "Chỉnh sửa phiên bản Module",
 	"modifyModuleVersion": "Chỉnh sửa Module",

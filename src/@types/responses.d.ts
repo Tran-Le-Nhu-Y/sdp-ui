@@ -63,6 +63,13 @@ declare interface DeploymentProcessResponse {
 	};
 }
 
+declare interface DeploymentProcessMemberResponse {
+	id: string;
+	firstName: string;
+	lastName: string;
+	email: string;
+}
+
 declare interface DeploymentPhaseResponse {
 	id: string;
 	numOrder: number;

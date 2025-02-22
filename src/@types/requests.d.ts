@@ -62,11 +62,18 @@ declare interface DeploymentProcessCreateRequest {
 	userId: string;
 	softwareVersionId: string;
 	customerId: string;
+	memberIds?: string[]?;
 }
 
 declare interface DeploymentProcessUpdateRequest {
-	processId: string;
+	processId: number;
 	status: DeploymentProcessStatus;
+}
+
+declare interface DeploymentProcessUpdateRequest {
+	processId: number;
+	memberId: string;
+	operator: 'ADD' | 'REMOVE';
 }
 
 declare interface DeploymentPhaseTypeCreateRequest {
