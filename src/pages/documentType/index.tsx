@@ -187,7 +187,7 @@ function DocumentTypePage() {
 			createDocumentType.isLoading,
 			documentTypes.isLoading,
 			updateDocumentType.isLoading,
-		]
+		],
 	);
 
 	return (
@@ -386,10 +386,10 @@ interface EditableDocumentTypeProps {
 	description?: string;
 
 	onNameChange: (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
 	) => void;
 	onDescriptionChange: (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
 	) => void;
 
 	onSave: () => void;
