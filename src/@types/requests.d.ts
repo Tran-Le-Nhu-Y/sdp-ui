@@ -120,3 +120,16 @@ declare interface SoftwareDocumentUpdateRequest {
 	attachmentIds: string[];
 	softwareDocumentId: string;
 }
+
+declare interface MailTemplateCreateRequest {
+	content: string;
+	type: MailTemplateType;
+	userId: string;
+}
+
+declare interface MailTemplateUpdateRequest {
+	content: string;
+	type: MailTemplateType;
+	templateId: string;
+	userId: string;
+}
