@@ -20,6 +20,8 @@ import ModifyModulePage from './modifyModule';
 import CreateModuleVersionPage from './createModuleVersion';
 import ModuleVersionDetailPage from './moduleVersionDetail';
 import ModifyModuleVersionPage from './modifyModuleVersion';
+import TemplateSoftwareExpirationPage from './mailTemplateSoftwareExpiration';
+import TemplateCompleteDeploymentPage from './mailTemplateCompleteDeployment';
 
 export {
 	OverviewPage,
@@ -44,4 +46,6 @@ export {
 	DocumentTypePage,
 	CreatModuleDesignDocumentPage,
 	ErrorPage,
+	TemplateSoftwareExpirationPage,
+	TemplateCompleteDeploymentPage,
 };

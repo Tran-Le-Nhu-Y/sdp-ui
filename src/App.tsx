@@ -12,6 +12,10 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import DnsIcon from '@mui/icons-material/Dns';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import LabelIcon from '@mui/icons-material/Label';
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import ContactMailIcon from '@mui/icons-material/ContactMail';
+import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import { useTranslation } from 'react-i18next';
 import theme from './themes/theme';
 import { DashboardLayout, PageContainer } from '@toolpad/core';
@@ -31,6 +35,11 @@ function App() {
 
 			navigation={[
 				{
+					segment: 'notification',
+					title: t('notification'),
+					icon: <NotificationsActiveIcon />,
+				},
+				{
 					segment: 'overview',
 					title: t('overview'),
 					icon: <DashboardIcon />,
@@ -39,7 +48,6 @@ function App() {
 					segment: 'customer',
 					title: t('customer'),
 					icon: <Diversity1Icon />,
-					pattern: `customer{/:${PathHolders.CUSTOMER_ID}}*`,
 				},
 				{
 					segment: 'software',
@@ -70,6 +78,25 @@ function App() {
 					segment: 'document-type',
 					title: t('documentType'),
 					icon: <LabelIcon />,
+				},
+				{
+					segment: 'mail-template',
+					title: t('createMailTemplate'),
+					icon: <ContactMailIcon />,
+					children: [
+						{
+							segment: 'software-expiration',
+							title: t('softwareExpiration'),
+							icon: <AssignmentLateIcon />,
+							pattern: `software-expiration{/:${PathHolders.TEMPLATE_SOFTWARE_EXPIRATION_ID}}*`,
+						},
+						{
+							segment: 'complete-deployment',
+							title: t('completeDeployment'),
+							icon: <AssignmentTurnedInIcon />,
+							pattern: `complete-deployment{/:${PathHolders.TEMPLATE_COMPLETE_DEPLOYMENT_ID}}*`,
+						},
+					],
 				},
 				{
 					segment: 'logout',

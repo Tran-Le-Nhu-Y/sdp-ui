@@ -25,9 +25,9 @@ export const documentTypeApi = createApi({
 				url: `${userId}/user`,
 				method: 'GET',
 				params: {
-					typeName,
-					pageNumber,
-					pageSize,
+					typeName: typeName,
+					pageNumber: pageNumber,
+					pageSize: pageSize,
 				},
 			}),
 			providesTags(result, _error, arg) {
