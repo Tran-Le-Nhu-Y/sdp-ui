@@ -99,3 +99,14 @@ declare interface SoftwareDocument {
 	createdAt: string;
 	updatedAt: string?;
 }
+
+declare type MailTemplateType =
+	| 'SOFTWARE_EXPIRE_ALERT'
+	| 'SOFTWARE_DEPLOYED_SUCCESSFULLY';
+declare interface MailTemplate {
+	id: string;
+	content: string;
+	type: MailTemplateType;
+	createdAt: string;
+	updatedAt: string?;
+}

@@ -30,6 +30,8 @@ import {
 	CreateModuleVersionPage,
 	ModuleVersionDetailPage,
 	ModifyModuleVersionPage,
+	TemplateCompleteDeploymentPage,
+	TemplateSoftwareExpirationPage,
 } from './pages/index.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
@@ -38,6 +40,7 @@ import { RoutePaths } from './utils/index.ts';
 const router = createBrowserRouter(
 	createRoutesFromElements(
 		<Route path="/" element={<App />} errorElement={<ErrorPage />}>
+			<Route path={RoutePaths.NOTIFICATION} element={<OverviewPage />} />
 			<Route path={RoutePaths.OVERVIEW} element={<OverviewPage />} />
 
 			<Route
@@ -115,6 +118,14 @@ const router = createBrowserRouter(
 			<Route
 				path={RoutePaths.CREATE_DEPLOYMENT_PHASE_TYPE}
 				element={<CreateDeploymentProcessPage />}
+			/>
+			<Route
+				path={RoutePaths.TEMPLATE_SOFTWARE_EXPIRATION}
+				element={<TemplateSoftwareExpirationPage />}
+			/>
+			<Route
+				path={RoutePaths.TEMPLATE_COMPLETE_DEPLOYMENT}
+				element={<TemplateCompleteDeploymentPage />}
 			/>
 		</Route>
 	)

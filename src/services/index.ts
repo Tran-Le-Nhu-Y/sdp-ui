@@ -168,3 +168,16 @@ export {
 	useUpdateSoftwareDocument,
 	useDeleteSoftwareDocument,
 };
+
+import {
+	mailTemplateApi,
+	useGetMailTemplateQuery as useGetMailTemplateByUserId,
+	usePostMailTemplateMutation as useCreateMailTemplate,
+	usePutMailTemplateMutation as useUpdateMailTemplate,
+} from './mail-template';
+export {
+	mailTemplateApi,
+	useGetMailTemplateByUserId,
+	useCreateMailTemplate,
+	useUpdateMailTemplate,
+};

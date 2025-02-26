@@ -112,3 +112,11 @@ declare interface SoftwareDocumentResponse {
 	type: { name: string };
 	version: { name: string };
 }
+
+declare interface MailTemplateResponse {
+	id: string;
+	content: string;
+	type: MailTemplateType;
+	createdAtMs: number;
+	updatedAtMs: number?;
+}

@@ -18,9 +18,12 @@ export enum PathHolders {
 	CUSTOMER_ID = 'customerId',
 	DEPLOYMENT_PROCESS_ID = 'processId',
 	DEPLOYMENT_PHASE_TYPE_ID = 'phaseTypeId',
+	TEMPLATE_SOFTWARE_EXPIRATION_ID = 'softwareExpirationId',
+	TEMPLATE_COMPLETE_DEPLOYMENT_ID = 'completeDeploymentId',
 }
 
 export enum RoutePaths {
+	NOTIFICATION = '/notification',
 	OVERVIEW = '/overview',
 
 	CUSTOMER = '/customer',
@@ -52,6 +55,9 @@ export enum RoutePaths {
 
 	DEPLOYMENT_PHASE_TYPE = '/deployment/phase-type',
 	CREATE_DEPLOYMENT_PHASE_TYPE = '/deployment/phase-type/create',
+
+	TEMPLATE_SOFTWARE_EXPIRATION = '/mail-template/software-expiration',
+	TEMPLATE_COMPLETE_DEPLOYMENT = '/mail-template/complete-deployment',
 }
 
 export enum HideDuration {
