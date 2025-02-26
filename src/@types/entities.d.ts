@@ -36,6 +36,22 @@ declare interface SoftwareVersion {
 	updatedAt?: string?;
 }
 
+declare interface Module {
+	id: string;
+	name: string;
+	description?: string?;
+	createdAt: string;
+	updatedAt?: string?;
+}
+
+declare interface ModuleVersion {
+	id: string;
+	name: string;
+	description?: string?;
+	createdAt: string;
+	updatedAt?: string?;
+}
+
 declare interface DeploymentProcess {
 	id: number;
 	status: DeploymentProcessStatus;
@@ -80,6 +96,17 @@ declare interface SoftwareDocument {
 	typeName: string;
 	name: string;
 	description: string?;
+	createdAt: string;
+	updatedAt: string?;
+}
+
+declare type MailTemplateType =
+	| 'SOFTWARE_EXPIRE_ALERT'
+	| 'SOFTWARE_DEPLOYED_SUCCESSFULLY';
+declare interface MailTemplate {
+	id: string;
+	content: string;
+	type: MailTemplateType;
 	createdAt: string;
 	updatedAt: string?;
 }

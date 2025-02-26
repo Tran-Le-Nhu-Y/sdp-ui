@@ -99,7 +99,7 @@ function SoftwareVersionInner({
 					filters={[
 						{
 							key: 'versionName',
-							label: t('softwareVersionName'),
+							label: t('versionName'),
 						},
 					]}
 					open={filterVersionDialogOpen}
@@ -123,7 +123,7 @@ function SoftwareVersionInner({
 					variant="contained"
 					onClick={() =>
 						navigate(
-							`${RoutePaths.CREATE_SOFTWARE_VERSION.replace(`:${PathHolders.SOFTWARE_ID}`, softwareId)}`
+							`${RoutePaths.CREATE_SOFTWARE_VERSION.replace(`:${PathHolders.SOFTWARE_ID}`, softwareId)}`,
 						)
 					}
 				>
@@ -135,7 +135,7 @@ function SoftwareVersionInner({
 				headers={
 					<>
 						<TableCell key={`software-${softwareId}-name`}>
-							{t('softwareVersionName')}
+							{t('versionName')}
 						</TableCell>
 						<TableCell key={`software-${softwareId}-createdAt`} align="center">
 							{t('dateCreated')}
@@ -167,9 +167,9 @@ function SoftwareVersionInner({
 									onClick={() =>
 										navigate(
 											RoutePaths.SOFTWARE_VERSION.replace(
-												`:${PathHolders.SOFTWARE_VERSION_ID}`,
-												row.id
-											)
+												`:${PathHolders.SOFTWARE_ID}`,
+												softwareId,
+											).replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, row.id),
 										)
 									}
 								>
@@ -181,8 +181,8 @@ function SoftwareVersionInner({
 										navigate(
 											RoutePaths.MODIFY_SOFTWARE_VERSION.replace(
 												`:${PathHolders.SOFTWARE_VERSION_ID}`,
-												row.id
-											)
+												row.id,
+											),
 										)
 									}
 								>
@@ -324,16 +324,16 @@ export default function SoftwarePage() {
 									{row.name}
 								</TableCell>
 								<TableCell align="center">{row.createdAt}</TableCell>
-								<TableCell align="center">{row.updatedAt ?? ''}</TableCell>
-								{/* <TableCell align="center">{t(row.status)}</TableCell> */}
+								<TableCell align="center">{row.updatedAt}</TableCell>
+
 								<TableCell align="center">
 									<IconButton
 										onClick={() =>
 											navigate(
 												RoutePaths.MODIFY_SOFTWARE.replace(
 													`:${PathHolders.SOFTWARE_ID}`,
-													row.id
-												)
+													row.id,
+												),
 											)
 										}
 									>
@@ -346,16 +346,11 @@ export default function SoftwarePage() {
 							</>
 						}
 						inner={
-							<>
-								<Typography variant="caption" gutterBottom component="div">
-									ID: {row.id}
-								</Typography>
+							<Stack spacing={3}>
 								<Box
 									component="form"
 									sx={{
 										'& .MuiTextField-root': {
-											marginBottom: 1,
-											marginTop: 1,
 											width: '100%',
 										},
 									}}
@@ -372,12 +367,15 @@ export default function SoftwarePage() {
 										<TextEditor value={row.description ?? ''} readOnly />
 									</Stack>
 								</Box>
+								<Typography variant="h6" textAlign="center">
+									{t('softwareVersionList')}
+								</Typography>
 								<SoftwareVersionInner
 									softwareId={row.id}
 									versionQuery={versionQuery}
 									onQueryChange={(query) => setVersionQuery(query)}
 								/>
-							</>
+							</Stack>
 						}
 						onExpand={() => {
 							setVersionQuery({

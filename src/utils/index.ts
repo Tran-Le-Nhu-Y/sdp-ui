@@ -12,13 +12,18 @@ export const isValidLength = (text: string, length: TextLength) =>
 export enum PathHolders {
 	SOFTWARE_ID = 'softwareId',
 	SOFTWARE_VERSION_ID = 'versionId',
+	MODULE_ID = 'moduleId',
+	MODULE_VERSION_ID = 'moduleVersionId',
 	SOFTWARE_DOCUMENT_ID = 'documentId',
 	CUSTOMER_ID = 'customerId',
 	DEPLOYMENT_PROCESS_ID = 'processId',
 	DEPLOYMENT_PHASE_TYPE_ID = 'phaseTypeId',
+	TEMPLATE_SOFTWARE_EXPIRATION_ID = 'softwareExpirationId',
+	TEMPLATE_COMPLETE_DEPLOYMENT_ID = 'completeDeploymentId',
 }
 
 export enum RoutePaths {
+	NOTIFICATION = '/notification',
 	OVERVIEW = '/overview',
 	LOGOUT = '/logout',
 
@@ -29,9 +34,16 @@ export enum RoutePaths {
 	CREATE_SOFTWARE = '/software/create',
 	MODIFY_SOFTWARE = `/software/:${PathHolders.SOFTWARE_ID}/modify`,
 
+	SOFTWARE_VERSION = `/software/:${PathHolders.SOFTWARE_ID}/version/:${PathHolders.SOFTWARE_VERSION_ID}`,
 	CREATE_SOFTWARE_VERSION = `/software/:${PathHolders.SOFTWARE_ID}/version/create`,
-	SOFTWARE_VERSION = `/software/version/:${PathHolders.SOFTWARE_VERSION_ID}`,
 	MODIFY_SOFTWARE_VERSION = `/software/version/:${PathHolders.SOFTWARE_VERSION_ID}/modify`,
+
+	CREATE_MODULE = `/software/version/:${PathHolders.SOFTWARE_VERSION_ID}/module/create`,
+	MODIFY_MODULE = `/software/version/module/:${PathHolders.MODULE_ID}/modify`,
+
+	MODULE_VERSION = `/software/version/module/:${PathHolders.MODULE_ID}/version/:${PathHolders.MODULE_VERSION_ID}`,
+	CREATE_MODULE_VERSION = `/software/version/module/:${PathHolders.MODULE_ID}/version/create`,
+	MODIFY_MODULE_VERSION = `/software/version/module/:${PathHolders.MODULE_VERSION_ID}/version/modify`,
 
 	DOCUMENT_TYPE = `/document-type`,
 
@@ -44,6 +56,9 @@ export enum RoutePaths {
 
 	DEPLOYMENT_PHASE_TYPE = '/deployment/phase-type',
 	CREATE_DEPLOYMENT_PHASE_TYPE = '/deployment/phase-type/create',
+
+	TEMPLATE_SOFTWARE_EXPIRATION = '/mail-template/software-expiration',
+	TEMPLATE_COMPLETE_DEPLOYMENT = '/mail-template/complete-deployment',
 }
 
 export enum HideDuration {

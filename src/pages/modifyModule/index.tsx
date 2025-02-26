@@ -1,59 +1,54 @@
 import { useTranslation } from 'react-i18next';
-import { CreateOrModifyForm } from '../../components';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useNotifications } from '@toolpad/core';
-import { LinearProgress } from '@mui/material';
 import { HideDuration, PathHolders } from '../../utils';
-import {
-	useGetSoftwareVersionById,
-	useUpdateSoftwareVersion,
-} from '../../services';
+import { LinearProgress } from '@mui/material';
+import { CreateOrModifyForm } from '../../components';
+import { useGetModuleById, useUpdateModule } from '../../services';
 
-export default function ModifySoftwareVersionPage() {
+export default function ModifyModulePage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
+	const moduleId = useParams()[PathHolders.MODULE_ID];
 	const notifications = useNotifications();
-	const versionId = useParams()[PathHolders.SOFTWARE_VERSION_ID];
-	const softwareVersion = useGetSoftwareVersionById(versionId!, {
-		skip: !versionId,
-	});
+
+	const module = useGetModuleById(moduleId!, { skip: !moduleId });
 	useEffect(() => {
-		if (softwareVersion.isError)
+		if (module.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
-	}, [notifications, softwareVersion.isError, t]);
+	}, [notifications, module.isError, t]);
 
-	const [updateSoftwareVersionTrigger] = useUpdateSoftwareVersion();
+	const [updateModuleTrigger] = useUpdateModule();
 
 	const handleSubmit = async (data: {
 		name: string;
 		description: string | null;
 	}) => {
-		if (!versionId) return;
-
+		if (!moduleId) return;
 		if (!data.name.trim()) {
-			notifications.show(t('softwareVersionNameRequired'), {
+			notifications.show(t('moduleNameRequired'), {
 				severity: 'warning',
 				autoHideDuration: HideDuration.fast,
 			});
 			return;
 		}
 		try {
-			await updateSoftwareVersionTrigger({
-				versionId: versionId,
+			await updateModuleTrigger({
+				moduleId: moduleId,
 				name: data.name,
 				description: data.description,
 			});
 			navigate(-1);
-			notifications.show(t('updateSoftwareVersionSuccess'), {
+			notifications.show(t('updateModuleSuccess'), {
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,
 			});
 		} catch (error) {
-			notifications.show(t('updateSoftwareVersionError'), {
+			notifications.show(t('updateModuleError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
@@ -61,14 +56,14 @@ export default function ModifySoftwareVersionPage() {
 		}
 	};
 
-	if (softwareVersion.isLoading) return <LinearProgress />;
+	if (module.isLoading) return <LinearProgress />;
 	return (
 		<CreateOrModifyForm
-			title={t('modifySoftwareVersion')}
-			label={`${t('versionName')}`}
+			title={t('modifyModule')}
+			label={`${t('moduleName')}`}
 			showModifyValues={{
-				name: softwareVersion.data?.name,
-				description: softwareVersion.data?.description,
+				name: module.data?.name,
+				description: module.data?.description,
 			}}
 			onSubmit={handleSubmit}
 			onCancel={() => navigate(-1)}

@@ -1,40 +1,40 @@
 // Need to use the React-specific entry point to import createApi
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import { toEntity } from './mapper/software-version-mapper';
+import { toEntity } from './mapper/module-version-mapper';
 
 // Define a service using a base URL and expected endpoints
-export const softwareVersionApi = createApi({
-	reducerPath: 'softwareVersionApi',
+export const moduleVersionApi = createApi({
+	reducerPath: 'moduleVersionApi',
 	baseQuery: fetchBaseQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/version`,
+		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/module/version`,
 		jsonContentType: 'application/json',
 		timeout: 300000,
 	}),
-	tagTypes: ['PagingSoftwareVersions', 'SoftwareVersion'],
+	tagTypes: ['PagingModuleVersion', 'ModuleVersion'],
 	endpoints: (builder) => ({
-		getAllVersionsBySoftwareId: builder.query<
-			PagingWrapper<SoftwareVersion>,
-			GetAllSoftwareVersionQuery
+		getAllModuleVersionsByModuleId: builder.query<
+			PagingWrapper<ModuleVersion>,
+			GetAllModuleVersionQuery
 		>({
-			query: ({ softwareId, versionName, pageNumber, pageSize }) => ({
-				url: `/${softwareId}/software`,
+			query: ({ moduleId, moduleVersionName, pageNumber, pageSize }) => ({
+				url: `/${moduleId}/module`,
 				method: 'GET',
 				params: {
-					name: versionName,
+					moduleName: moduleVersionName,
 					pageNumber: pageNumber,
 					pageSize: pageSize,
 				},
 			}),
 			providesTags(result) {
 				const pagingTag = {
-					type: 'PagingSoftwareVersions',
+					type: 'PagingModuleVersion',
 					id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
 				} as const;
 
 				return result
 					? [
 							...result.content.map(
-								({ id }) => ({ type: 'SoftwareVersion', id }) as const,
+								({ id }) => ({ type: 'ModuleVersion', id }) as const,
 							),
 							pagingTag,
 						]
@@ -43,7 +43,7 @@ export const softwareVersionApi = createApi({
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
 			},
-			transformResponse(rawResult: PagingWrapper<SoftwareVersionResponse>) {
+			transformResponse(rawResult: PagingWrapper<ModuleVersionResponse>) {
 				const content = rawResult.content.map(toEntity);
 				return {
 					...rawResult,
@@ -51,16 +51,16 @@ export const softwareVersionApi = createApi({
 				};
 			},
 		}),
-		getSoftwareVersionById: builder.query<SoftwareVersion, string>({
-			query: (versionId: string) => ({
-				url: `/${versionId}`,
+		getModuleVersionById: builder.query<ModuleVersion, string>({
+			query: (moduleVersionId: string) => ({
+				url: `/${moduleVersionId}`,
 				method: 'GET',
 			}),
 			providesTags(result) {
 				return result
 					? [
 							{
-								type: 'SoftwareVersion',
+								type: 'ModuleVersion',
 								id: result?.id,
 							} as const,
 						]
@@ -69,16 +69,16 @@ export const softwareVersionApi = createApi({
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
 			},
-			transformResponse(rawResult: SoftwareVersionResponse) {
+			transformResponse(rawResult: ModuleVersionResponse) {
 				return toEntity(rawResult);
 			},
 		}),
-		postSoftwareVersion: builder.mutation<
-			SoftwareVersion,
-			SoftwareVersionCreateRequest
+		postModuleVersion: builder.mutation<
+			ModuleVersion,
+			ModuleVersionCreateRequest
 		>({
-			query: (data: SoftwareVersionCreateRequest) => ({
-				url: `/${data.softwareId}`,
+			query: (data: ModuleVersionCreateRequest) => ({
+				url: `/${data.moduleId}`,
 				method: 'POST',
 				body: {
 					name: data.name,
@@ -86,18 +86,18 @@ export const softwareVersionApi = createApi({
 				},
 			}),
 			invalidatesTags() {
-				return [{ type: 'PagingSoftwareVersions' } as const];
+				return [{ type: 'PagingModuleVersion' } as const];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
 			},
-			transformResponse(rawResult: SoftwareResponse) {
+			transformResponse(rawResult: ModuleVersionResponse) {
 				return toEntity(rawResult);
 			},
 		}),
-		putSoftwareVersion: builder.mutation<void, SoftwareVersionUpdateRequest>({
-			query: (data: SoftwareVersionUpdateRequest) => ({
-				url: `/${data.versionId}`,
+		putModuleVersion: builder.mutation<void, ModuleVersionUpdateRequest>({
+			query: (data: ModuleVersionUpdateRequest) => ({
+				url: `/${data.moduleVersionId}`,
 				method: 'PUT',
 				body: {
 					name: data.name,
@@ -105,26 +105,26 @@ export const softwareVersionApi = createApi({
 				},
 			}),
 			invalidatesTags(_result, _error, arg) {
-				const { versionId } = arg;
+				const { moduleVersionId } = arg;
 				return [
-					{ type: 'PagingSoftwareVersions' } as const,
-					{ type: 'SoftwareVersion', id: versionId } as const,
+					{ type: 'PagingModuleVersion' } as const,
+					{ type: 'ModuleVersion', id: moduleVersionId } as const,
 				];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;
 			},
 		}),
-		deleteSoftwareVersion: builder.mutation<void, string>({
-			query: (versionId: string) => ({
-				url: `/${versionId}`,
+		deleteModuleVersion: builder.mutation<void, string>({
+			query: (moduleVersionId: string) => ({
+				url: `/${moduleVersionId}`,
 				method: 'DELETE',
 			}),
 			invalidatesTags(_result, _error, arg) {
-				const versionId = arg;
+				const moduleVersionId = arg;
 				return [
-					{ type: 'PagingSoftwareVersions' } as const,
-					{ type: 'SoftwareVersion', id: versionId } as const,
+					{ type: 'PagingModuleVersion' } as const,
+					{ type: 'ModuleVersion', id: moduleVersionId } as const,
 				];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
@@ -137,9 +137,9 @@ export const softwareVersionApi = createApi({
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
 export const {
-	useGetAllVersionsBySoftwareIdQuery,
-	useGetSoftwareVersionByIdQuery,
-	usePostSoftwareVersionMutation,
-	usePutSoftwareVersionMutation,
-	useDeleteSoftwareVersionMutation,
-} = softwareVersionApi;
+	useGetAllModuleVersionsByModuleIdQuery,
+	useGetModuleVersionByIdQuery,
+	usePostModuleVersionMutation,
+	usePutModuleVersionMutation,
+	useDeleteModuleVersionMutation,
+} = moduleVersionApi;
