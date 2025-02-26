@@ -34,7 +34,7 @@ export const softwareVersionApi = createApi({
 				return result
 					? [
 							...result.content.map(
-								({ id }) => ({ type: 'SoftwareVersion', id }) as const,
+								({ id }) => ({ type: 'SoftwareVersion', id }) as const
 							),
 							pagingTag,
 						]
@@ -49,6 +49,32 @@ export const softwareVersionApi = createApi({
 					...rawResult,
 					content,
 				};
+			},
+		}),
+		getAllVersionsByUserId: builder.query<
+			PagingWrapper<SoftwareAndVersion>,
+			GetAllSoftwareVersionByUserQuery
+		>({
+			query: ({ userId, softwareName, versionName, pageNumber, pageSize }) => ({
+				url: `/${userId}/user`,
+				method: 'GET',
+				params: {
+					softwareName: softwareName,
+					versionName: versionName,
+					pageNumber: pageNumber,
+					pageSize: pageSize,
+				},
+			}),
+			providesTags(result) {
+				return [
+					{
+						type: 'PagingSoftwareVersions',
+						id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
+					} as const,
+				];
+			},
+			transformErrorResponse(baseQueryReturnValue) {
+				return baseQueryReturnValue.status;
 			},
 		}),
 		getSoftwareVersionById: builder.query<SoftwareVersion, string>({
@@ -138,6 +164,7 @@ export const softwareVersionApi = createApi({
 // auto-generated based on the defined endpoints
 export const {
 	useGetAllVersionsBySoftwareIdQuery,
+	useGetAllVersionsByUserIdQuery,
 	useGetSoftwareVersionByIdQuery,
 	usePostSoftwareVersionMutation,
 	usePutSoftwareVersionMutation,

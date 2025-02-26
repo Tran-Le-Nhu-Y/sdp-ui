@@ -36,6 +36,13 @@ declare interface SoftwareVersion {
 	updatedAt?: string?;
 }
 
+declare interface SoftwareAndVersion {
+	versionId: string;
+	versionName: string;
+	softwareId: string;
+	softwareName: string;
+}
+
 declare interface Module {
 	id: string;
 	name: string;

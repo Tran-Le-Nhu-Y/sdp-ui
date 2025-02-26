@@ -5,15 +5,19 @@ import {
 	IconButton,
 	Stack,
 	StackProps,
+	Tooltip,
 	Typography,
 } from '@mui/material';
 import { DataGrid, DataGridProps } from '@mui/x-data-grid';
+import { t } from 'i18next';
 
 interface CollapsibleDataGridProps {
-	sx?: StackProps | undefined;
+	sx?: StackProps;
 	label: string;
 	title: string;
-	open?: boolean | undefined;
+	collapsible?: boolean;
+	disableCollapsedHelperText?: string;
+	open?: boolean;
 	onOpenChange: (isOpen: boolean) => void;
 	dataProps: DataGridProps;
 }
@@ -21,6 +25,8 @@ interface CollapsibleDataGridProps {
 function CollapsibleDataGrid({
 	sx,
 	open,
+	collapsible = true,
+	disableCollapsedHelperText,
 	label,
 	title,
 	dataProps,
@@ -40,16 +46,29 @@ function CollapsibleDataGrid({
 				>
 					{title}
 				</Typography>
-				<IconButton
-					size="small"
-					onClick={() => {
-						if (onOpenChange) onOpenChange(!open);
-					}}
+				<Tooltip
+					followCursor={!collapsible}
+					title={
+						collapsible ? t('expand/collapse') : disableCollapsedHelperText
+					}
 				>
-					{open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-				</IconButton>
+					<IconButton
+						size="small"
+						onClick={() => {
+							if (onOpenChange && collapsible) onOpenChange(!open);
+						}}
+					>
+						{open ? (
+							<KeyboardArrowUpIcon />
+						) : (
+							<KeyboardArrowDownIcon
+								color={collapsible ? 'inherit' : 'disabled'}
+							/>
+						)}
+					</IconButton>
+				</Tooltip>
 			</Stack>
-			<Collapse in={open} unmountOnExit>
+			<Collapse in={collapsible && open} unmountOnExit>
 				<DataGrid
 					autoPageSize
 					rowSelection

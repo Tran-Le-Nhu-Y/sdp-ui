@@ -12,6 +12,14 @@ declare interface GetAllSoftwareVersionQuery {
 	pageSize?: number?;
 }
 
+declare interface GetAllSoftwareVersionByUserQuery {
+	userId: string;
+	softwareName?: string?;
+	versionName?: string?;
+	pageNumber?: number?;
+	pageSize?: number?;
+}
+
 declare interface GetAllModuleQuery {
 	softwareVersionId: string;
 	moduleName?: string?;

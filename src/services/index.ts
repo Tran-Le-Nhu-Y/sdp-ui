@@ -35,6 +35,7 @@ export {
 import {
 	softwareVersionApi,
 	useGetAllVersionsBySoftwareIdQuery as useGetAllVersionsBySoftwareId,
+	useGetAllVersionsByUserIdQuery as useGetAllVersionsByUserId,
 	useGetSoftwareVersionByIdQuery as useGetSoftwareVersionById,
 	usePostSoftwareVersionMutation as useCreateSoftwareVersion,
 	usePutSoftwareVersionMutation as useUpdateSoftwareVersion,
@@ -42,6 +43,7 @@ import {
 } from './software-version';
 export {
 	softwareVersionApi,
+	useGetAllVersionsByUserId,
 	useGetAllVersionsBySoftwareId,
 	useGetSoftwareVersionById,
 	useCreateSoftwareVersion,

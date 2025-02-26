@@ -89,6 +89,7 @@
 	"softwareNameRequired": "Tên phần mềm không được để trống",
 
 	"versionName": "Tên phiên bản",
+	"selectSoftwareVersion": "Chọn phiên bản",
 	"addSoftwareVersion": "Thêm phiên bản phần mềm",
 	"modifySoftwareVersion": "Chỉnh sửa phiên bản phần mềm",
 	"createSoftwareVersionSuccess": "Thêm phiên bản phần mềm thành công",
@@ -100,6 +101,10 @@
 	"deleteSoftwareVersionError": "Xóa phiên bản phần mềm đã xảy ra lỗi",
 	"softwareVersionList": "Danh sách phiên bản phần mềm",
 	"softwareVersionNameRequired": "Tên phiên bản phần mềm không được để trống",
+
+	"selected": "đã chọn",
+	"expand/collapse": "Mở rộng/Thu gọn",
+	"selectSoftwareBefore": "Vui lòng chọn phần mềm trước.",
 
 	"addModule": "Thêm Module",
 	"moduleName": "Tên Module",
