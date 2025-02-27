@@ -10,7 +10,7 @@ import {
 } from 'react-router-dom';
 import {
 	CreateCustomerPage,
-	CreateDeploymentPage,
+	CreateDeploymentProcessPage,
 	CreateSoftwareDocumentPage,
 	CreateSoftwarePage,
 	CreateSoftwareVersionPage,
@@ -123,7 +123,7 @@ const router = createBrowserRouter(
 			/>
 			<Route
 				path={RoutePaths.CREATE_DEPLOYMENT_PROCESS}
-				element={<CreateDeploymentPage />}
+				element={<CreateDeploymentProcessPage />}
 			/>
 
 			<Route
@@ -132,7 +132,7 @@ const router = createBrowserRouter(
 			/>
 			<Route
 				path={RoutePaths.CREATE_DEPLOYMENT_PHASE_TYPE}
-				element={<CreateDeploymentPage />}
+				element={<CreateDeploymentProcessPage />}
 			/>
 			<Route
 				path={RoutePaths.TEMPLATE_SOFTWARE_EXPIRATION}
@@ -142,8 +142,8 @@ const router = createBrowserRouter(
 				path={RoutePaths.TEMPLATE_COMPLETE_DEPLOYMENT}
 				element={<TemplateCompleteDeploymentPage />}
 			/>
-		</Route>,
-	),
+		</Route>
+	)
 );
 
 createRoot(document.getElementById('root')!).render(
@@ -151,5 +151,5 @@ createRoot(document.getElementById('root')!).render(
 		<Provider store={store}>
 			<RouterProvider router={router} />
 		</Provider>
-	</StrictMode>,
+	</StrictMode>
 );
