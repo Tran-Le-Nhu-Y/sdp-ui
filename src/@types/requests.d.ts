@@ -62,7 +62,7 @@ declare interface DeploymentProcessCreateRequest {
 	userId: string;
 	softwareVersionId: string;
 	customerId: string;
-	moduleVersionIds?: string[];
+	moduleVersionIds: string[];
 }
 
 declare interface DeploymentProcessUpdateRequest {

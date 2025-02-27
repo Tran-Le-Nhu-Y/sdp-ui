@@ -71,6 +71,7 @@ export {
 import {
 	moduleVersionApi,
 	useGetAllModuleVersionsByModuleIdQuery as useGetAllModuleVersionsByModuleId,
+	useGetAllVersionsBySoftwareVersionIdQuery as useGetAllVersionsBySoftwareVersionId,
 	useGetModuleVersionByIdQuery as useGetModuleVersionById,
 	usePostModuleVersionMutation as useCreateModuleVersion,
 	usePutModuleVersionMutation as useUpdateModuleVersion,
@@ -79,6 +80,7 @@ import {
 export {
 	moduleVersionApi,
 	useGetAllModuleVersionsByModuleId,
+	useGetAllVersionsBySoftwareVersionId,
 	useGetModuleVersionById,
 	useCreateModuleVersion,
 	useUpdateModuleVersion,

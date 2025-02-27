@@ -34,7 +34,7 @@ export const moduleVersionApi = createApi({
 				return result
 					? [
 							...result.content.map(
-								({ id }) => ({ type: 'ModuleVersion', id }) as const,
+								({ id }) => ({ type: 'ModuleVersion', id }) as const
 							),
 							pagingTag,
 						]
@@ -49,6 +49,38 @@ export const moduleVersionApi = createApi({
 					...rawResult,
 					content,
 				};
+			},
+		}),
+		getAllVersionsBySoftwareVersionId: builder.query<
+			PagingWrapper<ModuleAndVersion>,
+			GetAllModuleVersionBySoftwareVersionQuery
+		>({
+			query: ({
+				softwareVersionId,
+				moduleName,
+				versionName,
+				pageNumber,
+				pageSize,
+			}) => ({
+				url: `/${softwareVersionId}/software-version`,
+				method: 'GET',
+				params: {
+					moduleName: moduleName,
+					versionName: versionName,
+					pageNumber: pageNumber,
+					pageSize: pageSize,
+				},
+			}),
+			providesTags(result) {
+				return [
+					{
+						type: 'PagingModuleVersion',
+						id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
+					} as const,
+				];
+			},
+			transformErrorResponse(baseQueryReturnValue) {
+				return baseQueryReturnValue.status;
 			},
 		}),
 		getModuleVersionById: builder.query<ModuleVersion, string>({
@@ -138,6 +170,7 @@ export const moduleVersionApi = createApi({
 // auto-generated based on the defined endpoints
 export const {
 	useGetAllModuleVersionsByModuleIdQuery,
+	useGetAllVersionsBySoftwareVersionIdQuery,
 	useGetModuleVersionByIdQuery,
 	usePostModuleVersionMutation,
 	usePutModuleVersionMutation,
