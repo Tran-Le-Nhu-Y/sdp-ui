@@ -83,12 +83,13 @@ export const deploymentProcessApi = createApi({
 			DeploymentProcess,
 			DeploymentProcessCreateRequest
 		>({
-			query: ({ userId, softwareVersionId, customerId }) => ({
+			query: ({ userId, softwareVersionId, customerId, moduleVersionIds }) => ({
 				url: `/${userId}`,
 				method: 'POST',
 				body: {
 					softwareVersionId: softwareVersionId,
 					customerId: customerId,
+					moduleVersionIds: moduleVersionIds,
 				},
 			}),
 			invalidatesTags() {

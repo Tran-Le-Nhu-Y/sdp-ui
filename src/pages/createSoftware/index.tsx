@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCreateSoftware } from '../../services';
 import { Box } from '@mui/material';
 import { useNotifications } from '@toolpad/core';
-import { HideDuration } from '../../utils';
+import { HideDuration, RoutePaths } from '../../utils';
 
 export default function CreateSoftwarePage() {
 	const { t } = useTranslation();
@@ -34,7 +34,7 @@ export default function CreateSoftwarePage() {
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,
 			});
-			navigate(-1);
+			navigate(RoutePaths.SOFTWARE);
 		} catch (error) {
 			notifications.show(t('createSoftwareError'), {
 				severity: 'error',

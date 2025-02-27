@@ -26,7 +26,7 @@ interface TablePaginationActionsProps {
 	rowsPerPage: number;
 	onPageChange: (
 		event: React.MouseEvent<HTMLButtonElement>,
-		newPage: number,
+		newPage: number
 	) => void;
 }
 
@@ -35,25 +35,25 @@ function TablePaginationActions(props: TablePaginationActionsProps) {
 	const { count, page, rowsPerPage, onPageChange } = props;
 
 	const handleFirstPageButtonClick = (
-		event: React.MouseEvent<HTMLButtonElement>,
+		event: React.MouseEvent<HTMLButtonElement>
 	) => {
 		onPageChange(event, 0);
 	};
 
 	const handleBackButtonClick = (
-		event: React.MouseEvent<HTMLButtonElement>,
+		event: React.MouseEvent<HTMLButtonElement>
 	) => {
 		onPageChange(event, page - 1);
 	};
 
 	const handleNextButtonClick = (
-		event: React.MouseEvent<HTMLButtonElement>,
+		event: React.MouseEvent<HTMLButtonElement>
 	) => {
 		onPageChange(event, page + 1);
 	};
 
 	const handleLastPageButtonClick = (
-		event: React.MouseEvent<HTMLButtonElement>,
+		event: React.MouseEvent<HTMLButtonElement>
 	) => {
 		onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1));
 	};
@@ -142,7 +142,7 @@ function CollapsibleTableRow(props: CollapsibleTableRowProps) {
 			{inner && (
 				<TableRow>
 					<TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-						<Collapse in={open} timeout="auto" unmountOnExit>
+						<Collapse in={open} unmountOnExit>
 							<Box sx={{ margin: 1 }}>{inner}</Box>
 						</Collapse>
 					</TableCell>
@@ -164,13 +164,13 @@ function CollapsibleTable<T>(props: CollapsibleTableProps<T>) {
 
 	const handleChangePage = (
 		_event: React.MouseEvent<HTMLButtonElement> | null,
-		newPage: number,
+		newPage: number
 	) => {
 		onPageChange({ pageNumber: newPage, pageSize: rowsPerPage });
 	};
 
 	const handleChangeRowsPerPage = (
-		event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+		event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => {
 		onPageChange({ pageNumber: 0, pageSize: parseInt(event.target.value, 10) });
 	};

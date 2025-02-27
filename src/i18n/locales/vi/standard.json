@@ -89,6 +89,7 @@
 	"softwareNameRequired": "Tên phần mềm không được để trống",
 
 	"versionName": "Tên phiên bản",
+	"selectSoftwareVersion": "Chọn phiên bản",
 	"addSoftwareVersion": "Thêm phiên bản phần mềm",
 	"modifySoftwareVersion": "Chỉnh sửa phiên bản phần mềm",
 	"createSoftwareVersionSuccess": "Thêm phiên bản phần mềm thành công",
@@ -100,6 +101,12 @@
 	"deleteSoftwareVersionError": "Xóa phiên bản phần mềm đã xảy ra lỗi",
 	"softwareVersionList": "Danh sách phiên bản phần mềm",
 	"softwareVersionNameRequired": "Tên phiên bản phần mềm không được để trống",
+
+	"selected": "đã chọn",
+	"expand/collapse": "Mở rộng/Thu gọn",
+	"selectSoftwareBefore": "Vui lòng chọn phần mềm trước.",
+	"moduleNotSelected": "Vui lòng chọn các module cần triển khai.",
+	"customerNotSelected": "Vui lòng chọn khách hàng yêu cầu.",
 
 	"addModule": "Thêm Module",
 	"moduleName": "Tên Module",
@@ -113,7 +120,7 @@
 	"deleteModuleError": "Xóa Module đã xảy ra lỗi",
 	"moduleList": "Danh sách Module",
 	"moduleNameRequired": "Tên Module không được để trống",
-
+	"notSelected": "chưa chọn",
 	"addModuleVersion": "Thêm phiên bản Module",
 	"modifyVersionModule": "Chỉnh sửa phiên bản Module",
 	"modifyModuleVersion": "Chỉnh sửa Module",
@@ -142,6 +149,8 @@
 	"enterValue": "Nhập giá trị",
 	"addDeployDocument": "Thêm tài liệu triển khai",
 	"createDeployProcess": "Thêm quá trình triển khai",
+	"createDeployProcessError": "Thêm quá trình triển khai đã xảy ra lỗi.",
+	"createDeployProcessSuccess": "Thêm quá trình triển khai thành công.",
 	"deployDocumentName": "Tên tài liệu triển khai",
 	"deployDocumentDescription": "Mô tả tài liệu triển khai",
 
@@ -206,7 +215,7 @@
 	"processing": "Đang xử lý...",
 	"loading": "Đang tải...",
 
-	"addDeployProductInfor": "Thêm thông tin triển khai phần mềm",
+	"addDeploymentProcess": "Thêm quá trình triển khai",
 	"deployFor": "Triển khai cho",
 	"addDeployment": "Thêm hạng mục triển khai",
 	"startDate": "Ngày bắt đầu",
