@@ -13,15 +13,18 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { HideDuration, PathHolders, RoutePaths } from '../../utils';
-import { useGetSoftwareDocumentById } from '../../services';
-import { useNotifications } from '@toolpad/core';
+import {
+	useDeleteSoftwareDocument,
+	useGetSoftwareDocumentById,
+} from '../../services';
+import { useDialogs, useNotifications } from '@toolpad/core';
 import { Delete, Edit } from '@mui/icons-material';
 
 export default function SoftwareDocumentDetailPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const files = useState();
-
+	const dialogs = useDialogs();
 	const notifications = useNotifications();
 	const documentId = useParams()[PathHolders.SOFTWARE_DOCUMENT_ID];
 
@@ -40,6 +43,32 @@ export default function SoftwareDocumentDetailPage() {
 		navigate(-1);
 	};
 
+	const [deleteDocumentTrigger] = useDeleteSoftwareDocument();
+	const handleDelete = async (documentId: string) => {
+		const confirmed = await dialogs.confirm(
+			t('deleteSoftwareDocumentConfirm'),
+			{
+				okText: t('yes'),
+				cancelText: t('cancel'),
+			},
+		);
+		if (!confirmed) return;
+		try {
+			await deleteDocumentTrigger(documentId);
+			navigate(-1);
+			notifications.show(t('deleteSoftwareDocumentSuccess'), {
+				severity: 'success',
+				autoHideDuration: HideDuration.fast,
+			});
+		} catch (error) {
+			notifications.show(t('deleteSoftwareDocumentError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+			console.log(error);
+		}
+	};
+
 	if (softwareDocument.isLoading) return <LinearProgress />;
 	return (
 		<Stack>
@@ -54,8 +83,8 @@ export default function SoftwareDocumentDetailPage() {
 							navigate(
 								RoutePaths.MODIFY_SOFTWARE_DOCUMENT.replace(
 									`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
-									documentId || ''
-								)
+									documentId || '',
+								),
 							)
 						}
 					>
@@ -63,10 +92,7 @@ export default function SoftwareDocumentDetailPage() {
 					</IconButton>
 					<IconButton
 						color="error"
-						onClick={
-							async () => {}
-							// handleDelete(versionId || '')
-						}
+						onClick={async () => handleDelete(documentId || '')}
 					>
 						<Delete />
 					</IconButton>
@@ -85,9 +111,7 @@ export default function SoftwareDocumentDetailPage() {
 					<Typography variant="body1">
 						<strong>{t('documentName')}:</strong>
 					</Typography>
-					<Typography variant="body1">
-						{softwareDocument.data?.typeName}
-					</Typography>
+					<Typography variant="body1">{softwareDocument.data?.name}</Typography>
 				</Stack>
 				<Stack direction={'row'} spacing={2} alignItems={'center'}>
 					<Typography variant="body1">

@@ -77,6 +77,7 @@ export default function ModifySoftwareDocumentPage() {
 				attachmentIds: [],
 			});
 			navigate(-1);
+
 			notifications.show(t('createSoftwareDocumentSuccess'), {
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,

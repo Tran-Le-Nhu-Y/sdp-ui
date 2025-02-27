@@ -184,14 +184,13 @@ function DocumentsOfVersionTable({
 								</IconButton>
 								<IconButton
 									size="small"
-									onClick={
-										() => {}
-										// navigate(
-										// 	RoutePaths.MODIFY_SOFTWARE_VERSION.replace(
-										// 		`:${PathHolders.SOFTWARE_VERSION_ID}`,
-										// 		row.id,
-										// 	),
-										// )
+									onClick={() =>
+										navigate(
+											RoutePaths.MODIFY_MODULE_DOCUMENT.replace(
+												`:${PathHolders.MODULE_DOCUMENT_ID}`,
+												row.id,
+											),
+										)
 									}
 								>
 									<EditIcon color="info" />

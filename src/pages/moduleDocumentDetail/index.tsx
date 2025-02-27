@@ -13,15 +13,18 @@ import {
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { HideDuration, PathHolders, RoutePaths } from '../../utils';
-import { useGetModuleDocumentById } from '../../services';
-import { useNotifications } from '@toolpad/core';
+import {
+	useDeleteModuleDocument,
+	useGetModuleDocumentById,
+} from '../../services';
+import { useDialogs, useNotifications } from '@toolpad/core';
 import { Delete, Edit } from '@mui/icons-material';
 
 export default function ModuleDocumentDetailPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const files = useState();
-
+	const dialogs = useDialogs();
 	const notifications = useNotifications();
 	const documentId = useParams()[PathHolders.MODULE_DOCUMENT_ID];
 
@@ -38,6 +41,29 @@ export default function ModuleDocumentDetailPage() {
 
 	const handleCancel = () => {
 		navigate(-1);
+	};
+
+	const [deleteDocumentTrigger] = useDeleteModuleDocument();
+	const handleDelete = async (documentId: string) => {
+		const confirmed = await dialogs.confirm(t('deleteModuleDocumentConfirm'), {
+			okText: t('yes'),
+			cancelText: t('cancel'),
+		});
+		if (!confirmed) return;
+		try {
+			await deleteDocumentTrigger(documentId);
+			navigate(-1);
+			notifications.show(t('deleteModuleDocumentSuccess'), {
+				severity: 'success',
+				autoHideDuration: HideDuration.fast,
+			});
+		} catch (error) {
+			notifications.show(t('deleteModuleDocumentError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+			console.log(error);
+		}
 	};
 
 	if (moduleDocument.isLoading) return <LinearProgress />;
@@ -63,10 +89,7 @@ export default function ModuleDocumentDetailPage() {
 					</IconButton>
 					<IconButton
 						color="error"
-						onClick={
-							async () => {}
-							// handleDelete(versionId || '')
-						}
+						onClick={async () => handleDelete(documentId || '')}
 					>
 						<Delete />
 					</IconButton>
@@ -85,9 +108,7 @@ export default function ModuleDocumentDetailPage() {
 					<Typography variant="body1">
 						<strong>{t('documentName')}:</strong>
 					</Typography>
-					<Typography variant="body1">
-						{moduleDocument.data?.typeName}
-					</Typography>
+					<Typography variant="body1">{moduleDocument.data?.name}</Typography>
 				</Stack>
 				<Stack direction={'row'} spacing={2} alignItems={'center'}>
 					<Typography variant="body1">

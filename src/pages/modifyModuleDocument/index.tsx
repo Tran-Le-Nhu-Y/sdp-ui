@@ -13,7 +13,7 @@ import { useEffect, useState } from 'react';
 import { useNotifications } from '@toolpad/core';
 import {
 	useGetModuleDocumentById,
-	useUpdateSoftwareDocument,
+	useUpdateModuleDocument,
 } from '../../services';
 import {
 	HideDuration,
@@ -57,32 +57,32 @@ export default function ModifyModuleDocumentPage() {
 		}
 	}, [moduleDocument.data, documentId]);
 
-	const [updateSoftwareDocumentTrigger] = useUpdateSoftwareDocument();
+	const [updateModuleDocumentTrigger] = useUpdateModuleDocument();
 
 	const handleSubmit = async () => {
 		if (!documentId) return;
 
 		if (!moduleDocumentUpdating.name.trim()) {
-			notifications.show(t('softwareDocumentNameRequired'), {
+			notifications.show(t('moduleDocumentNameRequired'), {
 				severity: 'warning',
 				autoHideDuration: HideDuration.fast,
 			});
 			return;
 		}
 		try {
-			await updateSoftwareDocumentTrigger({
-				softwareDocumentId: documentId,
+			await updateModuleDocumentTrigger({
+				moduleDocumentId: documentId,
 				name: moduleDocumentUpdating.name,
 				description: moduleDocumentUpdating?.description,
 				attachmentIds: [],
 			});
 			navigate(-1);
-			notifications.show(t('createSoftwareDocumentSuccess'), {
+			notifications.show(t('updateModuleDocumentSuccess'), {
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,
 			});
 		} catch (error) {
-			notifications.show(t('createSoftwareDocumentError'), {
+			notifications.show(t('updateModuleDocumentError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
