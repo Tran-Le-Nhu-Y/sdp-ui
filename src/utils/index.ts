@@ -14,7 +14,8 @@ export enum PathHolders {
 	SOFTWARE_VERSION_ID = 'versionId',
 	MODULE_ID = 'moduleId',
 	MODULE_VERSION_ID = 'moduleVersionId',
-	SOFTWARE_DOCUMENT_ID = 'documentId',
+	SOFTWARE_DOCUMENT_ID = 'softwareDocumentId',
+	MODULE_DOCUMENT_ID = 'moduleDocumentId',
 	CUSTOMER_ID = 'customerId',
 	DEPLOYMENT_PROCESS_ID = 'processId',
 	DEPLOYMENT_PHASE_TYPE_ID = 'phaseTypeId',
@@ -49,6 +50,10 @@ export enum RoutePaths {
 	CREATE_SOFTWARE_DOCUMENT = `/software/version/:${PathHolders.SOFTWARE_VERSION_ID}/document/create`,
 	SOFTWARE_DOCUMENT = `/software/version/document/:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
 	MODIFY_SOFTWARE_DOCUMENT = `/software/version/document/:${PathHolders.SOFTWARE_DOCUMENT_ID}/modify`,
+
+	CREATE_MODULE_DOCUMENT = `/software/module/version/:${PathHolders.MODULE_VERSION_ID}/document/create`,
+	MODULE_DOCUMENT = `/software/module/document/:${PathHolders.MODULE_DOCUMENT_ID}`,
+	MODIFY_MODULE_DOCUMENT = `/software/module/document/:${PathHolders.MODULE_DOCUMENT_ID}/modify`,
 
 	DEPLOYMENT_PROCESS = '/deployment/process',
 	CREATE_DEPLOYMENT_PROCESS = '/deployment/process/create',

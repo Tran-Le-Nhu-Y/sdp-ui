@@ -12,7 +12,7 @@ export const softwareDocumentApi = createApi({
 	}),
 	tagTypes: ['PagingSoftwareDocument', 'SoftwareDocument'],
 	endpoints: (builder) => ({
-		getAllSoftwareDocumentsByUserId: builder.query<
+		getAllSoftwareDocumentsByVersionId: builder.query<
 			PagingWrapper<SoftwareDocument>,
 			GetAllSoftwareDocumentQuery
 		>({
@@ -136,7 +136,7 @@ export const softwareDocumentApi = createApi({
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
 export const {
-	useGetAllSoftwareDocumentsByUserIdQuery,
+	useGetAllSoftwareDocumentsByVersionIdQuery,
 	useGetSoftwareDocumentByIdQuery,
 	usePostSoftwareDocumentMutation,
 	usePutSoftwareDocumentMutation,

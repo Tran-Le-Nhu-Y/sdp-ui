@@ -157,7 +157,7 @@ export {
 
 import {
 	softwareDocumentApi,
-	useGetAllSoftwareDocumentsByUserIdQuery as useGetAllSoftwareDocumentByUserId,
+	useGetAllSoftwareDocumentsByVersionIdQuery as useGetAllSoftwareDocumentByVersionId,
 	useGetSoftwareDocumentByIdQuery as useGetSoftwareDocumentById,
 	usePostSoftwareDocumentMutation as useCreateSoftwareDocument,
 	usePutSoftwareDocumentMutation as useUpdateSoftwareDocument,
@@ -166,11 +166,28 @@ import {
 
 export {
 	softwareDocumentApi,
-	useGetAllSoftwareDocumentByUserId,
+	useGetAllSoftwareDocumentByVersionId,
 	useGetSoftwareDocumentById,
 	useCreateSoftwareDocument,
 	useUpdateSoftwareDocument,
 	useDeleteSoftwareDocument,
+};
+import {
+	moduleDocumentApi,
+	useGetAllModuleDocumentsByVersionIdQuery as useGetAllModuleDocumentByVersionId,
+	useGetModuleDocumentByIdQuery as useGetModuleDocumentById,
+	usePostModuleDocumentMutation as useCreateModuleDocument,
+	usePutModuleDocumentMutation as useUpdateModuleDocument,
+	useDeleteModuleDocumentMutation as useDeleteModuleDocument,
+} from './module-document';
+
+export {
+	moduleDocumentApi,
+	useGetAllModuleDocumentByVersionId,
+	useGetModuleDocumentById,
+	useCreateModuleDocument,
+	useUpdateModuleDocument,
+	useDeleteModuleDocument,
 };
 
 import {

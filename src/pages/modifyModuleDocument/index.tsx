@@ -12,8 +12,8 @@ import { DragAndDropForm } from '../../components';
 import { useEffect, useState } from 'react';
 import { useNotifications } from '@toolpad/core';
 import {
-	useGetSoftwareDocumentById,
-	useUpdateSoftwareDocument,
+	useGetModuleDocumentById,
+	useUpdateModuleDocument,
 } from '../../services';
 import {
 	HideDuration,
@@ -22,68 +22,67 @@ import {
 	TextLength,
 } from '../../utils';
 
-export default function ModifySoftwareDocumentPage() {
+export default function ModifyModuleDocumentPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const notifications = useNotifications();
-	const documentId = useParams()[PathHolders.SOFTWARE_DOCUMENT_ID];
+	const documentId = useParams()[PathHolders.MODULE_DOCUMENT_ID];
 
-	const softwareDocument = useGetSoftwareDocumentById(documentId!, {
+	const moduleDocument = useGetModuleDocumentById(documentId!, {
 		skip: !documentId,
 	});
 	useEffect(() => {
-		if (softwareDocument.isError)
+		if (moduleDocument.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
-	}, [notifications, softwareDocument.isError, t]);
+	}, [notifications, moduleDocument.isError, t]);
 
-	const [softwareDocumentUpdating, setSoftwareDocumentUpdating] =
-		useState<SoftwareDocumentUpdateRequest>({
-			softwareDocumentId: documentId!,
+	const [moduleDocumentUpdating, setModuleDocumentUpdating] =
+		useState<ModuleDocumentUpdateRequest>({
+			moduleDocumentId: documentId!,
 			name: '',
 			description: '',
 			attachmentIds: [],
 		});
 	useEffect(() => {
-		if (softwareDocument.data) {
-			setSoftwareDocumentUpdating({
-				softwareDocumentId: documentId!,
-				name: softwareDocument.data.name || '',
-				description: softwareDocument.data.description || '',
+		if (moduleDocument.data) {
+			setModuleDocumentUpdating({
+				moduleDocumentId: documentId!,
+				name: moduleDocument.data.name || '',
+				description: moduleDocument.data.description || '',
 				attachmentIds: [],
 			});
 		}
-	}, [softwareDocument.data, documentId]);
+	}, [moduleDocument.data, documentId]);
 
-	const [updateSoftwareDocumentTrigger] = useUpdateSoftwareDocument();
+	const [updateModuleDocumentTrigger] = useUpdateModuleDocument();
 
 	const handleSubmit = async () => {
 		if (!documentId) return;
 
-		if (!softwareDocumentUpdating.name.trim()) {
-			notifications.show(t('softwareDocumentNameRequired'), {
+		if (!moduleDocumentUpdating.name.trim()) {
+			notifications.show(t('moduleDocumentNameRequired'), {
 				severity: 'warning',
 				autoHideDuration: HideDuration.fast,
 			});
 			return;
 		}
 		try {
-			await updateSoftwareDocumentTrigger({
-				softwareDocumentId: documentId,
-				name: softwareDocumentUpdating.name,
-				description: softwareDocumentUpdating?.description,
+			await updateModuleDocumentTrigger({
+				moduleDocumentId: documentId,
+				name: moduleDocumentUpdating.name,
+				description: moduleDocumentUpdating?.description,
 				attachmentIds: [],
 			});
 			navigate(-1);
-
-			notifications.show(t('createSoftwareDocumentSuccess'), {
+			notifications.show(t('updateModuleDocumentSuccess'), {
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,
 			});
 		} catch (error) {
-			notifications.show(t('createSoftwareDocumentError'), {
+			notifications.show(t('updateModuleDocumentError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
@@ -102,7 +101,7 @@ export default function ModifySoftwareDocumentPage() {
 		navigate(-1);
 	};
 
-	if (softwareDocument.isLoading) return <LinearProgress />;
+	if (moduleDocument.isLoading) return <LinearProgress />;
 	return (
 		<Stack>
 			<Typography variant="h5" mb={3} textAlign="center">
@@ -114,17 +113,17 @@ export default function ModifySoftwareDocumentPage() {
 						<strong>{t('documentTypeName')}:</strong>
 					</Typography>
 					<Typography variant="body1">
-						{softwareDocument.data?.typeName}
+						{moduleDocument.data?.typeName}
 					</Typography>
 				</Stack>
 				<TextField
 					size="small"
 					label={t('documentName')}
-					value={softwareDocumentUpdating?.name || ''}
+					value={moduleDocumentUpdating?.name || ''}
 					onChange={(e) => {
 						const newValue = e.target.value;
 						if (isValidLength(newValue, TextLength.Medium))
-							setSoftwareDocumentUpdating((prev) => ({
+							setModuleDocumentUpdating((prev) => ({
 								...prev,
 								name: newValue,
 							}));
@@ -141,9 +140,9 @@ export default function ModifySoftwareDocumentPage() {
 					<TextField
 						fullWidth
 						size="medium"
-						value={softwareDocumentUpdating?.description}
+						value={moduleDocumentUpdating?.description}
 						onChange={(e) =>
-							setSoftwareDocumentUpdating((prev) => ({
+							setModuleDocumentUpdating((prev) => ({
 								...prev,
 								description: e.target.value,
 							}))

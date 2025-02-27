@@ -32,6 +32,9 @@ import {
 	ModifyModuleVersionPage,
 	TemplateCompleteDeploymentPage,
 	TemplateSoftwareExpirationPage,
+	CreateModuleDocumentPage,
+	ModifyModuleDocumentPage,
+	ModuleDocumentDetailPage,
 } from './pages/index.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
@@ -100,6 +103,19 @@ const router = createBrowserRouter(
 				element={<ModifySoftwareDocumentPage />}
 			/>
 
+			<Route
+				path={RoutePaths.CREATE_MODULE_DOCUMENT}
+				element={<CreateModuleDocumentPage />}
+			/>
+			<Route
+				path={RoutePaths.MODULE_DOCUMENT}
+				element={<ModuleDocumentDetailPage />}
+			/>
+			<Route
+				path={RoutePaths.MODIFY_MODULE_DOCUMENT}
+				element={<ModifyModuleDocumentPage />}
+			/>
+
 			<Route path={RoutePaths.DOCUMENT_TYPE} element={<DocumentTypePage />} />
 
 			<Route
@@ -127,8 +143,8 @@ const router = createBrowserRouter(
 				path={RoutePaths.TEMPLATE_COMPLETE_DEPLOYMENT}
 				element={<TemplateCompleteDeploymentPage />}
 			/>
-		</Route>
-	)
+		</Route>,
+	),
 );
 
 createRoot(document.getElementById('root')!).render(
@@ -136,5 +152,5 @@ createRoot(document.getElementById('root')!).render(
 		<Provider store={store}>
 			<RouterProvider router={router} />
 		</Provider>
-	</StrictMode>
+	</StrictMode>,
 );

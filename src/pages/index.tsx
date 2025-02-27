@@ -8,7 +8,6 @@ import CreateSoftwareDocumentPage from './createSoftwareDocument';
 import CreateSoftwareVersionPage from './createSoftwareVersion';
 import CreateModulePage from './createModule';
 import ModifySoftwareVersionPage from './modifySoftwareVersion';
-import CreatModuleDesignDocumentPage from './createModuleDesignDocument';
 import SoftwareVersionDetailPage from './softwareVersionDetail';
 import CustomerManagementPage from './customerManagement';
 import CreateCustomerPage from './createCustomer';
@@ -22,6 +21,9 @@ import ModuleVersionDetailPage from './moduleVersionDetail';
 import ModifyModuleVersionPage from './modifyModuleVersion';
 import TemplateSoftwareExpirationPage from './mailTemplateSoftwareExpiration';
 import TemplateCompleteDeploymentPage from './mailTemplateCompleteDeployment';
+import CreateModuleDocumentPage from './createModulDocument';
+import ModifyModuleDocumentPage from './modifyModuleDocument';
+import ModuleDocumentDetailPage from './moduleDocumentDetail';
 
 export {
 	OverviewPage,
@@ -43,8 +45,10 @@ export {
 	CreateSoftwareDocumentPage,
 	SoftwareDocumentDetailPage,
 	ModifySoftwareDocumentPage,
+	ModuleDocumentDetailPage,
+	CreateModuleDocumentPage,
+	ModifyModuleDocumentPage,
 	DocumentTypePage,
-	CreatModuleDesignDocumentPage,
 	ErrorPage,
 	TemplateSoftwareExpirationPage,
 	TemplateCompleteDeploymentPage,
