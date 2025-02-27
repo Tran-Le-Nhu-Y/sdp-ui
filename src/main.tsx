@@ -9,7 +9,6 @@ import {
 	RouterProvider,
 } from 'react-router-dom';
 import {
-	CreateCustomerPage,
 	CreateDeploymentProcessPage,
 	CreateSoftwareDocumentPage,
 	CreateSoftwarePage,
@@ -35,6 +34,7 @@ import {
 	CreateModuleDocumentPage,
 	ModifyModuleDocumentPage,
 	ModuleDocumentDetailPage,
+	DeploymentPhaseTypePage,
 } from './pages/index.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
@@ -46,10 +46,6 @@ const router = createBrowserRouter(
 			<Route path={RoutePaths.NOTIFICATION} element={<OverviewPage />} />
 			<Route path={RoutePaths.OVERVIEW} element={<OverviewPage />} />
 
-			<Route
-				path={RoutePaths.CREATE_CUSTOMER}
-				element={<CreateCustomerPage />}
-			/>
 			<Route path={RoutePaths.CUSTOMER} element={<CustomerManagementPage />} />
 
 			<Route path={RoutePaths.SOFTWARE} element={<SoftwarePage />} />
@@ -129,12 +125,9 @@ const router = createBrowserRouter(
 
 			<Route
 				path={RoutePaths.DEPLOYMENT_PHASE_TYPE}
-				element={<DeploymentProcessPage />}
+				element={<DeploymentPhaseTypePage />}
 			/>
-			<Route
-				path={RoutePaths.CREATE_DEPLOYMENT_PHASE_TYPE}
-				element={<CreateDeploymentProcessPage />}
-			/>
+
 			<Route
 				path={RoutePaths.TEMPLATE_SOFTWARE_EXPIRATION}
 				element={<TemplateSoftwareExpirationPage />}

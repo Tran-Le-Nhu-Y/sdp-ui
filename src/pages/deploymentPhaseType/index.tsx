@@ -18,20 +18,20 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useEffect, useState } from 'react';
 import {
-	useCreateCustomer,
-	useDeleteCustomer,
-	useGetAllCustomers,
-	useGetCustomerById,
-	useUpdateCustomer,
+	useCreateDeploymentPhaseType,
+	useDeleteDeploymentPhaseType,
+	useGetAllDeploymentPhaseTypesByUserId,
+	useGetDeploymentPhaseTypeById,
+	useUpdateDeploymentPhaseType,
 } from '../../services';
 import { useDialogs, useNotifications } from '@toolpad/core';
 import { HideDuration } from '../../utils';
 import React from 'react';
 import { t } from 'i18next';
 
-function CreateCustomerFormDialog() {
+function CreateDeploymentPhaseTypeFormDialog() {
 	const [open, setOpen] = React.useState(false);
-	const [formData, setFormData] = useState({ name: '', email: '' });
+	const [formData, setFormData] = useState({ name: '', description: '' });
 
 	const handleClickOpen = () => {
 		setOpen(true);
@@ -46,21 +46,21 @@ function CreateCustomerFormDialog() {
 		setFormData((prev) => ({ ...prev, [name]: value }));
 	};
 
-	const [createCustomerTrigger, { isLoading: isCreateLoading }] =
-		useCreateCustomer();
+	const [createDeploymentPhaseTypeTrigger, { isLoading: isCreateLoading }] =
+		useCreateDeploymentPhaseType();
 	const notifications = useNotifications();
 
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
-		const newCustomer: CustomerCreateRequest = {
+		const newType: DeploymentPhaseTypeCreateRequest = {
 			name: formData.name.trim(),
-			email: formData.email.trim(),
+			description: formData.description.trim(),
 			userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
 		};
 
-		if (!newCustomer.name) {
-			notifications.show(t('customerNameRequired'), {
+		if (!newType.name) {
+			notifications.show(t('processTypeNameRequired'), {
 				severity: 'warning',
 				autoHideDuration: HideDuration.fast,
 			});
@@ -68,13 +68,13 @@ function CreateCustomerFormDialog() {
 		}
 
 		try {
-			await createCustomerTrigger(newCustomer);
-			notifications.show(t('createCustomerSuccess'), {
+			await createDeploymentPhaseTypeTrigger(newType);
+			notifications.show(t('createProcessTypeSuccess'), {
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,
 			});
 		} catch (error) {
-			notifications.show(t('createCustomerError'), {
+			notifications.show(t('createProcessTypeError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
@@ -87,11 +87,11 @@ function CreateCustomerFormDialog() {
 	return (
 		<React.Fragment>
 			<Button variant="contained" onClick={handleClickOpen}>
-				{t('addCustomer')}
+				{t('addProcessType')}
 			</Button>
 			<Dialog open={open} onClose={handleClose}>
 				<form onSubmit={handleSubmit}>
-					<DialogTitle>{t('addCustomerInfor')}</DialogTitle>
+					<DialogTitle>{t('addProcessTypeInfor')}</DialogTitle>
 					<DialogContent>
 						{isCreateLoading && <LinearProgress />}
 						<TextField
@@ -100,7 +100,7 @@ function CreateCustomerFormDialog() {
 							margin="dense"
 							id="name"
 							name="name"
-							label={t('customerName')}
+							label={t('processTypeName')}
 							type="name"
 							fullWidth
 							variant="standard"
@@ -110,10 +110,10 @@ function CreateCustomerFormDialog() {
 							autoFocus
 							required
 							margin="dense"
-							id="email"
-							name="email"
-							label={t('email')}
-							type="email"
+							id="description"
+							name="description"
+							label={t('description')}
+							type="text"
 							fullWidth
 							variant="standard"
 							onChange={handleChange}
@@ -129,31 +129,34 @@ function CreateCustomerFormDialog() {
 	);
 }
 
-interface UpdateCustomerProps {
-	customerId: string;
+interface UpdateDeploymentPhaseTypeProps {
+	typeId: string;
 	open: boolean;
 	onClose: () => void;
 }
 
-function UpdateCustomerFormDialog({
-	customerId,
+function UpdateDeploymentPhaseTypeFormDialog({
+	typeId,
 	open,
 	onClose,
-}: UpdateCustomerProps) {
-	const [formData, setFormData] = useState({ name: '', email: '' });
+}: UpdateDeploymentPhaseTypeProps) {
+	const [formData, setFormData] = useState({ name: '', description: '' });
 	const notifications = useNotifications();
-	const customer = useGetCustomerById(customerId!, { skip: !customerId });
+	const type = useGetDeploymentPhaseTypeById(typeId!, { skip: !typeId });
 	useEffect(() => {
-		if (customer.isError)
+		if (type.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
-		else if (customer.isSuccess)
-			setFormData({ name: customer.data.name, email: customer.data.email });
-	}, [notifications, customer.isError, customer.isSuccess, customer.data]);
-	const [updateCustomerTrigger, { isLoading: isUpdateLoading }] =
-		useUpdateCustomer();
+		else if (type.isSuccess)
+			setFormData({
+				name: type.data.name,
+				description: type.data.description ?? '',
+			});
+	}, [notifications, type.isError, type.isSuccess, type.data]);
+	const [updateDeploymentPhaseTypeTrigger, { isLoading: isUpdateLoading }] =
+		useUpdateDeploymentPhaseType();
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		const { name, value } = event.target;
@@ -163,14 +166,14 @@ function UpdateCustomerFormDialog({
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
-		const updatingCustomer: CustomerUpdateRequest = {
+		const updatingType: DeploymentPhaseTypeUpdateRequest = {
 			name: formData.name.trim(),
-			email: formData.email.trim(),
-			customerId: customerId!,
+			description: formData.description.trim(),
+			typeId: typeId!,
 		};
 
-		if (!updatingCustomer.name) {
-			notifications.show(t('customerNameRequired'), {
+		if (!updatingType.name) {
+			notifications.show(t('processTypeNameRequired'), {
 				severity: 'warning',
 				autoHideDuration: HideDuration.fast,
 			});
@@ -178,13 +181,13 @@ function UpdateCustomerFormDialog({
 		}
 
 		try {
-			await updateCustomerTrigger(updatingCustomer);
-			notifications.show(t('updateCustomerSuccess'), {
+			await updateDeploymentPhaseTypeTrigger(updatingType);
+			notifications.show(t('updateProcessTypeSuccess'), {
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,
 			});
 		} catch (error) {
-			notifications.show(t('updateCustomerError'), {
+			notifications.show(t('updateProcessTypeError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
@@ -199,14 +202,14 @@ function UpdateCustomerFormDialog({
 			<form onSubmit={handleSubmit}>
 				<DialogTitle>{t('editCustomer')}</DialogTitle>
 				<DialogContent>
-					{customer.isLoading || (isUpdateLoading && <LinearProgress />)}
+					{type.isLoading || (isUpdateLoading && <LinearProgress />)}
 					<TextField
 						autoFocus
 						required
 						margin="dense"
 						id="name"
 						name="name"
-						label={t('customerName')}
+						label={t('processTypeName')}
 						type="text"
 						fullWidth
 						variant="standard"
@@ -216,13 +219,13 @@ function UpdateCustomerFormDialog({
 					<TextField
 						required
 						margin="dense"
-						id="email"
-						name="email"
-						label={t('email')}
-						type="email"
+						id="description"
+						name="description"
+						label={t('description')}
+						type="text"
 						fullWidth
 						variant="standard"
-						value={formData.email}
+						value={formData.description}
 						onChange={handleChange}
 					/>
 				</DialogContent>
@@ -235,62 +238,72 @@ function UpdateCustomerFormDialog({
 	);
 }
 
-export default function CustomerManagementPage() {
+export default function DeploymentPhaseTypePage() {
 	const { t } = useTranslation();
 	const notifications = useNotifications();
 	const dialogs = useDialogs();
 	const [filterVersionDialogOpen, setFilterVersionDialogOpen] = useState(false);
 
-	const [customerQuery, setCustomerQuery] = useState<GetAllCustomerQuery>({
-		email: '',
-		name: '',
-		pageNumber: 0,
-		pageSize: 6,
-	});
-	const customers = useGetAllCustomers(customerQuery!, {
-		skip: !customerQuery,
-	});
+	const [deploymentPhaseTypeQuery, setDeploymentPhaseTypeQuery] =
+		useState<GetAllDeploymentPhaseTypeQuery>({
+			userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+			name: '',
+			pageNumber: 0,
+			pageSize: 6,
+		});
+	const types = useGetAllDeploymentPhaseTypesByUserId(
+		deploymentPhaseTypeQuery!,
+		{
+			skip: !deploymentPhaseTypeQuery,
+		},
+	);
 	useEffect(() => {
-		if (customers.isError)
+		if (types.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
 		// else if (software.isSuccess && software.data?.content.length === 0)
 		// 	notifications.show(t('noProduct'), { severity: 'info' });
-	}, [notifications, customers.isError, t]);
+	}, [notifications, types.isError, t]);
 
-	const [deleteCustomerTrigger, deleteCustomer] = useDeleteCustomer();
+	const [deleteDeploymentPhaseTypeTrigger, deleteDeploymentPhaseType] =
+		useDeleteDeploymentPhaseType();
 	useEffect(() => {
-		if (deleteCustomer.isError)
-			notifications.show(t('deleteCustomerError'), {
+		if (deleteDeploymentPhaseType.isError) {
+			notifications.show(t('deleteProcessTypeError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
-		else if (deleteCustomer.isSuccess)
-			notifications.show(t('deleteCustomerSuccess'), {
+		} else if (deleteDeploymentPhaseType.isSuccess) {
+			notifications.show(t('deleteProcessTypeSuccess'), {
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,
 			});
-	}, [deleteCustomer.isError, deleteCustomer.isSuccess, notifications, t]);
-	const handleDelete = async (customerId: string) => {
-		const confirmed = await dialogs.confirm(t('deleteCustomerConfirm'), {
+		}
+	}, [
+		deleteDeploymentPhaseType.isError,
+		deleteDeploymentPhaseType.isSuccess,
+		notifications,
+		t,
+	]);
+	const handleDelete = async (typeId: string) => {
+		const confirmed = await dialogs.confirm(t('deleteProcessTypeConfirm'), {
 			okText: t('yes'),
 			cancelText: t('cancel'),
 		});
 		if (!confirmed) return;
-
-		await deleteCustomerTrigger(customerId);
+		await deleteDeploymentPhaseTypeTrigger(typeId);
 	};
 
-	const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
-		null,
-	);
+	const [selectedTypeId, setSelectedTypeId] = useState<string | null>(null);
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-	const handleEditClick = (customerId: string) => {
-		setSelectedCustomerId(customerId);
+	const handleEditClick = (typeId: string) => {
+		setSelectedTypeId(typeId);
 		setIsEditDialogOpen(true);
 	};
+
+	if (deleteDeploymentPhaseType.isLoading) return <LinearProgress />;
 
 	return (
 		<Box>
@@ -314,58 +327,58 @@ export default function CustomerManagementPage() {
 						const query: object = filters.reduce((pre, curr) => {
 							return { ...pre, [curr.key]: curr.value };
 						}, {});
-						setCustomerQuery((prev) => ({ ...prev, ...query }));
+						setDeploymentPhaseTypeQuery((prev) => ({ ...prev, ...query }));
 					}}
 					onReset={() => {
-						setCustomerQuery((prev) => ({ ...prev, customerName: '' }));
+						setDeploymentPhaseTypeQuery((prev) => ({
+							...prev,
+							customerName: '',
+						}));
 					}}
 				/>
 
-				<CreateCustomerFormDialog />
+				<CreateDeploymentPhaseTypeFormDialog />
 			</Stack>
-			{customers.isLoading ? (
+			{types.isLoading ? (
 				<LinearProgress />
 			) : (
 				<PaginationTable
 					headers={
 						<>
-							<TableCell key={`customerName`} align="center">
-								{t('customerName')}
+							<TableCell key={`processTypeName`} align="center">
+								{t('processTypeName')}
 							</TableCell>
-
-							<TableCell key={`email`} align="center">
-								{t('email')}
+							<TableCell key={`description`} align="center">
+								{t('description')}
 							</TableCell>
-
 							<TableCell />
 						</>
 					}
-					count={customers.data?.numberOfElements ?? 0}
-					rows={customers.data?.content ?? []}
+					count={types.data?.numberOfElements ?? 0}
+					rows={types.data?.content ?? []}
 					onPageChange={(newPage) =>
-						setCustomerQuery((prev) => {
+						setDeploymentPhaseTypeQuery((prev) => {
 							return { ...prev, ...newPage };
 						})
 					}
 					getCell={(row) => (
 						<TableRow key={row.id}>
-							<TableCell key={`customerName`} align="center">
+							<TableCell key={`processTypeName`} align="center">
 								{row.name}
 							</TableCell>
 
-							<TableCell key={`email`} align="center">
-								{row.email}
+							<TableCell key={`description`} align="center">
+								{row.description}
 							</TableCell>
 
 							<TableCell>
-								<Stack direction="row">
+								<Stack direction="row" justifyContent={'flex-end'}>
 									<IconButton
 										size="small"
 										onClick={() => handleEditClick(row.id)}
 									>
 										<EditIcon color="info" />
 									</IconButton>
-
 									<IconButton size="small" onClick={() => handleDelete(row.id)}>
 										<DeleteIcon color="error" />
 									</IconButton>
@@ -375,9 +388,9 @@ export default function CustomerManagementPage() {
 					)}
 				/>
 			)}
-			{isEditDialogOpen && selectedCustomerId && (
-				<UpdateCustomerFormDialog
-					customerId={selectedCustomerId}
+			{isEditDialogOpen && selectedTypeId && (
+				<UpdateDeploymentPhaseTypeFormDialog
+					typeId={selectedTypeId}
 					open={isEditDialogOpen}
 					onClose={() => setIsEditDialogOpen(false)}
 				/>
