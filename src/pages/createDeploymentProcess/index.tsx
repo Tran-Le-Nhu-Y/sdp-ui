@@ -1,6 +1,15 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, LinearProgress, Stack, Typography } from '@mui/material';
+import {
+	Accordion,
+	AccordionSummary,
+	Box,
+	Button,
+	LinearProgress,
+	Stack,
+	Tooltip,
+	Typography,
+} from '@mui/material';
 import { CollapsibleDataGrid, DragAndDropForm } from '../../components';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -12,7 +21,7 @@ import {
 import { DataGridProps, GridColDef } from '@mui/x-data-grid';
 import { HideDuration, RoutePaths } from '../../utils';
 import { useNotifications } from '@toolpad/core';
-
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 interface FileAttachment {
 	id: number;
 	name: string;
@@ -114,11 +123,13 @@ function SelectCustomerSection({
 
 	return (
 		<CollapsibleDataGrid
-			open={open}
+			expanded={open}
 			label={t('customer')}
 			title={title}
-			onOpenChange={onOpenChange}
 			dataProps={dataProps}
+			onChange={(_e, expanded) => {
+				onOpenChange(expanded);
+			}}
 		/>
 	);
 }
@@ -177,8 +188,10 @@ function SelectSoftwareAndVersionSection({
 
 	const title = useMemo(
 		() =>
-			`${selectedModel?.softwareName ?? t('notSelected')} - ${t('version')}: ${selectedModel?.versionName ?? t('notSelected')}`,
-		[selectedModel?.softwareName, selectedModel?.versionName, t]
+			selectedModel
+				? `${selectedModel.softwareName} - ${t('version')}: ${selectedModel.versionName}`
+				: t('notSelected'),
+		[selectedModel, t]
 	);
 
 	const dataProps: DataGridProps = useMemo(
@@ -231,11 +244,13 @@ function SelectSoftwareAndVersionSection({
 
 	return (
 		<CollapsibleDataGrid
-			open={open}
+			expanded={open}
 			label={t('software')}
 			title={title}
-			onOpenChange={onOpenChange}
 			dataProps={dataProps}
+			onChange={(_e, expanded) => {
+				onOpenChange(expanded);
+			}}
 		/>
 	);
 }
@@ -367,15 +382,37 @@ function SelectModuleAndVersionSection({
 		]
 	);
 
+	if ((softwareVersionId?.length ?? 0) <= 0)
+		return (
+			<Tooltip followCursor title={t('selectSoftwareBefore')}>
+				<Accordion disabled>
+					<AccordionSummary expandIcon={<ExpandMoreIcon />}>
+						<Stack direction={'row'} gap={1}>
+							<Typography variant="h6" sx={{ opacity: 0.8 }}>
+								{t('moduleList')}:
+							</Typography>
+							<Typography
+								variant="h6"
+								overflow={'hidden'}
+								textOverflow={'ellipsis'}
+								sx={{ maxWidth: 600, fontWeight: 10, opacity: 0.8 }}
+							>
+								{title}
+							</Typography>
+						</Stack>
+					</AccordionSummary>
+				</Accordion>
+			</Tooltip>
+		);
 	return (
 		<CollapsibleDataGrid
-			open={open}
-			collapsible={(softwareVersionId?.length ?? 0) > 0}
-			disableCollapsedHelperText={t('selectSoftwareBefore')}
 			label={t('moduleList')}
+			expanded={open}
 			title={title}
-			onOpenChange={onOpenChange}
 			dataProps={dataProps}
+			onChange={(_e, expanded) => {
+				onOpenChange(expanded);
+			}}
 		/>
 	);
 }
@@ -466,54 +503,56 @@ export default function CreateDeploymentProcessPage() {
 
 			{isCreateLoading && <LinearProgress />}
 
-			<SelectCustomerSection
-				open={expandControl.customer}
-				onOpenChange={(isOpen) =>
-					setExpandControl((pre) => ({ ...pre, customer: isOpen }))
-				}
-				onCustomerChange={(customerId) => {
-					setProcessCreating((pre) => ({
-						...pre,
-						customerId,
-					}));
-				}}
-			/>
+			<Stack gap={1}>
+				<SelectCustomerSection
+					open={expandControl.customer}
+					onOpenChange={(isOpen) =>
+						setExpandControl((pre) => ({ ...pre, customer: isOpen }))
+					}
+					onCustomerChange={(customerId) => {
+						setProcessCreating((pre) => ({
+							...pre,
+							customerId,
+						}));
+					}}
+				/>
 
-			<SelectSoftwareAndVersionSection
-				open={expandControl.software}
-				onOpenChange={(isOpen) =>
-					setExpandControl((pre) => ({ ...pre, software: isOpen }))
-				}
-				onModelChange={(model) => {
-					setProcessCreating((pre) => ({
-						...pre,
-						software: model && {
-							id: model.softwareId,
-							versionId: model.versionId,
-						},
-						modules: undefined,
-					}));
-				}}
-			/>
+				<SelectSoftwareAndVersionSection
+					open={expandControl.software}
+					onOpenChange={(isOpen) =>
+						setExpandControl((pre) => ({ ...pre, software: isOpen }))
+					}
+					onModelChange={(model) => {
+						setProcessCreating((pre) => ({
+							...pre,
+							software: model && {
+								id: model.softwareId,
+								versionId: model.versionId,
+							},
+							modules: undefined,
+						}));
+					}}
+				/>
 
-			<SelectModuleAndVersionSection
-				softwareVersionId={processCreating?.software?.versionId}
-				open={expandControl.module}
-				onOpenChange={(isOpen) =>
-					setExpandControl((pre) => ({ ...pre, module: isOpen }))
-				}
-				onModelChange={(modules) => {
-					setProcessCreating((pre) => ({
-						...pre,
-						modules: modules.map(({ moduleId, versionId }) => ({
-							id: moduleId,
-							versionId: versionId,
-						})),
-					}));
-				}}
-			/>
+				<SelectModuleAndVersionSection
+					softwareVersionId={processCreating?.software?.versionId}
+					open={expandControl.module}
+					onOpenChange={(isOpen) =>
+						setExpandControl((pre) => ({ ...pre, module: isOpen }))
+					}
+					onModelChange={(modules) => {
+						setProcessCreating((pre) => ({
+							...pre,
+							modules: modules.map(({ moduleId, versionId }) => ({
+								id: moduleId,
+								versionId: versionId,
+							})),
+						}));
+					}}
+				/>
 
-			<DragAndDropForm onFilesChange={handleFilesChange} />
+				<DragAndDropForm onFilesChange={handleFilesChange} />
+			</Stack>
 
 			<Box mt={3} display="flex" justifyContent="center" gap={2}>
 				<Button variant="contained" color="primary" onClick={handleSubmit}>
