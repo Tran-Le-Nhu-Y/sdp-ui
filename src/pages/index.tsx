@@ -10,7 +10,6 @@ import CreateModulePage from './createModule';
 import ModifySoftwareVersionPage from './modifySoftwareVersion';
 import SoftwareVersionDetailPage from './softwareVersionDetail';
 import CustomerManagementPage from './customerManagement';
-import CreateCustomerPage from './createCustomer';
 import CreateDeploymentProcessPage from './createDeploymentProcess';
 import DocumentTypePage from './documentType';
 import SoftwareDocumentDetailPage from './softwareDocumentDetail';
@@ -24,11 +23,11 @@ import TemplateCompleteDeploymentPage from './mailTemplateCompleteDeployment';
 import CreateModuleDocumentPage from './createModulDocument';
 import ModifyModuleDocumentPage from './modifyModuleDocument';
 import ModuleDocumentDetailPage from './moduleDocumentDetail';
+import DeploymentPhaseTypePage from './deploymentPhaseType';
 
 export {
 	OverviewPage,
 	CustomerManagementPage,
-	CreateCustomerPage,
 	SoftwarePage,
 	CreateSoftwarePage,
 	ModifySoftwarePage,
@@ -41,6 +40,7 @@ export {
 	CreateModuleVersionPage,
 	ModifyModuleVersionPage,
 	DeploymentProcessPage,
+	DeploymentPhaseTypePage,
 	CreateDeploymentProcessPage,
 	CreateSoftwareDocumentPage,
 	SoftwareDocumentDetailPage,

@@ -59,7 +59,6 @@ export enum RoutePaths {
 	CREATE_DEPLOYMENT_PROCESS = '/deployment/process/create',
 
 	DEPLOYMENT_PHASE_TYPE = '/deployment/phase-type',
-	CREATE_DEPLOYMENT_PHASE_TYPE = '/deployment/phase-type/create',
 
 	TEMPLATE_SOFTWARE_EXPIRATION = '/mail-template/software-expiration',
 	TEMPLATE_COMPLETE_DEPLOYMENT = '/mail-template/complete-deployment',
