@@ -26,7 +26,6 @@ export enum PathHolders {
 export enum RoutePaths {
 	NOTIFICATION = '/notification',
 	OVERVIEW = '/overview',
-	LOGOUT = '/logout',
 
 	CUSTOMER = '/customer',
 	CREATE_CUSTOMER = '/customer/create',

@@ -24,13 +24,11 @@ import TemplateCompleteDeploymentPage from './mailTemplateCompleteDeployment';
 import CreateModuleDocumentPage from './createModulDocument';
 import ModifyModuleDocumentPage from './modifyModuleDocument';
 import ModuleDocumentDetailPage from './moduleDocumentDetail';
-import LogoutPage from './logout';
 
 export {
 	OverviewPage,
 	CustomerManagementPage,
 	CreateCustomerPage,
-	LogoutPage,
 	SoftwarePage,
 	CreateSoftwarePage,
 	ModifySoftwarePage,

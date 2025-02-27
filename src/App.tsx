@@ -8,7 +8,6 @@ import { AppProvider } from '@toolpad/core/react-router-dom';
 import { Outlet } from 'react-router';
 import WysiwygIcon from '@mui/icons-material/Wysiwyg';
 import Diversity1Icon from '@mui/icons-material/Diversity1';
-import LogoutIcon from '@mui/icons-material/Logout';
 import DnsIcon from '@mui/icons-material/Dns';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import LabelIcon from '@mui/icons-material/Label';
@@ -18,11 +17,58 @@ import AssignmentLateIcon from '@mui/icons-material/AssignmentLate';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import { useTranslation } from 'react-i18next';
 import theme from './themes/theme';
-import { DashboardLayout, PageContainer, Session } from '@toolpad/core';
+import {
+	Authentication,
+	DashboardLayout,
+	Navigation,
+	PageContainer,
+	Session,
+} from '@toolpad/core';
 import { PathHolders } from './utils';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import keycloak from './services/keycloak';
 import { HydrateFallback } from './components';
+import { Badge, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import CloudCircleIcon from '@mui/icons-material/CloudCircle';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import NotificationsIcon from '@mui/icons-material/Notifications';
+
+function CustomAppTitle() {
+	return (
+		<Stack direction="row" alignItems="center" spacing={2}>
+			<CloudCircleIcon fontSize="large" color="primary" />
+			<Typography variant="h6">SDP</Typography>
+			{/* <Chip size="small" label="BETA" color="info" /> */}
+			<Tooltip title="Connected to production">
+				<CheckCircleIcon color="success" fontSize="small" />
+			</Tooltip>
+		</Stack>
+	);
+}
+
+function CustomToolbarActions({
+	totalNewNotifications,
+}: {
+	totalNewNotifications?: number;
+}) {
+	return (
+		<>
+			<IconButton
+				size="large"
+				aria-label="show new notifications"
+				color="primary"
+			>
+				{totalNewNotifications !== undefined ? (
+					<Badge badgeContent={totalNewNotifications} color="error">
+						<NotificationsIcon />
+					</Badge>
+				) : (
+					<NotificationsIcon />
+				)}
+			</IconButton>
+		</>
+	);
+}
 
 function App() {
 	const { t } = useTranslation();
@@ -59,92 +105,103 @@ function App() {
 			});
 	}, []);
 
-	if (!session) return <HydrateFallback />;
+	const navigation: Navigation = useMemo(
+		() => [
+			{
+				segment: 'notification',
+				title: t('notification'),
+				icon: <NotificationsActiveIcon />,
+			},
+			{
+				segment: 'overview',
+				title: t('overview'),
+				icon: <DashboardIcon />,
+			},
+			{
+				segment: 'customer',
+				title: t('customer'),
+				icon: <Diversity1Icon />,
+			},
+			{
+				segment: 'software',
+				title: t('software'),
+				icon: <WysiwygIcon />,
+				pattern: `software{/:${PathHolders.SOFTWARE_ID}}*`,
+			},
+			{
+				segment: 'deployment',
+				title: t('deployment'),
+				icon: <DnsIcon />,
+				children: [
+					{
+						segment: 'process',
+						title: t('deploymentProcess'),
+						icon: <DnsIcon />,
+						pattern: `process{/:${PathHolders.DEPLOYMENT_PROCESS_ID}}*`,
+					},
+					{
+						segment: 'phase-type',
+						title: t('deploymentPhaseType'),
+						icon: <LabelIcon />,
+						pattern: `phase-type{/:${PathHolders.DEPLOYMENT_PHASE_TYPE_ID}}*`,
+					},
+				],
+			},
+			{
+				segment: 'document-type',
+				title: t('documentType'),
+				icon: <LabelIcon />,
+			},
+			{
+				segment: 'mail-template',
+				title: t('createMailTemplate'),
+				icon: <ContactMailIcon />,
+				children: [
+					{
+						segment: 'software-expiration',
+						title: t('softwareExpiration'),
+						icon: <AssignmentLateIcon />,
+						pattern: `software-expiration{/:${PathHolders.TEMPLATE_SOFTWARE_EXPIRATION_ID}}*`,
+					},
+					{
+						segment: 'complete-deployment',
+						title: t('completeDeployment'),
+						icon: <AssignmentTurnedInIcon />,
+						pattern: `complete-deployment{/:${PathHolders.TEMPLATE_COMPLETE_DEPLOYMENT_ID}}*`,
+					},
+				],
+			},
+		],
+		[t]
+	);
 
+	const authentication: Authentication = useMemo(() => {
+		return {
+			signIn: () => {},
+			signOut: () => {
+				if (!keycloak.authenticated) return;
+				setSession(undefined);
+				keycloak.logout({ redirectUri: `${location.origin}` });
+			},
+		};
+	}, []);
+
+	if (!session) return <HydrateFallback />;
 	return (
 		<AppProvider
 			theme={theme}
+			authentication={authentication}
 			session={session}
-			// branding={{
-			// 	logo: <img src="https://mui.com/static/logo.png" alt="MUI logo" />,
-			// 	title: 'MUI',
-			// 	homeUrl: '/toolpad/core/introduction',
-			// }}
-
-			navigation={[
-				{
-					segment: 'notification',
-					title: t('notification'),
-					icon: <NotificationsActiveIcon />,
-				},
-				{
-					segment: 'overview',
-					title: t('overview'),
-					icon: <DashboardIcon />,
-				},
-				{
-					segment: 'customer',
-					title: t('customer'),
-					icon: <Diversity1Icon />,
-				},
-				{
-					segment: 'software',
-					title: t('software'),
-					icon: <WysiwygIcon />,
-					pattern: `software{/:${PathHolders.SOFTWARE_ID}}*`,
-				},
-				{
-					segment: 'deployment',
-					title: t('deployment'),
-					icon: <DnsIcon />,
-					children: [
-						{
-							segment: 'process',
-							title: t('deploymentProcess'),
-							icon: <DnsIcon />,
-							pattern: `process{/:${PathHolders.DEPLOYMENT_PROCESS_ID}}*`,
-						},
-						{
-							segment: 'phase-type',
-							title: t('deploymentPhaseType'),
-							icon: <LabelIcon />,
-							pattern: `phase-type{/:${PathHolders.DEPLOYMENT_PHASE_TYPE_ID}}*`,
-						},
-					],
-				},
-				{
-					segment: 'document-type',
-					title: t('documentType'),
-					icon: <LabelIcon />,
-				},
-				{
-					segment: 'mail-template',
-					title: t('createMailTemplate'),
-					icon: <ContactMailIcon />,
-					children: [
-						{
-							segment: 'software-expiration',
-							title: t('softwareExpiration'),
-							icon: <AssignmentLateIcon />,
-							pattern: `software-expiration{/:${PathHolders.TEMPLATE_SOFTWARE_EXPIRATION_ID}}*`,
-						},
-						{
-							segment: 'complete-deployment',
-							title: t('completeDeployment'),
-							icon: <AssignmentTurnedInIcon />,
-							pattern: `complete-deployment{/:${PathHolders.TEMPLATE_COMPLETE_DEPLOYMENT_ID}}*`,
-						},
-					],
-				},
-				{
-					segment: 'logout',
-					title: t('logOut'),
-					icon: <LogoutIcon />,
-				},
-			]}
+			navigation={navigation}
 		>
-			<DashboardLayout>
-				<PageContainer>
+			<DashboardLayout
+				slots={{
+					appTitle: CustomAppTitle,
+					toolbarActions: () =>
+						CustomToolbarActions({ totalNewNotifications: 10 }),
+				}}
+			>
+				<PageContainer breadcrumbs={[]}>
 					<Outlet />
 				</PageContainer>
 			</DashboardLayout>
