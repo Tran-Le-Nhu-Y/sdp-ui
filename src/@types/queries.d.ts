@@ -33,6 +33,13 @@ declare interface GetAllSoftwareDocumentQuery {
 	pageNumber?: number?;
 	pageSize?: number?;
 }
+declare interface GetAllModuleDocumentQuery {
+	moduleVersionId: string;
+	documentTypeName?: string?;
+	moduleDocumentName?: string?;
+	pageNumber?: number?;
+	pageSize?: number?;
+}
 
 declare interface GetAllDocumentTypeQuery {
 	userId: string;

@@ -105,6 +105,15 @@ declare interface SoftwareDocumentResponse {
 	type: { name: string };
 	version: { name: string };
 }
+declare interface ModuleDocumentResponse {
+	id: string;
+	name: string;
+	description: string?;
+	createdAtMs: number;
+	updatedAtMs: number?;
+	type: { name: string };
+	version: { name: string };
+}
 
 declare interface MailTemplateResponse {
 	id: string;

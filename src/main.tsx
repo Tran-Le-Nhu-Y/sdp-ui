@@ -32,6 +32,8 @@ import {
 	ModifyModuleVersionPage,
 	TemplateCompleteDeploymentPage,
 	TemplateSoftwareExpirationPage,
+	CreateModuleDocumentPage,
+	ModifyModuleDocumentPage,
 } from './pages/index.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
@@ -98,6 +100,19 @@ const router = createBrowserRouter(
 			<Route
 				path={RoutePaths.MODIFY_SOFTWARE_DOCUMENT}
 				element={<ModifySoftwareDocumentPage />}
+			/>
+
+			<Route
+				path={RoutePaths.CREATE_MODULE_DOCUMENT}
+				element={<CreateModuleDocumentPage />}
+			/>
+			<Route
+				path={RoutePaths.MODULE_DOCUMENT}
+				element={<SoftwareDocumentDetailPage />}
+			/>
+			<Route
+				path={RoutePaths.MODIFY_MODULE_DOCUMENT}
+				element={<ModifyModuleDocumentPage />}
 			/>
 
 			<Route path={RoutePaths.DOCUMENT_TYPE} element={<DocumentTypePage />} />

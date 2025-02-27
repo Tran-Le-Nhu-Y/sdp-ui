@@ -20,9 +20,9 @@ import { Delete, Edit } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
+	useDeleteModuleDocument,
 	useDeleteModuleVersion,
-	useDeleteSoftwareDocument,
-	useGetAllSoftwareDocumentByUserId,
+	useGetAllModuleDocumentByVersionId,
 	useGetModuleById,
 	useGetModuleVersionById,
 } from '../../services';
@@ -35,8 +35,8 @@ function DocumentsOfVersionTable({
 	onQueryChange,
 }: {
 	versionId: string;
-	documentQuery: GetAllSoftwareDocumentQuery | null;
-	onQueryChange: (query: GetAllSoftwareDocumentQuery | null) => void;
+	documentQuery: GetAllModuleDocumentQuery | null;
+	onQueryChange: (query: GetAllModuleDocumentQuery | null) => void;
 }) {
 	const navigate = useNavigate();
 	const { t } = useTranslation('standard');
@@ -44,7 +44,7 @@ function DocumentsOfVersionTable({
 	const dialogs = useDialogs();
 	const [filterVersionDialogOpen, setFilterVersionDialogOpen] = useState(false);
 
-	const documents = useGetAllSoftwareDocumentByUserId(documentQuery!, {
+	const documents = useGetAllModuleDocumentByVersionId(documentQuery!, {
 		skip: !documentQuery,
 	});
 	useEffect(() => {
@@ -57,33 +57,33 @@ function DocumentsOfVersionTable({
 		// 	notifications.show(t('noProduct'), { severity: 'info' });
 	}, [notifications, documents.isError, t]);
 
-	const [deleteSoftwareDocumentTrigger, deleteSoftwareDocument] =
-		useDeleteSoftwareDocument();
+	const [deleteModuleDocumentTrigger, deleteModuleDocument] =
+		useDeleteModuleDocument();
 	useEffect(() => {
-		if (deleteSoftwareDocument.isError)
+		if (deleteModuleDocument.isError)
 			notifications.show(t('deleteSoftwareVersionError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
-		else if (deleteSoftwareDocument.isSuccess)
+		else if (deleteModuleDocument.isSuccess)
 			notifications.show(t('deleteSoftwareVersionSuccess'), {
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,
 			});
 	}, [
-		deleteSoftwareDocument.isError,
-		deleteSoftwareDocument.isSuccess,
+		deleteModuleDocument.isError,
+		deleteModuleDocument.isSuccess,
 		notifications,
 		t,
 	]);
 	const handleDelete = async (versionId: string) => {
-		const confirmed = await dialogs.confirm(t('deleteSoftwareVersionConfirm'), {
+		const confirmed = await dialogs.confirm(t('deleteModuleDocumentConfirm'), {
 			okText: t('yes'),
 			cancelText: t('cancel'),
 		});
 		if (!confirmed) return;
 
-		await deleteSoftwareDocumentTrigger(versionId);
+		await deleteModuleDocumentTrigger(versionId);
 	};
 
 	return (
@@ -110,15 +110,15 @@ function DocumentsOfVersionTable({
 						}, {});
 						onQueryChange({
 							...documentQuery,
-							softwareVersionId: versionId,
+							moduleVersionId: versionId,
 							...query,
 						});
 					}}
 					onReset={() => {
 						onQueryChange({
-							softwareVersionId: versionId,
+							moduleVersionId: versionId,
 							...documentQuery,
-							softwareDocumentName: '',
+							moduleDocumentName: '',
 						});
 					}}
 				/>
@@ -126,7 +126,7 @@ function DocumentsOfVersionTable({
 					variant="contained"
 					onClick={() =>
 						navigate(
-							`${RoutePaths.CREATE_SOFTWARE_DOCUMENT.replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, versionId)}`,
+							`${RoutePaths.CREATE_MODULE_DOCUMENT.replace(`:${PathHolders.MODULE_VERSION_ID}`, versionId)}`,
 						)
 					}
 				>
@@ -137,16 +137,16 @@ function DocumentsOfVersionTable({
 			<PaginationTable
 				headers={
 					<>
-						<TableCell key={`software-${versionId}-type`}>
+						<TableCell key={`module-${versionId}-type`}>
 							{t('documentType')}
 						</TableCell>
-						<TableCell key={`software-${versionId}-name`}>
+						<TableCell key={`module-${versionId}-name`}>
 							{t('documentName')}
 						</TableCell>
-						<TableCell key={`software-${versionId}-createdAt`} align="center">
+						<TableCell key={`module-${versionId}-createdAt`} align="center">
 							{t('dateCreated')}
 						</TableCell>
-						<TableCell key={`software-${versionId}-updatedAt`} align="center">
+						<TableCell key={`module-${versionId}-updatedAt`} align="center">
 							{t('lastUpdated')}
 						</TableCell>
 						<TableCell />
@@ -156,13 +156,13 @@ function DocumentsOfVersionTable({
 				rows={documents?.data?.content ?? []}
 				onPageChange={(newPage) =>
 					onQueryChange({
-						softwareVersionId: versionId,
-						softwareDocumentName: documentQuery?.softwareDocumentName ?? '',
+						moduleVersionId: versionId,
+						moduleDocumentName: documentQuery?.moduleDocumentName ?? '',
 						...newPage,
 					})
 				}
 				getCell={(row) => (
-					<TableRow key={`software_verion-${row.id}`}>
+					<TableRow key={`module_verion-${row.id}`}>
 						<TableCell>{row.typeName}</TableCell>
 						<TableCell>{row.name}</TableCell>
 						<TableCell align="center">{row.createdAt}</TableCell>
@@ -173,8 +173,8 @@ function DocumentsOfVersionTable({
 									size="small"
 									onClick={() =>
 										navigate(
-											RoutePaths.SOFTWARE_DOCUMENT.replace(
-												`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
+											RoutePaths.MODULE_DOCUMENT.replace(
+												`:${PathHolders.MODULE_DOCUMENT_ID}`,
 												row.id,
 											),
 										)
@@ -263,9 +263,9 @@ const ModuleVersionDetailPage = () => {
 
 	//document
 	const [documentQuery, setDocumentQuery] =
-		useState<GetAllSoftwareDocumentQuery | null>({
-			softwareVersionId: versionId!,
-			softwareDocumentName: '',
+		useState<GetAllModuleDocumentQuery | null>({
+			moduleVersionId: versionId!,
+			moduleDocumentName: '',
 			pageSize: 5,
 			pageNumber: 0,
 		});

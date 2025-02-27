@@ -32,7 +32,7 @@ import {
 	useDeleteSoftwareVersion,
 	useGetAllModuleBySoftwareVersionId,
 	useGetAllModuleVersionsByModuleId,
-	useGetAllSoftwareDocumentByUserId,
+	useGetAllSoftwareDocumentByVersionId,
 	useGetSoftwareById,
 	useGetSoftwareVersionById,
 } from '../../services';
@@ -54,7 +54,7 @@ function DocumentsOfVersionTable({
 	const dialogs = useDialogs();
 	const [filterVersionDialogOpen, setFilterVersionDialogOpen] = useState(false);
 
-	const documents = useGetAllSoftwareDocumentByUserId(documentQuery!, {
+	const documents = useGetAllSoftwareDocumentByVersionId(documentQuery!, {
 		skip: !documentQuery,
 	});
 	useEffect(() => {
