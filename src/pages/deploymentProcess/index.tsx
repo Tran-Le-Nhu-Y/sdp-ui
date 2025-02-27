@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { FilterDialog, PaginationTable } from '../../components';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
 	Box,
 	Button,
@@ -29,9 +29,6 @@ export default function DeploymentProcessPage() {
 	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 	const [processQuery, setProcessQuery] =
 		useState<GetAllDeploymentProcessQuery>({
-			customerName: null,
-			softwareVersionName: null,
-			status: undefined,
 			pageNumber: 0,
 			pageSize: 5,
 		});
@@ -71,6 +68,16 @@ export default function DeploymentProcessPage() {
 		}
 	};
 
+	const getProcessStatus: Record<DeploymentProcessStatus, string> = useMemo(
+		() => ({
+			INIT: t('init'),
+			PENDING: t('pending'),
+			IN_PROGRESS: t('inProgress'),
+			DONE: t('done'),
+		}),
+		[t]
+	);
+
 	return (
 		<Box>
 			{(processes.isLoading || deleteProcess.isLoading) && <LinearProgress />}
@@ -88,11 +95,11 @@ export default function DeploymentProcessPage() {
 						},
 						{
 							key: 'customerName',
-							label: t('softwareName'),
+							label: t('customer'),
 						},
 						{
 							key: 'status',
-							label: t('softwareName'),
+							label: t('status'),
 						},
 					]}
 					open={filterDialogOpen}
@@ -131,11 +138,11 @@ export default function DeploymentProcessPage() {
 						<TableCell key="status" align="center">
 							{t('status')}
 						</TableCell>
-						<TableCell key="startDate" align="center">
-							{t('startDate')}
+						<TableCell key="createdAt" align="center">
+							{t('dateCreated')}
 						</TableCell>
-						<TableCell key="endDate" align="center">
-							{t('endDate')}
+						<TableCell key="updatedAt" align="center">
+							{t('lastUpdated')}
 						</TableCell>
 						<TableCell />
 						<TableCell />
@@ -157,12 +164,12 @@ export default function DeploymentProcessPage() {
 							{row.customer.name}
 						</TableCell>
 						<TableCell key={`${row.id}-status`} align="center">
-							{row.status}
+							{getProcessStatus[row.status]}
 						</TableCell>
-						<TableCell key={`${row.id}-startDate`} align="center">
+						<TableCell key={`${row.id}-createdAt`} align="center">
 							{row.createdAt}
 						</TableCell>
-						<TableCell key={`${row.id}-endDate`} align="center">
+						<TableCell key={`${row.id}-updatedAt`} align="center">
 							{row.updatedAt}
 						</TableCell>
 
