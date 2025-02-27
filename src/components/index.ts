@@ -9,6 +9,10 @@ import DragAndDropForm from './DragAndDropForm';
 import TextEditor from './TextEditor';
 import { PaginationTable } from './PaginationTable';
 import { FilterDialog } from './FilterDialog';
+import {
+	CollapsibleDataGrid,
+	CollapsibleDataGridProps,
+} from './CollapsibleDataGrid';
 
 export {
 	HydrateFallback,
@@ -23,4 +27,7 @@ export {
 	PaginationTable,
 	TextEditor,
 	FilterDialog,
+	CollapsibleDataGrid,
 };
+
+export type { CollapsibleDataGridProps };

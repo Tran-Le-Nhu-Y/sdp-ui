@@ -32,7 +32,7 @@ import {
 	useDeleteSoftwareVersion,
 	useGetAllModuleBySoftwareVersionId,
 	useGetAllModuleVersionsByModuleId,
-	useGetAllSoftwareDocumentByUserId,
+	useGetAllSoftwareDocumentByVersionId,
 	useGetSoftwareById,
 	useGetSoftwareVersionById,
 } from '../../services';
@@ -54,7 +54,7 @@ function DocumentsOfVersionTable({
 	const dialogs = useDialogs();
 	const [filterVersionDialogOpen, setFilterVersionDialogOpen] = useState(false);
 
-	const documents = useGetAllSoftwareDocumentByUserId(documentQuery!, {
+	const documents = useGetAllSoftwareDocumentByVersionId(documentQuery!, {
 		skip: !documentQuery,
 	});
 	useEffect(() => {
@@ -194,14 +194,13 @@ function DocumentsOfVersionTable({
 								</IconButton>
 								<IconButton
 									size="small"
-									onClick={
-										() => {}
-										// navigate(
-										// 	RoutePaths.MODIFY_SOFTWARE_VERSION.replace(
-										// 		`:${PathHolders.SOFTWARE_VERSION_ID}`,
-										// 		row.id,
-										// 	),
-										// )
+									onClick={() =>
+										navigate(
+											RoutePaths.MODIFY_SOFTWARE_DOCUMENT.replace(
+												`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
+												row.id,
+											),
+										)
 									}
 								>
 									<EditIcon color="info" />

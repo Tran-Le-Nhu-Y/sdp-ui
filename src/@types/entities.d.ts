@@ -36,6 +36,13 @@ declare interface SoftwareVersion {
 	updatedAt?: string?;
 }
 
+declare interface SoftwareAndVersion {
+	versionId: string;
+	versionName: string;
+	softwareId: string;
+	softwareName: string;
+}
+
 declare interface Module {
 	id: string;
 	name: string;
@@ -50,6 +57,13 @@ declare interface ModuleVersion {
 	description?: string?;
 	createdAt: string;
 	updatedAt?: string?;
+}
+
+declare interface ModuleAndVersion {
+	versionId: string;
+	versionName: string;
+	moduleId: string;
+	moduleName: string;
 }
 
 declare interface DeploymentProcess {
@@ -92,6 +106,14 @@ declare interface DeploymentPhase {
 }
 
 declare interface SoftwareDocument {
+	id: string;
+	typeName: string;
+	name: string;
+	description: string?;
+	createdAt: string;
+	updatedAt: string?;
+}
+declare interface ModuleDocument {
 	id: string;
 	typeName: string;
 	name: string;

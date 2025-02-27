@@ -10,7 +10,7 @@ import {
 } from 'react-router-dom';
 import {
 	CreateCustomerPage,
-	CreateDeploymentPage,
+	CreateDeploymentProcessPage,
 	CreateSoftwareDocumentPage,
 	CreateSoftwarePage,
 	CreateSoftwareVersionPage,
@@ -32,6 +32,9 @@ import {
 	ModifyModuleVersionPage,
 	TemplateCompleteDeploymentPage,
 	TemplateSoftwareExpirationPage,
+	CreateModuleDocumentPage,
+	ModifyModuleDocumentPage,
+	ModuleDocumentDetailPage,
 	LogoutPage,
 } from './pages/index.tsx';
 import { Provider } from 'react-redux';
@@ -103,6 +106,19 @@ const router = createBrowserRouter(
 				element={<ModifySoftwareDocumentPage />}
 			/>
 
+			<Route
+				path={RoutePaths.CREATE_MODULE_DOCUMENT}
+				element={<CreateModuleDocumentPage />}
+			/>
+			<Route
+				path={RoutePaths.MODULE_DOCUMENT}
+				element={<ModuleDocumentDetailPage />}
+			/>
+			<Route
+				path={RoutePaths.MODIFY_MODULE_DOCUMENT}
+				element={<ModifyModuleDocumentPage />}
+			/>
+
 			<Route path={RoutePaths.DOCUMENT_TYPE} element={<DocumentTypePage />} />
 
 			<Route
@@ -111,7 +127,7 @@ const router = createBrowserRouter(
 			/>
 			<Route
 				path={RoutePaths.CREATE_DEPLOYMENT_PROCESS}
-				element={<CreateDeploymentPage />}
+				element={<CreateDeploymentProcessPage />}
 			/>
 
 			<Route
@@ -120,7 +136,7 @@ const router = createBrowserRouter(
 			/>
 			<Route
 				path={RoutePaths.CREATE_DEPLOYMENT_PHASE_TYPE}
-				element={<CreateDeploymentPage />}
+				element={<CreateDeploymentProcessPage />}
 			/>
 			<Route
 				path={RoutePaths.TEMPLATE_SOFTWARE_EXPIRATION}

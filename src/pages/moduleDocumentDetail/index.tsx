@@ -14,54 +14,51 @@ import {
 import { useEffect, useState } from 'react';
 import { HideDuration, PathHolders, RoutePaths } from '../../utils';
 import {
-	useDeleteSoftwareDocument,
-	useGetSoftwareDocumentById,
+	useDeleteModuleDocument,
+	useGetModuleDocumentById,
 } from '../../services';
 import { useDialogs, useNotifications } from '@toolpad/core';
 import { Delete, Edit } from '@mui/icons-material';
 
-export default function SoftwareDocumentDetailPage() {
+export default function ModuleDocumentDetailPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const files = useState();
 	const dialogs = useDialogs();
 	const notifications = useNotifications();
-	const documentId = useParams()[PathHolders.SOFTWARE_DOCUMENT_ID];
+	const documentId = useParams()[PathHolders.MODULE_DOCUMENT_ID];
 
-	const softwareDocument = useGetSoftwareDocumentById(documentId!, {
+	const moduleDocument = useGetModuleDocumentById(documentId!, {
 		skip: !documentId,
 	});
 	useEffect(() => {
-		if (softwareDocument.isError)
+		if (moduleDocument.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
-	}, [notifications, softwareDocument.isError, t]);
+	}, [notifications, moduleDocument.isError, t]);
 
 	const handleCancel = () => {
 		navigate(-1);
 	};
 
-	const [deleteDocumentTrigger] = useDeleteSoftwareDocument();
+	const [deleteDocumentTrigger] = useDeleteModuleDocument();
 	const handleDelete = async (documentId: string) => {
-		const confirmed = await dialogs.confirm(
-			t('deleteSoftwareDocumentConfirm'),
-			{
-				okText: t('yes'),
-				cancelText: t('cancel'),
-			},
-		);
+		const confirmed = await dialogs.confirm(t('deleteModuleDocumentConfirm'), {
+			okText: t('yes'),
+			cancelText: t('cancel'),
+		});
 		if (!confirmed) return;
 		try {
 			await deleteDocumentTrigger(documentId);
 			navigate(-1);
-			notifications.show(t('deleteSoftwareDocumentSuccess'), {
+			notifications.show(t('deleteModuleDocumentSuccess'), {
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,
 			});
 		} catch (error) {
-			notifications.show(t('deleteSoftwareDocumentError'), {
+			notifications.show(t('deleteModuleDocumentError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
@@ -69,7 +66,7 @@ export default function SoftwareDocumentDetailPage() {
 		}
 	};
 
-	if (softwareDocument.isLoading) return <LinearProgress />;
+	if (moduleDocument.isLoading) return <LinearProgress />;
 	return (
 		<Stack>
 			<Typography variant="h5" mb={3} textAlign="center" color="primary">
@@ -81,8 +78,8 @@ export default function SoftwareDocumentDetailPage() {
 						color="primary"
 						onClick={() =>
 							navigate(
-								RoutePaths.MODIFY_SOFTWARE_DOCUMENT.replace(
-									`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
+								RoutePaths.MODIFY_MODULE_DOCUMENT.replace(
+									`:${PathHolders.MODULE_DOCUMENT_ID}`,
 									documentId || '',
 								),
 							)
@@ -104,21 +101,21 @@ export default function SoftwareDocumentDetailPage() {
 						<strong>{t('documentTypeName')}:</strong>
 					</Typography>
 					<Typography variant="body1">
-						{softwareDocument.data?.typeName}
+						{moduleDocument.data?.typeName}
 					</Typography>
 				</Stack>
 				<Stack direction={'row'} spacing={2} alignItems={'center'}>
 					<Typography variant="body1">
 						<strong>{t('documentName')}:</strong>
 					</Typography>
-					<Typography variant="body1">{softwareDocument.data?.name}</Typography>
+					<Typography variant="body1">{moduleDocument.data?.name}</Typography>
 				</Stack>
 				<Stack direction={'row'} spacing={2} alignItems={'center'}>
 					<Typography variant="body1">
 						<strong>{t('description')}:</strong>
 					</Typography>
 					<Typography variant="body1">
-						{softwareDocument.data?.description}
+						{moduleDocument.data?.description}
 					</Typography>
 				</Stack>
 			</Stack>

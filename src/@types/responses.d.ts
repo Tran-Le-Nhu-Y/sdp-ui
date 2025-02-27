@@ -63,6 +63,13 @@ declare interface DeploymentProcessResponse {
 	};
 }
 
+declare interface DeploymentProcessMemberResponse {
+	id: string;
+	firstName: string;
+	lastName: string;
+	email: string;
+}
+
 declare interface DeploymentPhaseResponse {
 	id: string;
 	numOrder: number;
@@ -97,6 +104,15 @@ declare interface DocumentTypeResponse {
 }
 
 declare interface SoftwareDocumentResponse {
+	id: string;
+	name: string;
+	description: string?;
+	createdAtMs: number;
+	updatedAtMs: number?;
+	type: { name: string };
+	version: { name: string };
+}
+declare interface ModuleDocumentResponse {
 	id: string;
 	name: string;
 	description: string?;

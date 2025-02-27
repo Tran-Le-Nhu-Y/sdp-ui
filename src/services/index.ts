@@ -35,6 +35,7 @@ export {
 import {
 	softwareVersionApi,
 	useGetAllVersionsBySoftwareIdQuery as useGetAllVersionsBySoftwareId,
+	useGetAllVersionsByUserIdQuery as useGetAllVersionsByUserId,
 	useGetSoftwareVersionByIdQuery as useGetSoftwareVersionById,
 	usePostSoftwareVersionMutation as useCreateSoftwareVersion,
 	usePutSoftwareVersionMutation as useUpdateSoftwareVersion,
@@ -42,6 +43,7 @@ import {
 } from './software-version';
 export {
 	softwareVersionApi,
+	useGetAllVersionsByUserId,
 	useGetAllVersionsBySoftwareId,
 	useGetSoftwareVersionById,
 	useCreateSoftwareVersion,
@@ -69,6 +71,7 @@ export {
 import {
 	moduleVersionApi,
 	useGetAllModuleVersionsByModuleIdQuery as useGetAllModuleVersionsByModuleId,
+	useGetAllVersionsBySoftwareVersionIdQuery as useGetAllVersionsBySoftwareVersionId,
 	useGetModuleVersionByIdQuery as useGetModuleVersionById,
 	usePostModuleVersionMutation as useCreateModuleVersion,
 	usePutModuleVersionMutation as useUpdateModuleVersion,
@@ -77,6 +80,7 @@ import {
 export {
 	moduleVersionApi,
 	useGetAllModuleVersionsByModuleId,
+	useGetAllVersionsBySoftwareVersionId,
 	useGetModuleVersionById,
 	useCreateModuleVersion,
 	useUpdateModuleVersion,
@@ -153,7 +157,7 @@ export {
 
 import {
 	softwareDocumentApi,
-	useGetAllSoftwareDocumentsByUserIdQuery as useGetAllSoftwareDocumentByUserId,
+	useGetAllSoftwareDocumentsByVersionIdQuery as useGetAllSoftwareDocumentByVersionId,
 	useGetSoftwareDocumentByIdQuery as useGetSoftwareDocumentById,
 	usePostSoftwareDocumentMutation as useCreateSoftwareDocument,
 	usePutSoftwareDocumentMutation as useUpdateSoftwareDocument,
@@ -162,11 +166,28 @@ import {
 
 export {
 	softwareDocumentApi,
-	useGetAllSoftwareDocumentByUserId,
+	useGetAllSoftwareDocumentByVersionId,
 	useGetSoftwareDocumentById,
 	useCreateSoftwareDocument,
 	useUpdateSoftwareDocument,
 	useDeleteSoftwareDocument,
+};
+import {
+	moduleDocumentApi,
+	useGetAllModuleDocumentsByVersionIdQuery as useGetAllModuleDocumentByVersionId,
+	useGetModuleDocumentByIdQuery as useGetModuleDocumentById,
+	usePostModuleDocumentMutation as useCreateModuleDocument,
+	usePutModuleDocumentMutation as useUpdateModuleDocument,
+	useDeleteModuleDocumentMutation as useDeleteModuleDocument,
+} from './module-document';
+
+export {
+	moduleDocumentApi,
+	useGetAllModuleDocumentByVersionId,
+	useGetModuleDocumentById,
+	useCreateModuleDocument,
+	useUpdateModuleDocument,
+	useDeleteModuleDocument,
 };
 
 import {

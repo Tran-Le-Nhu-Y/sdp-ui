@@ -62,12 +62,21 @@ declare interface DeploymentProcessCreateRequest {
 	userId: string;
 	softwareVersionId: string;
 	customerId: string;
+	moduleVersionIds: string[];
 }
 
 declare interface DeploymentProcessUpdateRequest {
-	processId: string;
+	processId: number;
 	status: DeploymentProcessStatus;
 }
+
+declare interface DeploymentProcessMemberUpdateRequest {
+	processId: number;
+	memberId: string;
+	operator: MemberOperator;
+}
+
+declare type MemberOperator = 'ADD' | 'REMOVE';
 
 declare interface DeploymentPhaseTypeCreateRequest {
 	userId: string;
@@ -92,6 +101,12 @@ declare interface DeploymentPhaseUpdateRequest {
 	phaseId: string;
 	numOrder: number;
 	description?: string?;
+}
+
+declare interface DeploymentPhaseMemberUpdateRequest {
+	phaseId: string;
+	memberId: string;
+	operator: MemberOperator;
 }
 
 declare interface DocumentTypeCreateRequest {
@@ -119,6 +134,20 @@ declare interface SoftwareDocumentUpdateRequest {
 	description?: string?;
 	attachmentIds: string[];
 	softwareDocumentId: string;
+}
+declare interface ModuleDocumentCreateRequest {
+	name: string;
+	description?: string?;
+	documentTypeId: string;
+	moduleVersionId: string;
+	attachmentIds?: string[]?;
+}
+
+declare interface ModuleDocumentUpdateRequest {
+	name: string;
+	description?: string?;
+	attachmentIds: string[];
+	moduleDocumentId: string;
 }
 
 declare interface MailTemplateCreateRequest {
