@@ -199,7 +199,7 @@ function UpdateCustomerFormDialog({
 			<form onSubmit={handleSubmit}>
 				<DialogTitle>{t('editCustomer')}</DialogTitle>
 				<DialogContent>
-					{customer.isLoading || (isUpdateLoading && <LinearProgress />)}
+					{(customer.isLoading || isUpdateLoading) && <LinearProgress />}
 					<TextField
 						autoFocus
 						required
@@ -303,8 +303,12 @@ export default function CustomerManagementPage() {
 				<FilterDialog
 					filters={[
 						{
-							key: 'customerName',
+							key: 'name',
 							label: t('customerName'),
+						},
+						{
+							key: 'email',
+							label: t('email'),
 						},
 					]}
 					open={filterVersionDialogOpen}
@@ -314,67 +318,68 @@ export default function CustomerManagementPage() {
 						const query: object = filters.reduce((pre, curr) => {
 							return { ...pre, [curr.key]: curr.value };
 						}, {});
-						setCustomerQuery((prev) => ({ ...prev, ...query }));
+						setCustomerQuery((prev) => ({
+							...query,
+							pageNumber: 0,
+							pageSize: prev.pageSize,
+						}));
 					}}
 					onReset={() => {
-						setCustomerQuery((prev) => ({ ...prev, customerName: '' }));
+						setCustomerQuery((prev) => ({ ...prev, name: '', email: '' }));
 					}}
 				/>
 
 				<CreateCustomerFormDialog />
 			</Stack>
-			{customers.isLoading ? (
-				<LinearProgress />
-			) : (
-				<PaginationTable
-					headers={
-						<>
-							<TableCell key={`customerName`} align="center">
-								{t('customerName')}
-							</TableCell>
+			{(customers.isLoading || customers.isFetching) && <LinearProgress />}
+			<PaginationTable
+				headers={
+					<>
+						<TableCell key={`customerName`} align="center">
+							{t('customerName')}
+						</TableCell>
 
-							<TableCell key={`email`} align="center">
-								{t('email')}
-							</TableCell>
+						<TableCell key={`email`} align="center">
+							{t('email')}
+						</TableCell>
 
-							<TableCell />
-						</>
-					}
-					count={customers.data?.numberOfElements ?? 0}
-					rows={customers.data?.content ?? []}
-					onPageChange={(newPage) =>
-						setCustomerQuery((prev) => {
-							return { ...prev, ...newPage };
-						})
-					}
-					getCell={(row) => (
-						<TableRow key={row.id}>
-							<TableCell key={`customerName`} align="center">
-								{row.name}
-							</TableCell>
+						<TableCell />
+					</>
+				}
+				count={customers.data?.numberOfElements ?? 0}
+				rows={customers.data?.content ?? []}
+				onPageChange={(newPage) =>
+					setCustomerQuery((prev) => {
+						return { ...prev, ...newPage };
+					})
+				}
+				getCell={(row) => (
+					<TableRow key={row.id}>
+						<TableCell key={`customerName`} align="center">
+							{row.name}
+						</TableCell>
 
-							<TableCell key={`email`} align="center">
-								{row.email}
-							</TableCell>
+						<TableCell key={`email`} align="center">
+							{row.email}
+						</TableCell>
 
-							<TableCell>
-								<Stack direction="row">
-									<IconButton
-										size="small"
-										onClick={() => handleEditClick(row.id)}
-									>
-										<EditIcon color="info" />
-									</IconButton>
+						<TableCell>
+							<Stack direction="row">
+								<IconButton
+									size="small"
+									onClick={() => handleEditClick(row.id)}
+								>
+									<EditIcon color="info" />
+								</IconButton>
 
-									<IconButton size="small" onClick={() => handleDelete(row.id)}>
-										<DeleteIcon color="error" />
-									</IconButton>
-								</Stack>
-							</TableCell>
-						</TableRow>
-					)}
-				/>
-			)}
+								<IconButton size="small" onClick={() => handleDelete(row.id)}>
+									<DeleteIcon color="error" />
+								</IconButton>
+							</Stack>
+						</TableCell>
+					</TableRow>
+				)}
+			/>
 			{isEditDialogOpen && selectedCustomerId && (
 				<UpdateCustomerFormDialog
 					customerId={selectedCustomerId}

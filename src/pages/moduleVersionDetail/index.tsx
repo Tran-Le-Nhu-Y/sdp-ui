@@ -97,8 +97,12 @@ function DocumentsOfVersionTable({
 				<FilterDialog
 					filters={[
 						{
-							key: 'versionName',
-							label: t('versionName'),
+							key: 'documentTypeName',
+							label: t('documentTypeName'),
+						},
+						{
+							key: 'moduleDocumentName',
+							label: t('documentName'),
 						},
 					]}
 					open={filterVersionDialogOpen}
@@ -108,8 +112,16 @@ function DocumentsOfVersionTable({
 						const query: object = filters.reduce((pre, curr) => {
 							return { ...pre, [curr.key]: curr.value };
 						}, {});
-						onQueryChange({
+						const defaultProps: Omit<
+							GetAllModuleDocumentQuery,
+							'moduleVersionId'
+						> = {
 							...documentQuery,
+							moduleDocumentName: undefined,
+							documentTypeName: undefined,
+						};
+						onQueryChange({
+							...defaultProps,
 							moduleVersionId: versionId,
 							...query,
 						});
@@ -119,6 +131,7 @@ function DocumentsOfVersionTable({
 							moduleVersionId: versionId,
 							...documentQuery,
 							moduleDocumentName: '',
+							documentTypeName: '',
 						});
 					}}
 				/>

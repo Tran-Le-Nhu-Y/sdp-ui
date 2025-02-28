@@ -27,7 +27,7 @@ export const softwareDocumentApi = createApi({
 				method: 'GET',
 				params: {
 					documentTypeName: documentTypeName,
-					softwareDocumentName: softwareDocumentName,
+					documentName: softwareDocumentName,
 					pageNumber: pageNumber,
 					pageSize: pageSize,
 				},

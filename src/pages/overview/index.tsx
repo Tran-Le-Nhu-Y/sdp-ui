@@ -11,12 +11,18 @@ import {
 	TableCell,
 	TableRow,
 } from '@mui/material';
-import { FilterDialog, PaginationTable } from '../../components';
+import {
+	CollapsibleTable,
+	CollapsibleTableRow,
+	FilterDialog,
+	PaginationTable,
+	TextEditor,
+} from '../../components';
 import { useState } from 'react';
 import { t } from 'i18next';
 import { useNotifications } from '@toolpad/core';
 import { HideDuration } from '../../utils';
-import { useGetAllCustomers } from '../../services';
+import { useGetAllCustomers, useGetAllSoftwareByUserId } from '../../services';
 
 interface TabPanelProps {
 	children?: React.ReactNode;
@@ -82,88 +88,119 @@ export default function OverviewPage() {
 }
 
 const ProductTable = () => {
-	const [productTablePage, setProductTablePage] = useState<TablePage>({
+	const notifications = useNotifications();
+	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
+	const [softwareQuery, setSoftwareQuery] = useState<GetAllSoftwareQuery>({
+		userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+		softwareName: '',
 		pageNumber: 0,
-		pageSize: 5,
+		pageSize: 6,
 	});
-
-	const products = [
-		{
-			id: '1',
-			name: 'Phần mềm A',
-			createAt: '01/01/2025',
-			updateAt: '01/01/2025',
-			status: 'Đang triển khai',
-		},
-		{
-			id: '2',
-			name: 'Phần mềm B',
-			createAt: '01/01/2025',
-			updateAt: '01/01/2025',
-			status: 'Đang triển khai',
-		},
-		{
-			id: '3',
-			name: 'Phần mềm C',
-			createAt: '01/01/2025',
-			updateAt: '01/01/2025',
-			status: 'Đang triển khai',
-		},
-	];
+	const softwares = useGetAllSoftwareByUserId(softwareQuery!, {
+		skip: !softwareQuery,
+	});
+	React.useEffect(() => {
+		if (softwares.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+	}, [notifications, softwares.isError]);
 
 	return (
-		<>
-			<PaginationTable
-				// filterableCols={[
-				// 	{
-				// 		key: 'name',
-				// 		label: 'Phiên bản',
-				// 	},
-				// ]}
+		<Box>
+			<Stack
+				direction="row"
+				justifyContent="space-between"
+				alignItems="center"
+				sx={{ marginBottom: 1 }}
+			>
+				<FilterDialog
+					filters={[
+						{
+							key: 'softwareName',
+							label: t('softwareName'),
+						},
+					]}
+					open={filterDialogOpen}
+					onClose={() => setFilterDialogOpen(false)}
+					onOpen={() => setFilterDialogOpen(true)}
+					onApply={(filters) => {
+						const query: object = filters.reduce((pre, curr) => {
+							return { ...pre, [curr.key]: curr.value };
+						}, {});
+						setSoftwareQuery((prev) => ({ ...prev, ...query }));
+					}}
+					onReset={() => {
+						setSoftwareQuery((prev) => ({ ...prev, softwareName: '' }));
+					}}
+				/>
+			</Stack>
+
+			{softwares.isLoading && <LinearProgress />}
+			<CollapsibleTable
 				headers={
 					<>
-						<TableCell key={`productName`}>{t('productName')}</TableCell>
-						<TableCell key={`dateCreated`} align="center">
+						<TableCell key="name">{t('softwareName')}</TableCell>
+						<TableCell key="createdAt" align="center">
 							{t('dateCreated')}
 						</TableCell>
-						<TableCell key={`lastUpdated`} align="center">
+						<TableCell key="updatedAt" align="center">
 							{t('lastUpdated')}
 						</TableCell>
-						<TableCell key={`status`} align="center">
-							{t('status')}
-						</TableCell>
+						<TableCell />
 						<TableCell />
 					</>
 				}
-				count={products.length ?? 0}
-				rows={products}
-				pageNumber={productTablePage.pageNumber}
-				pageSize={productTablePage.pageSize}
-				onPageChange={(newPage) => setProductTablePage(newPage)}
+				rows={softwares.data?.content ?? []}
+				count={softwares.data?.totalElements ?? 0}
+				pageNumber={softwareQuery?.pageNumber}
+				pageSize={softwareQuery?.pageSize}
+				onPageChange={(newPage) =>
+					setSoftwareQuery((prev) => {
+						return { ...prev, ...newPage };
+					})
+				}
 				getCell={(row) => (
-					<TableRow key={row.id}>
-						<TableCell key={`productName`}>{row.name}</TableCell>
-						<TableCell key={`dateCreated`} align="center">
-							{row.createAt}
-						</TableCell>
-						<TableCell key={`lastUpdated`} align="center">
-							{row.updateAt}
-						</TableCell>
-						<TableCell key={`status`} align="center">
-							{row.status}
-						</TableCell>
-
-						<TableCell>
-							<Stack direction="row">
-								<IconButton size="small" onClick={() => {}}>
-									<RemoveRedEyeIcon color="info" />
-								</IconButton>
+					<CollapsibleTableRow
+						key={row.id}
+						cells={
+							<>
+								<TableCell align="justify" component="th" scope="row">
+									{row.name}
+								</TableCell>
+								<TableCell align="center">{row.createdAt}</TableCell>
+								<TableCell align="center">{row.updatedAt}</TableCell>
+							</>
+						}
+						inner={
+							<Stack spacing={3}>
+								<Box
+									component="form"
+									sx={{
+										'& .MuiTextField-root': {
+											width: '100%',
+										},
+									}}
+									noValidate
+									autoComplete="off"
+								>
+									<Stack
+										mt={1}
+										mb={2}
+										sx={{
+											width: '100%',
+										}}
+									>
+										<TextEditor value={row.description ?? ''} readOnly />
+									</Stack>
+								</Box>
 							</Stack>
-						</TableCell>
-					</TableRow>
+						}
+					/>
 				)}
 			/>
-		</>
+		</Box>
 	);
 };
 
@@ -186,87 +223,83 @@ const CustomerTable = () => {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
-		// else if (software.isSuccess && software.data?.content.length === 0)
-		// 	notifications.show(t('noProduct'), { severity: 'info' });
 	}, [notifications, customers.isError, t]);
 
 	return (
-		<>
-			<Box>
-				<Stack
-					direction="row"
-					justifyContent="space-between"
-					alignItems="center"
-					sx={{ marginBottom: 1 }}
-				>
-					<FilterDialog
-						filters={[
-							{
-								key: 'customerName',
-								label: t('customerName'),
-							},
-						]}
-						open={filterVersionDialogOpen}
-						onClose={() => setFilterVersionDialogOpen(false)}
-						onOpen={() => setFilterVersionDialogOpen(true)}
-						onApply={(filters) => {
-							const query: object = filters.reduce((pre, curr) => {
-								return { ...pre, [curr.key]: curr.value };
-							}, {});
-							setCustomerQuery((prev) => ({ ...prev, ...query }));
-						}}
-						onReset={() => {
-							setCustomerQuery((prev) => ({ ...prev, customerName: '' }));
-						}}
-					/>
-				</Stack>
-				{customers.isLoading ? (
-					<LinearProgress />
-				) : (
-					<PaginationTable
-						headers={
-							<>
-								<TableCell key={`customerName`} align="center">
-									{t('customerName')}
-								</TableCell>
-								{/* <TableCell key={`address`} align="center">
+		<Box>
+			<Stack
+				direction="row"
+				justifyContent="space-between"
+				alignItems="center"
+				sx={{ marginBottom: 1 }}
+			>
+				<FilterDialog
+					filters={[
+						{
+							key: 'customerName',
+							label: t('customerName'),
+						},
+					]}
+					open={filterVersionDialogOpen}
+					onClose={() => setFilterVersionDialogOpen(false)}
+					onOpen={() => setFilterVersionDialogOpen(true)}
+					onApply={(filters) => {
+						const query: object = filters.reduce((pre, curr) => {
+							return { ...pre, [curr.key]: curr.value };
+						}, {});
+						setCustomerQuery((prev) => ({ ...prev, ...query }));
+					}}
+					onReset={() => {
+						setCustomerQuery((prev) => ({ ...prev, customerName: '' }));
+					}}
+				/>
+			</Stack>
+			{customers.isLoading ? (
+				<LinearProgress />
+			) : (
+				<PaginationTable
+					headers={
+						<>
+							<TableCell key={`customerName`} align="center">
+								{t('customerName')}
+							</TableCell>
+							{/* <TableCell key={`address`} align="center">
 						{t('address')}
 					</TableCell> */}
-								<TableCell key={`email`} align="center">
-									{t('email')}
-								</TableCell>
-								{/* <TableCell key={`phoneNumber`} align="center">
+							<TableCell key={`email`} align="center">
+								{t('email')}
+							</TableCell>
+							{/* <TableCell key={`phoneNumber`} align="center">
 						{t('phoneNumber')}
 					</TableCell> */}
-							</>
-						}
-						count={customers.data?.numberOfElements ?? 0}
-						rows={customers.data?.content ?? []}
-						onPageChange={(newPage) =>
-							setCustomerQuery((prev) => {
-								return { ...prev, ...newPage };
-							})
-						}
-						getCell={(row) => (
-							<TableRow key={row.id}>
-								<TableCell key={`customerName`} align="center">
-									{row.name}
-								</TableCell>
-								{/* <TableCell key={`address`} align="center">
+						</>
+					}
+					count={customers.data?.numberOfElements ?? 0}
+					rows={customers.data?.content ?? []}
+					onPageChange={(newPage) =>
+						setCustomerQuery((prev) => {
+							return { ...prev, ...newPage };
+						})
+					}
+					getCell={(row) => (
+						<TableRow key={row.id}>
+							<TableCell key={`customerName`} align="center">
+								{row.name}
+							</TableCell>
+							{/* <TableCell key={`address`} align="center">
 						{row.address}
 					</TableCell> */}
-								<TableCell key={`email`} align="center">
-									{row.email}
-								</TableCell>
-								{/* <TableCell key={`phoneNumber`} align="center">
+							<TableCell key={`email`} align="center">
+								{row.email}
+							</TableCell>
+							{/* <TableCell key={`phoneNumber`} align="center">
 						{row.phoneNumber}
 					</TableCell> */}
-							</TableRow>
-						)}
-					/>
-				)}
-			</Box>
-		</>
+						</TableRow>
+					)}
+				/>
+			)}
+		</Box>
 	);
 };
 
