@@ -107,8 +107,12 @@ function DocumentsOfVersionTable({
 				<FilterDialog
 					filters={[
 						{
-							key: 'versionName',
-							label: t('versionName'),
+							key: 'documentTypeName',
+							label: t('documentTypeName'),
+						},
+						{
+							key: 'softwareDocumentName',
+							label: t('documentName'),
 						},
 					]}
 					open={filterVersionDialogOpen}
@@ -118,8 +122,16 @@ function DocumentsOfVersionTable({
 						const query: object = filters.reduce((pre, curr) => {
 							return { ...pre, [curr.key]: curr.value };
 						}, {});
-						onQueryChange({
+						const defaultProps: Omit<
+							GetAllSoftwareDocumentQuery,
+							'softwareVersionId'
+						> = {
 							...documentQuery,
+							softwareDocumentName: undefined,
+							documentTypeName: undefined,
+						};
+						onQueryChange({
+							...defaultProps,
 							softwareVersionId: versionId,
 							...query,
 						});
@@ -128,6 +140,7 @@ function DocumentsOfVersionTable({
 						onQueryChange({
 							softwareVersionId: versionId,
 							...documentQuery,
+							documentTypeName: '',
 							softwareDocumentName: '',
 						});
 					}}
@@ -143,7 +156,9 @@ function DocumentsOfVersionTable({
 					{t('addDocument')}
 				</Button>
 			</Stack>
-			{/* {deleteSoftwareVersion.isLoading && <LinearProgress />} */}
+			{(deleteSoftwareDocument.isLoading || documents.isFetching) && (
+				<LinearProgress />
+			)}
 			<PaginationTable
 				headers={
 					<>
@@ -288,7 +303,7 @@ function ModuleVersionInner({
 				<FilterDialog
 					filters={[
 						{
-							key: 'versionName',
+							key: 'moduleVersionName',
 							label: t('versionName'),
 						},
 					]}
@@ -320,7 +335,9 @@ function ModuleVersionInner({
 					{t('addModuleVersion')}
 				</Button>
 			</Stack>
-			{deleteModuleVersion.isLoading && <LinearProgress />}
+			{(deleteModuleVersion.isLoading || moduleVersions.isFetching) && (
+				<LinearProgress />
+			)}
 			<PaginationTable
 				headers={
 					<>

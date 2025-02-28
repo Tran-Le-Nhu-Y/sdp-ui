@@ -130,7 +130,9 @@ function SoftwareVersionInner({
 					{t('addSoftwareVersion')}
 				</Button>
 			</Stack>
-			{deleteSoftwareVersion.isLoading && <LinearProgress />}
+			{(deleteSoftwareVersion.isLoading || versions.isFetching) && (
+				<LinearProgress />
+			)}
 			<PaginationTable
 				headers={
 					<>

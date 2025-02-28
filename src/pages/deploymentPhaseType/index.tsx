@@ -202,7 +202,7 @@ function UpdateDeploymentPhaseTypeFormDialog({
 			<form onSubmit={handleSubmit}>
 				<DialogTitle>{t('editCustomer')}</DialogTitle>
 				<DialogContent>
-					{type.isLoading || (isUpdateLoading && <LinearProgress />)}
+					{(type.isLoading || isUpdateLoading) && <LinearProgress />}
 					<TextField
 						autoFocus
 						required
