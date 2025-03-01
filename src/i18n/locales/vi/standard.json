@@ -158,6 +158,8 @@
 	"pending": "Đang chờ",
 	"inProgress": "Đang thực hiện",
 	"done": "Hoàn thành",
+	"moreDetail": "Xem chi tiết",
+	"readMarkup": "Đánh dấu đã đọc",
 
 	"documentLabel": "Nhãn tài liệu",
 	"addDocumentLabel": "Thêm nhãn tài liệu",

@@ -28,7 +28,19 @@ import { PathHolders } from './utils';
 import { useEffect, useMemo, useState } from 'react';
 import keycloak from './services/keycloak';
 import { HydrateFallback } from './components';
-import { Badge, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import {
+	Badge,
+	Divider,
+	IconButton,
+	List,
+	ListItem,
+	ListItemText,
+	Pagination,
+	Popover,
+	Stack,
+	Tooltip,
+	Typography,
+} from '@mui/material';
 import CloudCircleIcon from '@mui/icons-material/CloudCircle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import NotificationsIcon from '@mui/icons-material/Notifications';
@@ -46,17 +58,37 @@ function CustomAppTitle() {
 	);
 }
 
-function CustomToolbarActions({
-	totalNewNotifications,
-}: {
-	totalNewNotifications?: number;
-}) {
+function CustomToolbarActions() {
+	const { t } = useTranslation('standard');
+	const [anchorEl, setAnchorEl] = useState<Element>();
+	const open = Boolean(anchorEl);
+	const totalNewNotifications = 10;
+	const pageSize = 3;
+
+	const data = [
+		{
+			isRead: false,
+			title:
+				'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dolorum nesciunt qui, ipsa odit, a excepturi cum, ullam error reiciendis obcaecati voluptatem! Explicabo voluptatum atque nulla odit similique in dicta eaque!',
+			description:
+				'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dolorum nesciunt qui, ipsa odit, a excepturi cum, ullam error reiciendis obcaecati voluptatem! Explicabo voluptatum atque nulla odit similique in dicta eaque!',
+		},
+		{
+			isRead: true,
+			title: 'reiciendis obcaecati voluptatem!que in dicta eaque!',
+			description: 'Lore nulla odit similique in dicta eaque!',
+		},
+	];
+
 	return (
 		<>
 			<IconButton
 				size="large"
 				aria-label="show new notifications"
 				color="primary"
+				onClick={(e) => {
+					setAnchorEl(e.currentTarget);
+				}}
 			>
 				{totalNewNotifications !== undefined ? (
 					<Badge badgeContent={totalNewNotifications} color="error">
@@ -66,6 +98,70 @@ function CustomToolbarActions({
 					<NotificationsIcon />
 				)}
 			</IconButton>
+			<Popover
+				id={open ? 'notifications-popover' : undefined}
+				open={open}
+				anchorEl={anchorEl}
+				onClose={() => setAnchorEl(undefined)}
+				anchorOrigin={{
+					vertical: 'center',
+					horizontal: 'left',
+				}}
+				transformOrigin={{
+					vertical: 'top',
+					horizontal: 'right',
+				}}
+			>
+				<Stack padding={1.5} alignItems="center" gap={1}>
+					<Typography variant="h5">{t('notification')}</Typography>
+					<List
+						sx={{
+							maxWidth: 400,
+							bgcolor: 'background.paper',
+						}}
+					>
+						{data.map(({ title, description }, idx) => (
+							<>
+								<ListItem alignItems="flex-start">
+									<ListItemText
+										primary={
+											<Typography
+												component="h6"
+												variant="body2"
+												sx={{
+													color: 'text.primary',
+													fontWeight: 600,
+												}}
+											>
+												{title}
+											</Typography>
+										}
+										secondary={
+											<Typography
+												component="p"
+												variant="caption"
+												sx={{
+													color: 'text.primary',
+													display: 'inline',
+												}}
+											>
+												{description}
+											</Typography>
+										}
+									/>
+								</ListItem>
+								{idx < data.length - 1 && <Divider component="li" />}
+							</>
+						))}
+					</List>
+					<Pagination
+						count={10}
+						variant="outlined"
+						shape="rounded"
+						onChange={(_e, page) => {}}
+					/>
+				</Stack>
+			</Popover>
 		</>
 	);
 }
@@ -107,11 +203,6 @@ function App() {
 
 	const navigation: Navigation = useMemo(
 		() => [
-			{
-				segment: 'notification',
-				title: t('notification'),
-				icon: <NotificationsActiveIcon />,
-			},
 			{
 				segment: 'overview',
 				title: t('overview'),
@@ -171,6 +262,11 @@ function App() {
 					},
 				],
 			},
+			{
+				segment: 'notification',
+				title: t('notification'),
+				icon: <NotificationsActiveIcon />,
+			},
 		],
 		[t]
 	);
@@ -197,8 +293,7 @@ function App() {
 			<DashboardLayout
 				slots={{
 					appTitle: CustomAppTitle,
-					toolbarActions: () =>
-						CustomToolbarActions({ totalNewNotifications: 10 }),
+					toolbarActions: CustomToolbarActions,
 				}}
 			>
 				<PageContainer breadcrumbs={[]}>
