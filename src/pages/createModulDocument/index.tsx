@@ -12,7 +12,7 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material';
-import { DragAndDropForm } from '../../components';
+import { DragAndDropForm, FileAttachment } from '../../components';
 import { useEffect, useState } from 'react';
 import { useNotifications } from '@toolpad/core';
 import {
@@ -20,15 +20,6 @@ import {
 	useGetAllDocumentTypesByUserId,
 } from '../../services';
 import { HideDuration, PathHolders } from '../../utils';
-
-interface FileAttachment {
-	id: number;
-	name: string;
-	size: string;
-	status: 'loading' | 'complete' | 'failed';
-	progress: number;
-	error?: string;
-}
 
 export default function CreateModuleDocumentPage() {
 	const { t } = useTranslation();
@@ -97,8 +88,8 @@ export default function CreateModuleDocumentPage() {
 		navigate(-1);
 	};
 
-	const handleFilesChange = (uploadedFiles: FileAttachment[]) => {
-		setFiles(uploadedFiles);
+	const handleFilesChange = (uploadedFiles: File[]) => {
+		// setFiles(uploadedFiles);
 	};
 
 	if (documentTypes.isLoading) return <LinearProgress />;

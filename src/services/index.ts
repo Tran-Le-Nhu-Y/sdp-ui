@@ -1,4 +1,19 @@
 import {
+	fileApi,
+	useGetQuery as useGetFile,
+	useGetMetadataQuery as useGetFileMetadata,
+	usePostMutation as useCreateFile,
+	useDeleteMutation as useDeleteFile,
+} from './file';
+export {
+	fileApi,
+	useGetFile,
+	useGetFileMetadata,
+	useCreateFile,
+	useDeleteFile,
+};
+
+import {
 	customerApi,
 	useGetAllCustomersQuery as useGetAllCustomers,
 	useGetCustomerByIdQuery as useGetCustomerById,

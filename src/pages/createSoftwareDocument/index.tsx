@@ -21,20 +21,10 @@ import {
 } from '../../services';
 import { HideDuration, PathHolders } from '../../utils';
 
-interface FileAttachment {
-	id: number;
-	name: string;
-	size: string;
-	status: 'loading' | 'complete' | 'failed';
-	progress: number;
-	error?: string;
-}
-
 export default function CreateSoftwareDocumentPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const notifications = useNotifications();
-	const [, setFiles] = useState<FileAttachment[]>([]);
 	const softwareVersionId = useParams()[PathHolders.SOFTWARE_VERSION_ID];
 	const [createSoftwareDocumentTrigger] = useCreateSoftwareDocument();
 	const [documentTypeQuery] = useState<GetAllDocumentTypeQuery>({
@@ -97,9 +87,7 @@ export default function CreateSoftwareDocumentPage() {
 		navigate(-1);
 	};
 
-	const handleFilesChange = (uploadedFiles: FileAttachment[]) => {
-		setFiles(uploadedFiles);
-	};
+	const handleFilesChange = (uploadedFiles: File[]) => {};
 
 	if (documentTypes.isLoading) return <LinearProgress />;
 	return (

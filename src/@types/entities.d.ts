@@ -1,8 +1,9 @@
-declare interface File {
+declare interface FileMetadata {
 	id: string;
 	name: string;
 	size: number;
-	status: string;
+	createdAt: string;
+	mimeType: string;
 }
 declare interface SdpDocumentType {
 	id: string;

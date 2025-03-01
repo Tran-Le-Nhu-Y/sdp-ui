@@ -162,6 +162,7 @@
 	"labelName": "Tên nhãn",
 	"color": "Màu sắc",
 	"label": "Nhãn",
+	"fileSizeLimit": "Kích thước tập tin tối đa",
 
 	"addDocument": "Thêm tài liệu",
 	"documentName": "Tên tài liệu",

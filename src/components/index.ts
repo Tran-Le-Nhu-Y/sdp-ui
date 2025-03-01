@@ -5,7 +5,11 @@ import TableInDetail from './TableInDetail';
 import FilterAction from './FilterAction';
 import CreateOrModifyForm from './CreateOrModifyForm';
 import CreateModifyVersionForm from './CreateModifyVersionForm';
-import DragAndDropForm from './DragAndDropForm';
+import {
+	DragAndDropForm,
+	FileAttachment,
+	DragAndDropFormProps,
+} from './DragAndDropForm';
 import TextEditor from './TextEditor';
 import { PaginationTable } from './PaginationTable';
 import { FilterDialog } from './FilterDialog';
@@ -30,4 +34,4 @@ export {
 	CollapsibleDataGrid,
 };
 
-export type { CollapsibleDataGridProps };
+export type { CollapsibleDataGridProps, FileAttachment, DragAndDropFormProps };

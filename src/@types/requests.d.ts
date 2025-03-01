@@ -1,3 +1,8 @@
+declare interface FileCreateRequest {
+	file: File;
+	userId: string;
+}
+
 declare interface CustomerCreateRequest {
 	name: string;
 	email: string;
