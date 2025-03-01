@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 export const fileApi = createApi({
 	reducerPath: 'fileApi',
 	baseQuery: fetchBaseQuery({
-		baseUrl: `http://35.221.182.145:8091/api/v1/file`,
+		baseUrl: `${import.meta.env.VITE_FILE_API}/v1/file`,
 		jsonContentType: 'application/json',
 		timeout: 300000,
 	}),
