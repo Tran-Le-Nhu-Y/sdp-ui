@@ -20,15 +20,6 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { PaginationTable } from './PaginationTable';
 // import { useNavigate } from 'react-router-dom';
 
-// interface FileAttachment {
-// 	id: number;
-// 	name: string;
-// 	size: string;
-// 	status: 'loading' | 'complete' | 'failed';
-// 	progress: number;
-// 	error?: string;
-// }
-
 interface CreateModifyVersionFormProps {
 	title: string;
 	label: string;
@@ -57,10 +48,10 @@ const CreateModifyVersionForm: React.FC<CreateModifyVersionFormProps> = ({
 	//const navigate = useNavigate();
 
 	const [productName, setProductName] = useState(
-		showModifyValues?.productNameToShow || '',
+		showModifyValues?.productNameToShow || ''
 	);
 	const [description, setDescription] = useState(
-		showModifyValues?.descriptionToShow || '',
+		showModifyValues?.descriptionToShow || ''
 	);
 
 	// const handleFilesChange = (uploadedFiles: FileAttachment[]) => {

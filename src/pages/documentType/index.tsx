@@ -181,11 +181,13 @@ function DocumentTypePage() {
 	const isLoading = useMemo(
 		() =>
 			documentTypes.isLoading ||
+			documentTypes.isFetching ||
 			createDocumentType.isLoading ||
 			updateDocumentType.isLoading,
 		[
 			createDocumentType.isLoading,
 			documentTypes.isLoading,
+			documentTypes.isFetching,
 			updateDocumentType.isLoading,
 		],
 	);
@@ -252,130 +254,127 @@ function DocumentTypePage() {
 					</Stack>
 				</Box>
 			)}
-			{isLoading ? (
-				<LinearProgress />
-			) : (
-				<Box>
-					<Stack
-						direction="row"
-						justifyContent="space-between"
-						alignItems="center"
-						sx={{ marginBottom: 1 }}
-					>
-						<FilterDialog
-							filters={[
-								{
-									key: 'documentTypeName',
-									label: t('documentTypeName'),
-								},
-							]}
-							open={filterDialogOpen}
-							onClose={() => setFilterDialogOpen(false)}
-							onOpen={() => setFilterDialogOpen(true)}
-							onApply={(filters) => {
-								const query: object = filters.reduce((pre, curr) => {
-									return { ...pre, [curr.key]: curr.value };
-								}, {});
-								setDocumentTypeQuery((prev) => ({ ...prev, ...query }));
-							}}
-							onReset={() => {
-								setDocumentTypeQuery((prev) => ({
-									...prev,
-									documentTypeName: '',
-								}));
-							}}
-						/>
-						<Button
-							variant="contained"
-							onClick={() => setShowCreatingDocumentTypePanel(true)}
-						>
-							{t('addDocumentType')}
-						</Button>
-					</Stack>
-					{deleteDocumentType.isLoading && <LinearProgress />}
-					<PaginationTable
-						headers={
-							<>
-								<TableCell key={`label`}>{t('documentTypeName')}</TableCell>
-								<TableCell key={`description`} align="center">
-									{t('description')}
-								</TableCell>
-								<TableCell key={`createdAt`} align="center">
-									{t('dateCreated')}
-								</TableCell>
-								<TableCell key={`updatedAt`} align="center">
-									{t('lastUpdated')}
-								</TableCell>
-								<TableCell />
-							</>
-						}
-						count={documentTypes.data?.totalElements ?? 0}
-						rows={documentTypes.data?.content ?? []}
-						onPageChange={(newPage) =>
-							setDocumentTypeQuery((prev) => {
-								return { ...prev, ...newPage };
-							})
-						}
-						getCell={(row) => (
-							<TableRow key={row.id}>
-								{editingId === row.id ? (
-									<EditableDocumentType
-										isLoading={documentType.isLoading}
-										name={currentDocumentType?.name ?? ''}
-										description={currentDocumentType?.description ?? ''}
-										onNameChange={(e) => {
-											setCurrentDocumentType((prev) => ({
-												...prev!,
-												name: e.target.value,
-											}));
-										}}
-										onDescriptionChange={(e) => {
-											setCurrentDocumentType((prev) => ({
-												...prev!,
-												description: e.target.value,
-											}));
-										}}
-										onSave={onUpdatingSave}
-										onCancel={onUpdatingCancel}
-										onDelete={() => {
-											onDelete(row.id);
-										}}
-									/>
-								) : (
-									<>
-										<TableCell key={`documentTypeName`}>{row.name}</TableCell>
-										<TableCell key={`description`} align="center">
-											{row.description}
-										</TableCell>
-										<TableCell key={`createAt`} align="center">
-											{row.createdAt}
-										</TableCell>
-										<TableCell key={`updateAt`} align="center">
-											{row.updatedAt}
-										</TableCell>
-										<TableCell>
-											<Stack direction="row">
-												<IconButton
-													size="small"
-													onClick={() => setEditingId(row.id)}
-												>
-													<EditIcon color="info" />
-												</IconButton>
-												<IconButton
-													size="small"
-													onClick={async () => onDelete(row.id)}
-												>
-													<DeleteIcon color="error" />
-												</IconButton>
-											</Stack>
-										</TableCell>
-									</>
-								)}
-							</TableRow>
-						)}
+			{isLoading && <LinearProgress />}
+			<Box>
+				<Stack
+					direction="row"
+					justifyContent="space-between"
+					alignItems="center"
+					sx={{ marginBottom: 1 }}
+				>
+					<FilterDialog
+						filters={[
+							{
+								key: 'documentTypeName',
+								label: t('documentTypeName'),
+							},
+						]}
+						open={filterDialogOpen}
+						onClose={() => setFilterDialogOpen(false)}
+						onOpen={() => setFilterDialogOpen(true)}
+						onApply={(filters) => {
+							const query: object = filters.reduce((pre, curr) => {
+								return { ...pre, [curr.key]: curr.value };
+							}, {});
+							setDocumentTypeQuery((prev) => ({ ...prev, ...query }));
+						}}
+						onReset={() => {
+							setDocumentTypeQuery((prev) => ({
+								...prev,
+								documentTypeName: '',
+							}));
+						}}
 					/>
-				</Box>
-			)}
+					<Button
+						variant="contained"
+						onClick={() => setShowCreatingDocumentTypePanel(true)}
+					>
+						{t('addDocumentType')}
+					</Button>
+				</Stack>
+				{deleteDocumentType.isLoading && <LinearProgress />}
+				<PaginationTable
+					headers={
+						<>
+							<TableCell key={`label`}>{t('documentTypeName')}</TableCell>
+							<TableCell key={`description`} align="center">
+								{t('description')}
+							</TableCell>
+							<TableCell key={`createdAt`} align="center">
+								{t('dateCreated')}
+							</TableCell>
+							<TableCell key={`updatedAt`} align="center">
+								{t('lastUpdated')}
+							</TableCell>
+							<TableCell />
+						</>
+					}
+					count={documentTypes.data?.totalElements ?? 0}
+					rows={documentTypes.data?.content ?? []}
+					onPageChange={(newPage) =>
+						setDocumentTypeQuery((prev) => {
+							return { ...prev, ...newPage };
+						})
+					}
+					getCell={(row) => (
+						<TableRow key={row.id}>
+							{editingId === row.id ? (
+								<EditableDocumentType
+									isLoading={documentType.isLoading}
+									name={currentDocumentType?.name ?? ''}
+									description={currentDocumentType?.description ?? ''}
+									onNameChange={(e) => {
+										setCurrentDocumentType((prev) => ({
+											...prev!,
+											name: e.target.value,
+										}));
+									}}
+									onDescriptionChange={(e) => {
+										setCurrentDocumentType((prev) => ({
+											...prev!,
+											description: e.target.value,
+										}));
+									}}
+									onSave={onUpdatingSave}
+									onCancel={onUpdatingCancel}
+									onDelete={() => {
+										onDelete(row.id);
+									}}
+								/>
+							) : (
+								<>
+									<TableCell key={`documentTypeName`}>{row.name}</TableCell>
+									<TableCell key={`description`} align="center">
+										{row.description}
+									</TableCell>
+									<TableCell key={`createAt`} align="center">
+										{row.createdAt}
+									</TableCell>
+									<TableCell key={`updateAt`} align="center">
+										{row.updatedAt}
+									</TableCell>
+									<TableCell>
+										<Stack direction="row">
+											<IconButton
+												size="small"
+												onClick={() => setEditingId(row.id)}
+											>
+												<EditIcon color="info" />
+											</IconButton>
+											<IconButton
+												size="small"
+												onClick={async () => onDelete(row.id)}
+											>
+												<DeleteIcon color="error" />
+											</IconButton>
+										</Stack>
+									</TableCell>
+								</>
+							)}
+						</TableRow>
+					)}
+				/>
+			</Box>
 		</Stack>
 	);
 }

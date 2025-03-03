@@ -5,25 +5,23 @@ import {
 	Button,
 	IconButton,
 	LinearProgress,
-	List,
-	ListItem,
-	ListItemText,
 	Stack,
 	Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { HideDuration, PathHolders, RoutePaths } from '../../utils';
 import {
 	useDeleteSoftwareDocument,
+	useGetAllSoftDocAttachments,
 	useGetSoftwareDocumentById,
 } from '../../services';
 import { useDialogs, useNotifications } from '@toolpad/core';
 import { Delete, Edit } from '@mui/icons-material';
+import { AttachmentList } from '../../components';
 
 export default function SoftwareDocumentDetailPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const files = useState();
 	const dialogs = useDialogs();
 	const notifications = useNotifications();
 	const documentId = useParams()[PathHolders.SOFTWARE_DOCUMENT_ID];
@@ -42,7 +40,6 @@ export default function SoftwareDocumentDetailPage() {
 	const handleCancel = () => {
 		navigate(-1);
 	};
-
 	const [deleteDocumentTrigger] = useDeleteSoftwareDocument();
 	const handleDelete = async (documentId: string) => {
 		const confirmed = await dialogs.confirm(
@@ -50,11 +47,11 @@ export default function SoftwareDocumentDetailPage() {
 			{
 				okText: t('yes'),
 				cancelText: t('cancel'),
-			},
+			}
 		);
 		if (!confirmed) return;
 		try {
-			await deleteDocumentTrigger(documentId);
+			await deleteDocumentTrigger(documentId).unwrap();
 			navigate(-1);
 			notifications.show(t('deleteSoftwareDocumentSuccess'), {
 				severity: 'success',
@@ -69,12 +66,17 @@ export default function SoftwareDocumentDetailPage() {
 		}
 	};
 
+	const attachments = useGetAllSoftDocAttachments(documentId!, {
+		skip: !documentId,
+	});
+
 	if (softwareDocument.isLoading) return <LinearProgress />;
 	return (
 		<Stack>
 			<Typography variant="h5" mb={3} textAlign="center" color="primary">
 				{t('documentInfor')}
 			</Typography>
+
 			<Box display="flex" alignItems="center" justifyContent={'flex-end'}>
 				<Box>
 					<IconButton
@@ -83,8 +85,8 @@ export default function SoftwareDocumentDetailPage() {
 							navigate(
 								RoutePaths.MODIFY_SOFTWARE_DOCUMENT.replace(
 									`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
-									documentId || '',
-								),
+									documentId || ''
+								)
 							)
 						}
 					>
@@ -98,49 +100,33 @@ export default function SoftwareDocumentDetailPage() {
 					</IconButton>
 				</Box>
 			</Box>
+
 			<Stack spacing={3}>
 				<Stack direction={'row'} spacing={2} alignItems={'center'}>
-					<Typography variant="body1">
-						<strong>{t('documentTypeName')}:</strong>
-					</Typography>
+					<Typography variant="h6">{t('documentTypeName')}:</Typography>
 					<Typography variant="body1">
 						{softwareDocument.data?.typeName}
 					</Typography>
 				</Stack>
 				<Stack direction={'row'} spacing={2} alignItems={'center'}>
-					<Typography variant="body1">
-						<strong>{t('documentName')}:</strong>
-					</Typography>
+					<Typography variant="h6">{t('documentName')}:</Typography>
 					<Typography variant="body1">{softwareDocument.data?.name}</Typography>
 				</Stack>
 				<Stack direction={'row'} spacing={2} alignItems={'center'}>
-					<Typography variant="body1">
-						<strong>{t('description')}:</strong>
-					</Typography>
+					<Typography variant="h6">{t('description')}:</Typography>
 					<Typography variant="body1">
 						{softwareDocument.data?.description}
 					</Typography>
 				</Stack>
 			</Stack>
 
-			<Stack mt={1}>
-				<List sx={{ marginTop: 2 }}>
-					<Typography variant="body1">Danh sách file đã tải lên:</Typography>
-					{files.length > 0 ? (
-						files.map((_file, index) => (
-							<ListItem key={index}>
-								<ListItemText
-								// primary={file.name}
-								// secondary={`${(file.size / 1024).toFixed(2)} KB`}
-								/>
-							</ListItem>
-						))
-					) : (
-						<Typography variant="body2" color="textSecondary">
-							{t('noFileUpload')}
-						</Typography>
-					)}
-				</List>
+			<Stack mt={1} spacing={1}>
+				<Typography variant="h6">{t('uploadedFiles')}:</Typography>
+				{(attachments.data?.length ?? 0) > 0 ? (
+					<AttachmentList attachments={attachments.data ?? []} />
+				) : (
+					<Typography variant="h6">{t('noFileUpload')}</Typography>
+				)}
 			</Stack>
 
 			<Box mt={3} display="flex" justifyContent="center" gap={2}>

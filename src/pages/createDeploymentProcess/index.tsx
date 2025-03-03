@@ -10,7 +10,11 @@ import {
 	Tooltip,
 	Typography,
 } from '@mui/material';
-import { CollapsibleDataGrid, DragAndDropForm } from '../../components';
+import {
+	CollapsibleDataGrid,
+	DragAndDropForm,
+	FileAttachment,
+} from '../../components';
 import { useEffect, useMemo, useState } from 'react';
 import {
 	useCreateDeploymentProcess,
@@ -22,6 +26,7 @@ import { DataGridProps, GridColDef } from '@mui/x-data-grid';
 import { HideDuration, RoutePaths } from '../../utils';
 import { useNotifications } from '@toolpad/core';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 interface FileAttachment {
 	id: number;
 	name: string;
@@ -491,8 +496,8 @@ export default function CreateDeploymentProcessPage() {
 		navigate(RoutePaths.DEPLOYMENT_PROCESS);
 	};
 
-	const handleFilesChange = (uploadedFiles: FileAttachment[]) => {
-		setFiles(uploadedFiles);
+	const handleFilesChange = (uploadedFiles: File[]) => {
+		// setFiles(uploadedFiles);
 	};
 
 	return (

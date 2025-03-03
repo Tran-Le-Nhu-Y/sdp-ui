@@ -9,6 +9,14 @@ declare interface PagingWrapper<T> {
 	totalPages: number;
 }
 
+declare interface FileMetadataResponse {
+	id: string;
+	name: string;
+	size: number;
+	createdAtMs: number;
+	mimeType: string;
+}
+
 declare interface CustomerResponse {
 	id: string;
 	name: string;

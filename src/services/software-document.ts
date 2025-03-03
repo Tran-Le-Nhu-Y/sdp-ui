@@ -1,16 +1,22 @@
 // Need to use the React-specific entry point to import createApi
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/software-document-mapper';
+import { toEntity as toFileMetadata } from './mapper/file-mapper';
 
+const baseUrl = `${import.meta.env.VITE_API_GATEWAY}/software/document`;
 // Define a service using a base URL and expected endpoints
 export const softwareDocumentApi = createApi({
 	reducerPath: 'softwareDocumentApi',
 	baseQuery: fetchBaseQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/document`,
+		baseUrl: baseUrl,
 		jsonContentType: 'application/json',
 		timeout: 300000,
 	}),
-	tagTypes: ['PagingSoftwareDocument', 'SoftwareDocument'],
+	tagTypes: [
+		'PagingSoftwareDocument',
+		'SoftwareDocument',
+		'SoftwareDocumentAttachment',
+	],
 	endpoints: (builder) => ({
 		getAllSoftwareDocumentsByVersionId: builder.query<
 			PagingWrapper<SoftwareDocument>,
@@ -27,7 +33,7 @@ export const softwareDocumentApi = createApi({
 				method: 'GET',
 				params: {
 					documentTypeName: documentTypeName,
-					softwareDocumentName: softwareDocumentName,
+					documentName: softwareDocumentName,
 					pageNumber: pageNumber,
 					pageSize: pageSize,
 				},
@@ -71,7 +77,6 @@ export const softwareDocumentApi = createApi({
 				return toEntity(rawResult);
 			},
 		}),
-
 		postSoftwareDocument: builder.mutation<
 			SoftwareDocument,
 			SoftwareDocumentCreateRequest
@@ -103,7 +108,6 @@ export const softwareDocumentApi = createApi({
 				body: {
 					name: data.name,
 					description: data.description,
-					attachmentIds: data.attachmentIds,
 				},
 			}),
 			invalidatesTags(_result, _error, arg) {
@@ -130,6 +134,69 @@ export const softwareDocumentApi = createApi({
 				];
 			},
 		}),
+		getAllAttachments: builder.query<FileMetadata[], string>({
+			queryFn: async (documentId) => {
+				try {
+					const atmIdsResponse = await fetch(
+						`${baseUrl}/${documentId}/attachment`,
+						{
+							method: 'GET',
+						}
+					);
+					const atmIds: string[] = await atmIdsResponse.json();
+					const atmMetadataResponses: FileMetadataResponse[] =
+						await Promise.all(
+							atmIds.map(async (atmId) => {
+								const response = await fetch(
+									`${import.meta.env.VITE_FILE_API}/v1/file/${atmId}/metadata`,
+									{
+										method: 'GET',
+									}
+								);
+								return response.json();
+							})
+						);
+					return {
+						data: atmMetadataResponses.map(toFileMetadata),
+					};
+				} catch (error) {
+					console.error(error);
+					return {
+						error: {
+							status: 500,
+							data: {
+								message: 'Error when fetching software document attachments',
+							},
+						},
+					};
+				}
+			},
+			providesTags(_result, _error, arg) {
+				const documentId = arg;
+				return [
+					{
+						type: 'SoftwareDocumentAttachment',
+						id: documentId,
+					} as const,
+				];
+			},
+		}),
+		putAttachment: builder.mutation<
+			void,
+			SoftwareDocumentAttachmentUpdateRequest
+		>({
+			query: ({ documentId, attachmentId, operator }) => ({
+				url: `/${documentId}/attachment`,
+				method: 'PUT',
+				body: {
+					attachmentId: attachmentId,
+					operator: operator,
+				},
+			}),
+			invalidatesTags() {
+				return [{ type: 'SoftwareDocumentAttachment' } as const];
+			},
+		}),
 	}),
 });
 
@@ -141,4 +208,6 @@ export const {
 	usePostSoftwareDocumentMutation,
 	usePutSoftwareDocumentMutation,
 	useDeleteSoftwareDocumentMutation,
+	useGetAllAttachmentsQuery,
+	usePutAttachmentMutation,
 } = softwareDocumentApi;

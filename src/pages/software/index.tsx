@@ -123,14 +123,16 @@ function SoftwareVersionInner({
 					variant="contained"
 					onClick={() =>
 						navigate(
-							`${RoutePaths.CREATE_SOFTWARE_VERSION.replace(`:${PathHolders.SOFTWARE_ID}`, softwareId)}`,
+							`${RoutePaths.CREATE_SOFTWARE_VERSION.replace(`:${PathHolders.SOFTWARE_ID}`, softwareId)}`
 						)
 					}
 				>
 					{t('addSoftwareVersion')}
 				</Button>
 			</Stack>
-			{deleteSoftwareVersion.isLoading && <LinearProgress />}
+			{(deleteSoftwareVersion.isLoading || versions.isFetching) && (
+				<LinearProgress />
+			)}
 			<PaginationTable
 				headers={
 					<>
@@ -168,8 +170,8 @@ function SoftwareVersionInner({
 										navigate(
 											RoutePaths.SOFTWARE_VERSION.replace(
 												`:${PathHolders.SOFTWARE_ID}`,
-												softwareId,
-											).replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, row.id),
+												softwareId
+											).replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, row.id)
 										)
 									}
 								>
@@ -181,8 +183,8 @@ function SoftwareVersionInner({
 										navigate(
 											RoutePaths.MODIFY_SOFTWARE_VERSION.replace(
 												`:${PathHolders.SOFTWARE_VERSION_ID}`,
-												row.id,
-											),
+												row.id
+											)
 										)
 									}
 								>
@@ -332,8 +334,8 @@ export default function SoftwarePage() {
 											navigate(
 												RoutePaths.MODIFY_SOFTWARE.replace(
 													`:${PathHolders.SOFTWARE_ID}`,
-													row.id,
-												),
+													row.id
+												)
 											)
 										}
 									>

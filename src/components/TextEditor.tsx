@@ -14,13 +14,14 @@ export default function TextEditor({
 		value: string,
 		delta: DeltaStatic,
 		source: Sources,
-		editor: ReactQuill.UnprivilegedEditor,
+		editor: ReactQuill.UnprivilegedEditor
 	) => void;
 }) {
 	const toolbarOptions = [
 		['bold', 'italic', 'underline', 'strike'], // toggled buttons
 		['blockquote', 'code-block'],
-		['link', 'image', 'video', 'formula'],
+		// ['link', 'image', 'video', 'formula'],
+		['link', 'formula'],
 
 		[{ header: 1 }, { header: 2 }], // custom button values
 		[{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],

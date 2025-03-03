@@ -16,16 +16,11 @@ export const documentTypeApi = createApi({
 			PagingWrapper<SdpDocumentType>,
 			GetAllDocumentTypeQuery
 		>({
-			query: ({
-				userId,
-				documentTypeName: typeName,
-				pageNumber,
-				pageSize,
-			}) => ({
+			query: ({ userId, documentTypeName, pageNumber, pageSize }) => ({
 				url: `${userId}/user`,
 				method: 'GET',
 				params: {
-					typeName: typeName,
+					documentTypeName: documentTypeName,
 					pageNumber: pageNumber,
 					pageSize: pageSize,
 				},

@@ -8,7 +8,7 @@ export const softwareApi = createApi({
 		jsonContentType: 'application/json',
 		timeout: 300000,
 	}),
-	tagTypes: ['PagingSoftware', 'Software'],
+	tagTypes: ['PagingSoftware', 'FileMetadata'],
 	endpoints: (builder) => ({
 		getAllSoftwareByUserId: builder.query<
 			PagingWrapper<Software>,
@@ -32,7 +32,7 @@ export const softwareApi = createApi({
 				return result
 					? [
 							...result.content.map(
-								({ id }) => ({ type: 'Software', id }) as const,
+								({ id }) => ({ type: 'Software', id }) as const
 							),
 							pagingTag,
 						]
@@ -58,7 +58,7 @@ export const softwareApi = createApi({
 				return result
 					? [
 							{
-								type: 'Software',
+								type: 'FileMetadata',
 								id: result.id,
 							} as const,
 						]
@@ -103,7 +103,7 @@ export const softwareApi = createApi({
 				const { softwareId } = arg;
 				return [
 					{ type: 'PagingSoftware' } as const,
-					{ type: 'Software', id: softwareId } as const,
+					{ type: 'FileMetadata', id: softwareId } as const,
 				];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
@@ -119,7 +119,7 @@ export const softwareApi = createApi({
 				const productId = arg;
 				return [
 					{ type: 'PagingSoftware' } as const,
-					{ type: 'Software', id: productId } as const,
+					{ type: 'FileMetadata', id: productId } as const,
 				];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
