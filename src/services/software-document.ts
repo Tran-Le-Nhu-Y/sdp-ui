@@ -108,7 +108,6 @@ export const softwareDocumentApi = createApi({
 				body: {
 					name: data.name,
 					description: data.description,
-					attachmentIds: data.attachmentIds,
 				},
 			}),
 			invalidatesTags(_result, _error, arg) {
