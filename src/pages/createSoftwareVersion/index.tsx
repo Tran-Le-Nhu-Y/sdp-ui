@@ -9,7 +9,8 @@ import { useCreateSoftwareVersion } from '../../services';
 export default function CreateSoftwareVersionPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const [createSoftwareVersionTrigger] = useCreateSoftwareVersion();
+	const [createSoftwareVersionTrigger, { isLoading: isCreating }] =
+		useCreateSoftwareVersion();
 	const notifications = useNotifications();
 	const softwareId = useParams()[PathHolders.SOFTWARE_ID];
 
@@ -48,6 +49,7 @@ export default function CreateSoftwareVersionPage() {
 	return (
 		<Box>
 			<CreateOrModifyForm
+				loading={isCreating}
 				title={t('addSoftwareVersion')}
 				label={t('versionName')}
 				onSubmit={handleSubmit}

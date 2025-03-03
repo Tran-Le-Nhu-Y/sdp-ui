@@ -1,3 +1,11 @@
+import { fetchBaseQuery, FetchBaseQueryArgs } from '@reduxjs/toolkit/query';
+
+export function fetchAuthQuery(config?: FetchBaseQueryArgs) {
+	return fetchBaseQuery({
+		...config,
+	});
+}
+
 export enum TextLength {
 	Short = 6,
 	Medium = 100,
@@ -67,4 +75,10 @@ export enum RoutePaths {
 export enum HideDuration {
 	fast = 3000,
 	slow = 5000,
+}
+
+export function getFileSize(bytes: number) {
+	if (bytes < 1e3) return `${bytes} bytes`;
+	else if (bytes >= 1e3 && bytes < 1e6) return `${(bytes / 1e3).toFixed(1)} KB`;
+	else return `${(bytes / 1e6).toFixed(1)} MB`;
 }

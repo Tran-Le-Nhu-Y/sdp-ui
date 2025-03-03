@@ -5,7 +5,11 @@ import TableInDetail from './TableInDetail';
 import FilterAction from './FilterAction';
 import CreateOrModifyForm from './CreateOrModifyForm';
 import CreateModifyVersionForm from './CreateModifyVersionForm';
-import DragAndDropForm from './DragAndDropForm';
+import {
+	DragAndDropForm,
+	FileAttachment,
+	DragAndDropFormProps,
+} from './DragAndDropForm';
 import TextEditor from './TextEditor';
 import { PaginationTable } from './PaginationTable';
 import { FilterDialog } from './FilterDialog';
@@ -13,6 +17,7 @@ import {
 	CollapsibleDataGrid,
 	CollapsibleDataGridProps,
 } from './CollapsibleDataGrid';
+import { AttachmentList, AttachmentListProps } from './AttachmentList';
 
 export {
 	HydrateFallback,
@@ -28,6 +33,12 @@ export {
 	TextEditor,
 	FilterDialog,
 	CollapsibleDataGrid,
+	AttachmentList,
 };
 
-export type { CollapsibleDataGridProps };
+export type {
+	CollapsibleDataGridProps,
+	FileAttachment,
+	DragAndDropFormProps,
+	AttachmentListProps,
+};

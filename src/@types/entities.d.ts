@@ -1,9 +1,14 @@
-declare interface File {
+declare interface FileMetadata {
 	id: string;
 	name: string;
 	size: number;
-	status: string;
+	createdAt: string;
+	mimeType: string;
+	url: string;
 }
+
+declare type FileOperator = 'ADD' | 'REMOVE';
+
 declare interface SdpDocumentType {
 	id: string;
 	name: string;

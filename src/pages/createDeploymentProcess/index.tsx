@@ -1,7 +1,11 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, LinearProgress, Stack, Typography } from '@mui/material';
-import { CollapsibleDataGrid, DragAndDropForm } from '../../components';
+import {
+	CollapsibleDataGrid,
+	DragAndDropForm,
+	FileAttachment,
+} from '../../components';
 import { useEffect, useMemo, useState } from 'react';
 import {
 	useCreateDeploymentProcess,
@@ -12,15 +16,6 @@ import {
 import { DataGridProps, GridColDef } from '@mui/x-data-grid';
 import { HideDuration, RoutePaths } from '../../utils';
 import { useNotifications } from '@toolpad/core';
-
-interface FileAttachment {
-	id: number;
-	name: string;
-	size: string;
-	status: 'loading' | 'complete' | 'failed';
-	progress: number;
-	error?: string;
-}
 
 function SelectCustomerSection({
 	open,
@@ -454,8 +449,8 @@ export default function CreateDeploymentProcessPage() {
 		navigate(RoutePaths.DEPLOYMENT_PROCESS);
 	};
 
-	const handleFilesChange = (uploadedFiles: FileAttachment[]) => {
-		setFiles(uploadedFiles);
+	const handleFilesChange = (uploadedFiles: File[]) => {
+		// setFiles(uploadedFiles);
 	};
 
 	return (

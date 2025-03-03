@@ -10,6 +10,7 @@ import {
 	deploymentProcessApi,
 	mailTemplateApi,
 	moduleDocumentApi,
+	fileApi,
 } from '../services';
 import { moduleApi } from '../services/module';
 import { moduleVersionApi } from '../services/module-version';
@@ -28,6 +29,7 @@ export const store = configureStore({
 		[moduleVersionApi.reducerPath]: moduleVersionApi.reducer,
 		[moduleDocumentApi.reducerPath]: moduleDocumentApi.reducer,
 		[mailTemplateApi.reducerPath]: mailTemplateApi.reducer,
+		[fileApi.reducerPath]: fileApi.reducer,
 	},
 	// Adding the api middleware enables caching, invalidation, polling,
 	// and other useful features of `rtk-query`.
@@ -45,6 +47,7 @@ export const store = configureStore({
 			moduleVersionApi.middleware,
 			moduleDocumentApi.middleware,
 			mailTemplateApi.middleware,
+			fileApi.middleware
 		);
 	},
 });
