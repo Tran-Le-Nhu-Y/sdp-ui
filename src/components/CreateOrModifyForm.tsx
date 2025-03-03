@@ -1,11 +1,19 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography } from '@mui/material';
+import {
+	Box,
+	Button,
+	LinearProgress,
+	Stack,
+	TextField,
+	Typography,
+} from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
 import 'react-quill/dist/quill.snow.css';
 import TextEditor from './TextEditor';
 
 interface CreateOrModifyFormProps {
+	loading?: boolean;
 	title: string;
 	label: string;
 	showModifyValues?: {
@@ -17,6 +25,7 @@ interface CreateOrModifyFormProps {
 }
 
 const CreateOrModifyForm: React.FC<CreateOrModifyFormProps> = ({
+	loading,
 	title,
 	label,
 	showModifyValues,
@@ -33,10 +42,11 @@ const CreateOrModifyForm: React.FC<CreateOrModifyFormProps> = ({
 	};
 
 	return (
-		<Box p={1} maxWidth={1000} mx="auto">
+		<Stack p={1} maxWidth={1000} mx="auto" spacing={1}>
 			<Typography variant="h5" mb={3} textAlign="center">
 				{title}
 			</Typography>
+			{loading && <LinearProgress />}
 			<Box mb={1}>
 				<TextField
 					fullWidth
@@ -68,7 +78,7 @@ const CreateOrModifyForm: React.FC<CreateOrModifyFormProps> = ({
 					{t('cancel')}
 				</Button>
 			</Box>
-		</Box>
+		</Stack>
 	);
 };
 

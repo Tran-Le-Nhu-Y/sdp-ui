@@ -16,6 +16,7 @@ import { DragAndDropForm } from '../../components';
 import { useEffect, useState } from 'react';
 import { useNotifications } from '@toolpad/core';
 import {
+	useCreateFile,
 	useCreateSoftwareDocument,
 	useGetAllDocumentTypesByUserId,
 } from '../../services';
@@ -26,9 +27,10 @@ export default function CreateSoftwareDocumentPage() {
 	const navigate = useNavigate();
 	const notifications = useNotifications();
 	const softwareVersionId = useParams()[PathHolders.SOFTWARE_VERSION_ID];
-	const [createSoftwareDocumentTrigger] = useCreateSoftwareDocument();
+	const userId = 'd28bf637-280e-49b5-b575-5278b34d1dfe';
+
 	const [documentTypeQuery] = useState<GetAllDocumentTypeQuery>({
-		userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+		userId: userId,
 		documentTypeName: '',
 		pageNumber: 0,
 		pageSize: 6,
@@ -44,36 +46,62 @@ export default function CreateSoftwareDocumentPage() {
 			});
 	}, [notifications, documentTypes.error, t]);
 
-	const [softwareDocumentCreating, setSoftwareDocumentCreating] =
-		useState<SoftwareDocumentCreateRequest>({
-			softwareVersionId: '',
-			documentTypeId: '',
-			name: '',
-		});
+	const [createTrigger, { isLoading: isCreating }] =
+		useCreateSoftwareDocument();
+	const [documentCreating, setDocumentCreating] = useState<
+		Partial<SoftwareDocumentCreateRequest>
+	>({});
+
+	const [files, setFiles] = useState<File[]>([]);
+	const [uploadFileTrigger] = useCreateFile();
+	const handleFilesChange = (uploadedFiles: File[]) => {
+		setFiles(uploadedFiles);
+	};
+	const handleCancel = () => {
+		navigate(-1);
+	};
 
 	const handleSubmit = async () => {
-		if (!softwareVersionId) return;
-		const newSoftwareDoc: SoftwareDocumentCreateRequest = {
-			softwareVersionId: softwareVersionId,
-			documentTypeId: softwareDocumentCreating.documentTypeId,
-			name: softwareDocumentCreating.name,
-			description: softwareDocumentCreating.description,
-			attachmentIds: [],
+		const validate = () => {
+			if (!documentCreating.documentTypeId) {
+				notifications.show(t('documentTypeRequired'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+
+			if (!documentCreating.name?.trim()) {
+				notifications.show(t('softwareDocumentNameRequired'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+
+			return true;
 		};
-		if (!softwareDocumentCreating.name.trim()) {
-			notifications.show(t('softwareDocumentNameRequired'), {
-				severity: 'warning',
-				autoHideDuration: HideDuration.fast,
-			});
-			return;
-		}
+		if (!validate()) return;
+
 		try {
-			await createSoftwareDocumentTrigger(newSoftwareDoc);
-			navigate(-1);
+			const fileIds = await Promise.all(
+				files.map((file) => {
+					return uploadFileTrigger({ userId, file }).unwrap();
+				})
+			);
+			await createTrigger({
+				softwareVersionId: softwareVersionId!,
+				documentTypeId: documentCreating.documentTypeId!,
+				name: documentCreating.name!,
+				description: documentCreating.description,
+				attachmentIds: fileIds,
+			}).unwrap();
+
 			notifications.show(t('createSoftwareDocumentSuccess'), {
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,
 			});
+			navigate(-1);
 		} catch (error) {
 			notifications.show(t('createSoftwareDocumentError'), {
 				severity: 'error',
@@ -83,26 +111,21 @@ export default function CreateSoftwareDocumentPage() {
 		}
 	};
 
-	const handleCancel = () => {
-		navigate(-1);
-	};
-
-	const handleFilesChange = (uploadedFiles: File[]) => {};
-
 	if (documentTypes.isLoading) return <LinearProgress />;
 	return (
-		<Stack>
+		<Stack spacing={1}>
 			<Typography variant="h5" mb={3} textAlign="center">
 				{t('addDocument')}
 			</Typography>
+			{isCreating && <LinearProgress />}
 			<Stack mb={2}>
 				<FormControl fullWidth size="small">
 					<InputLabel>{t('documentType')}</InputLabel>
 					<Select
 						label={t('documentType')}
-						value={softwareDocumentCreating.documentTypeId || ''}
+						value={documentCreating.documentTypeId || ''}
 						onChange={(e) =>
-							setSoftwareDocumentCreating((prev) => ({
+							setDocumentCreating((prev) => ({
 								...prev,
 								documentTypeId: e.target.value,
 							}))
@@ -120,9 +143,9 @@ export default function CreateSoftwareDocumentPage() {
 			<TextField
 				size="small"
 				label={t('documentName')}
-				value={softwareDocumentCreating?.name}
+				value={documentCreating?.name}
 				onChange={(e) =>
-					setSoftwareDocumentCreating((prev) => ({
+					setDocumentCreating((prev) => ({
 						...prev,
 						name: e.target.value, // Lưu documentTypeId vào state
 					}))
@@ -138,9 +161,9 @@ export default function CreateSoftwareDocumentPage() {
 					<TextField
 						fullWidth
 						size="medium"
-						value={softwareDocumentCreating?.description}
+						value={documentCreating?.description}
 						onChange={(e) =>
-							setSoftwareDocumentCreating((prev) => ({
+							setDocumentCreating((prev) => ({
 								...prev,
 								description: e.target.value, // Lưu documentTypeId vào state
 							}))

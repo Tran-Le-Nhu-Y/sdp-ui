@@ -8,11 +8,15 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material';
-import { DragAndDropForm } from '../../components';
-import { useEffect, useState } from 'react';
-import { useNotifications } from '@toolpad/core';
+import { AttachmentList, DragAndDropForm } from '../../components';
+import { useEffect, useMemo, useState } from 'react';
+import { useDialogs, useNotifications } from '@toolpad/core';
+import SaveIcon from '@mui/icons-material/Save';
 import {
+	useCreateFile,
+	useGetAllSoftDocAttachments,
 	useGetSoftwareDocumentById,
+	useUpdateSoftDocAttachment,
 	useUpdateSoftwareDocument,
 } from '../../services';
 import {
@@ -24,57 +28,133 @@ import {
 
 export default function ModifySoftwareDocumentPage() {
 	const { t } = useTranslation();
+	const dialogs = useDialogs();
 	const navigate = useNavigate();
 	const notifications = useNotifications();
+	const userId = 'd28bf637-280e-49b5-b575-5278b34d1dfe';
 	const documentId = useParams()[PathHolders.SOFTWARE_DOCUMENT_ID];
+	const [loading, setLoading] = useState(false);
 
-	const softwareDocument = useGetSoftwareDocumentById(documentId!, {
+	const document = useGetSoftwareDocumentById(documentId!, {
 		skip: !documentId,
 	});
 	useEffect(() => {
-		if (softwareDocument.isError)
+		if (document.isError)
 			notifications.show(t('fetchError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
-	}, [notifications, softwareDocument.isError, t]);
+	}, [notifications, document.isError, t]);
 
 	const [softwareDocumentUpdating, setSoftwareDocumentUpdating] =
 		useState<SoftwareDocumentUpdateRequest>({
 			softwareDocumentId: documentId!,
 			name: '',
 			description: '',
-			attachmentIds: [],
 		});
 	useEffect(() => {
-		if (softwareDocument.data) {
+		if (document.data)
 			setSoftwareDocumentUpdating({
 				softwareDocumentId: documentId!,
-				name: softwareDocument.data.name || '',
-				description: softwareDocument.data.description || '',
-				attachmentIds: [],
+				name: document.data.name || '',
+				description: document.data.description || '',
 			});
-		}
-	}, [softwareDocument.data, documentId]);
+	}, [document.data, documentId]);
 
+	const attachments = useGetAllSoftDocAttachments(documentId!, {
+		skip: !documentId,
+	});
+
+	const [addedFiles, setAddedFiles] = useState<File[]>([]);
+	const [removedFileIds, setRemovedFileIds] = useState<string[]>([]);
+	const displayedAttachments = useMemo(() => {
+		return attachments.data?.filter(
+			(data) => !removedFileIds.includes(data.id)
+		);
+	}, [attachments.data, removedFileIds]);
 	const [updateSoftwareDocumentTrigger] = useUpdateSoftwareDocument();
+	const [updateAttachmentTrigger] = useUpdateSoftDocAttachment();
+	const [uploadFileTrigger] = useCreateFile();
+
+	const handleFileSubmit = async () => {
+		if (!documentId) return false;
+
+		if (addedFiles.length > 0) {
+			try {
+				const fileIds = await Promise.all(
+					addedFiles.map((file) => {
+						return uploadFileTrigger({ userId, file }).unwrap();
+					})
+				);
+				await Promise.all(
+					fileIds.map((fileId) =>
+						updateAttachmentTrigger({
+							documentId,
+							attachmentId: fileId,
+							operator: 'ADD',
+						}).unwrap()
+					)
+				);
+			} catch (error) {
+				notifications.show(t('uploadedFileError'), {
+					severity: 'error',
+					autoHideDuration: HideDuration.fast,
+				});
+				console.log(error);
+				return false;
+			}
+		}
+
+		if (removedFileIds.length > 0) {
+			try {
+				await Promise.all(
+					removedFileIds.map((fileId) =>
+						updateAttachmentTrigger({
+							documentId,
+							attachmentId: fileId,
+							operator: 'REMOVE',
+						}).unwrap()
+					)
+				);
+			} catch (error) {
+				notifications.show(t('deleteFileError'), {
+					severity: 'error',
+					autoHideDuration: HideDuration.fast,
+				});
+				console.log(error);
+				return false;
+			}
+		}
+
+		return true;
+	};
 
 	const handleSubmit = async () => {
 		if (!documentId) return;
 
+		setLoading(true);
 		if (!softwareDocumentUpdating.name.trim()) {
 			notifications.show(t('softwareDocumentNameRequired'), {
 				severity: 'warning',
 				autoHideDuration: HideDuration.fast,
 			});
+			setLoading(false);
 			return;
 		}
+
+		const handleFileResult = await handleFileSubmit();
+		if (!handleFileResult) {
+			setAddedFiles([]);
+			setRemovedFileIds([]);
+			setLoading(false);
+			return;
+		}
+
 		try {
 			await updateSoftwareDocumentTrigger({
 				softwareDocumentId: documentId,
 				name: softwareDocumentUpdating.name,
 				description: softwareDocumentUpdating?.description,
-				attachmentIds: [],
 			});
 			navigate(-1);
 
@@ -89,76 +169,99 @@ export default function ModifySoftwareDocumentPage() {
 			});
 			console.error(error);
 		}
+		setLoading(false);
 	};
-
-	// const handleFilesChange = (files: string[]) => {
-	// 	setSoftwareDocumentUpdating((prev) => ({
-	// 		...prev,
-	// 		attachmentIds: files,
-	// 	}));
-	// };
 
 	const handleCancel = () => {
 		navigate(-1);
 	};
 
-	if (softwareDocument.isLoading) return <LinearProgress />;
+	const deleteAttachment = async (attachmentId: string) => {
+		if (!documentId) return;
+
+		const confirmed = await dialogs.confirm(t('deleteFileConfirm'), {
+			title: t('deleteFile'),
+			okText: t('yes'),
+			cancelText: t('cancel'),
+		});
+		if (!confirmed) return;
+		setRemovedFileIds((prev) => [...prev, attachmentId]);
+	};
+
+	if (document.isLoading) return <LinearProgress />;
 	return (
-		<Stack>
+		<Stack spacing={2}>
 			<Typography variant="h5" mb={3} textAlign="center">
-				{t('addDocument')}
+				{t('modifySoftwareDocument')}
 			</Typography>
-			<Stack spacing={2}>
-				<Stack direction={'row'} spacing={2} alignItems={'center'}>
-					<Typography variant="body1">
-						<strong>{t('documentTypeName')}:</strong>
-					</Typography>
-					<Typography variant="body1">
-						{softwareDocument.data?.typeName}
-					</Typography>
-				</Stack>
-				<TextField
-					size="small"
-					label={t('documentName')}
-					value={softwareDocumentUpdating?.name || ''}
-					onChange={(e) => {
-						const newValue = e.target.value;
-						if (isValidLength(newValue, TextLength.Medium))
-							setSoftwareDocumentUpdating((prev) => ({
-								...prev,
-								name: newValue,
-							}));
-					}}
-					placeholder={`${t('enter')} ${t('documentName').toLowerCase()}...`}
-				/>
+
+			<Stack direction={'row'} spacing={1} alignItems={'center'}>
+				<Typography variant="h6">{t('documentType')}:</Typography>
+				<Typography variant="body1">{document.data?.typeName}</Typography>
 			</Stack>
 
-			<Stack mt={1}>
-				<Typography variant="subtitle1" mb={1}>
-					{t('description')}
-				</Typography>
-				<Box mb={1}>
-					<TextField
-						fullWidth
-						size="medium"
-						value={softwareDocumentUpdating?.description}
-						onChange={(e) =>
-							setSoftwareDocumentUpdating((prev) => ({
-								...prev,
-								description: e.target.value,
-							}))
-						}
-						placeholder={`${t('enter')} ${t('documentDescription').toLowerCase()}...`}
-						multiline
-						rows={4}
-					/>
-				</Box>
+			<TextField
+				size="small"
+				label={t('documentName')}
+				value={softwareDocumentUpdating?.name}
+				helperText={`${t('max')} ${TextLength.Medium} ${t('character')}`}
+				onChange={(e) => {
+					const newValue = e.target.value;
+					if (isValidLength(newValue, TextLength.Medium))
+						setSoftwareDocumentUpdating((prev) => ({
+							...prev,
+							name: newValue,
+						}));
+				}}
+				placeholder={`${t('enter')} ${t('documentName').toLowerCase()}...`}
+			/>
 
-				<DragAndDropForm onFilesChange={() => {}} />
+			<TextField
+				fullWidth
+				size="medium"
+				label={t('documentDescription') ?? ''}
+				value={softwareDocumentUpdating?.description}
+				helperText={`${t('max')} ${TextLength.VeryLong} ${t('character')}`}
+				onChange={(e) => {
+					const newValue = e.target.value;
+					if (isValidLength(newValue, TextLength.Long))
+						setSoftwareDocumentUpdating((prev) => ({
+							...prev,
+							description: newValue,
+						}));
+				}}
+				placeholder={`${t('enter')} ${t('documentDescription').toLowerCase()}...`}
+				multiline
+				rows={4}
+			/>
+
+			<Stack spacing={1}>
+				<Typography variant="h6">{t('uploadedFiles')}:</Typography>
+				{(attachments.data?.length ?? 0) > 0 ? (
+					<AttachmentList
+						attachments={displayedAttachments ?? []}
+						onRemoveClick={deleteAttachment}
+					/>
+				) : (
+					<Typography variant="h6">{t('noFileUpload')}</Typography>
+				)}
+			</Stack>
+
+			<Stack spacing={1}>
+				<Typography variant="h6">{t('attachment')}:</Typography>
+				<DragAndDropForm onFilesChange={(files) => setAddedFiles(files)} />
 			</Stack>
 
 			<Box mt={3} display="flex" justifyContent="center" gap={2}>
-				<Button variant="contained" color="primary" onClick={handleSubmit}>
+				<Button
+					disabled={document.isLoading || document.isFetching}
+					loading={loading}
+					loadingPosition="start"
+					startIcon={<SaveIcon />}
+					variant="contained"
+					color="primary"
+					onClick={handleSubmit}
+				>
 					{t('submit')}
 				</Button>
 				<Button variant="outlined" color="secondary" onClick={handleCancel}>

@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { toEntity } from './mapper/file-mapper';
 
 export const fileApi = createApi({
 	reducerPath: 'fileApi',
@@ -28,16 +29,10 @@ export const fileApi = createApi({
 				return baseQueryReturnValue.status;
 			},
 			transformResponse(rawResult: FileMetadataResponse) {
-				return {
-					id: rawResult.id,
-					name: rawResult.name,
-					size: rawResult.size,
-					createdAt: new Date(rawResult.createdAtMs).toLocaleString(),
-					mimeType: rawResult.mimeType,
-				};
+				return toEntity(rawResult);
 			},
 		}),
-		get: builder.query<Blob, string>({
+		get: builder.query<File, string>({
 			query: (fileId) => ({
 				url: `/${fileId}`,
 				method: 'GET',
@@ -56,6 +51,7 @@ export const fileApi = createApi({
 					method: 'POST',
 					body: body,
 					priority: 'high',
+					responseHandler: (response) => response.text(),
 				};
 			},
 			transformErrorResponse(baseQueryReturnValue) {

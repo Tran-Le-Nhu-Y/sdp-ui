@@ -137,9 +137,15 @@ declare interface SoftwareDocumentCreateRequest {
 declare interface SoftwareDocumentUpdateRequest {
 	name: string;
 	description?: string?;
-	attachmentIds: string[];
 	softwareDocumentId: string;
 }
+
+declare interface SoftwareDocumentAttachmentUpdateRequest {
+	documentId: string;
+	attachmentId: string;
+	operator: FileOperator;
+}
+
 declare interface ModuleDocumentCreateRequest {
 	name: string;
 	description?: string?;
@@ -153,6 +159,12 @@ declare interface ModuleDocumentUpdateRequest {
 	description?: string?;
 	attachmentIds: string[];
 	moduleDocumentId: string;
+}
+
+declare interface ModuleDocumentAttachmentUpdateRequest {
+	documentId: string;
+	attachmentId: string;
+	operator: 'ADD' | 'REMOVE';
 }
 
 declare interface MailTemplateCreateRequest {

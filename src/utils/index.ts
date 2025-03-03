@@ -1,3 +1,11 @@
+import { fetchBaseQuery, FetchBaseQueryArgs } from '@reduxjs/toolkit/query';
+
+export function fetchAuthQuery(config?: FetchBaseQueryArgs) {
+	return fetchBaseQuery({
+		...config,
+	});
+}
+
 export enum TextLength {
 	Short = 6,
 	Medium = 100,

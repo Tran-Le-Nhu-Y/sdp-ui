@@ -17,6 +17,7 @@ import {
 	CollapsibleDataGrid,
 	CollapsibleDataGridProps,
 } from './CollapsibleDataGrid';
+import { AttachmentList, AttachmentListProps } from './AttachmentList';
 
 export {
 	HydrateFallback,
@@ -32,6 +33,12 @@ export {
 	TextEditor,
 	FilterDialog,
 	CollapsibleDataGrid,
+	AttachmentList,
 };
 
-export type { CollapsibleDataGridProps, FileAttachment, DragAndDropFormProps };
+export type {
+	CollapsibleDataGridProps,
+	FileAttachment,
+	DragAndDropFormProps,
+	AttachmentListProps,
+};

@@ -81,82 +81,76 @@ export const DragAndDropForm: React.FC<DragAndDropFormProps> = ({
 	};
 
 	return (
-		<Stack>
-			<Typography variant="subtitle1" mb={1}>
-				{t('attachment')}
-			</Typography>
-			<Paper
-				elevation={3}
+		<Paper
+			elevation={3}
+			sx={{
+				padding: 1,
+				textAlign: 'center',
+				justifyContent: 'center',
+				border: '2px dashed #ccc',
+				borderRadius: 2,
+				cursor: 'pointer',
+				width: '100%',
+			}}
+			onDragOver={dragOverFileHandler}
+			onDrop={dropFileHandler}
+			onClick={() => {
+				fileInputRef.current?.click();
+			}}
+		>
+			{files.length === 0 && (
+				<Stack direction={'column'} spacing={1} alignItems={'center'}>
+					<Typography variant="subtitle1">{t('dragAndDrop')}</Typography>
+					<CloudUpload
+						sx={{ fontSize: 40, color: 'lightskyblue', display: 'block' }}
+					/>
+					<Typography variant="caption">
+						{`${t('fileSizeLimit')} ${getFileSize(FILE_MAX_BYTES)}`}
+					</Typography>
+				</Stack>
+			)}
+
+			<List
 				sx={{
-					padding: 1,
-					textAlign: 'center',
-					justifyContent: 'center',
-					border: '2px dashed #ccc',
-					borderRadius: 2,
-					cursor: 'pointer',
 					width: '100%',
-				}}
-				onDragOver={dragOverFileHandler}
-				onDrop={dropFileHandler}
-				onClick={() => {
-					fileInputRef.current?.click();
+					maxHeight: '100%',
+					overflow: 'auto',
+					display: 'flex',
+					gap: 0,
 				}}
 			>
-				{files.length === 0 && (
-					<Stack direction={'column'} spacing={1} alignItems={'center'}>
-						<Typography variant="subtitle1">{t('dragAndDrop')}</Typography>
-						<CloudUpload
-							sx={{ fontSize: 40, color: 'lightskyblue', display: 'block' }}
-						/>
-						<Typography variant="caption">
-							{`${t('fileSizeLimit')} ${getFileSize(FILE_MAX_BYTES)}`}
-						</Typography>
-					</Stack>
-				)}
+				{files.map((file) => (
+					<ListItem key={file.id} sx={{ width: 'fit-content' }}>
+						<Paper
+							elevation={1}
+							sx={{
+								padding: 2,
+								display: 'flex',
+								alignItems: 'center',
+								minWidth: 200,
+								position: 'relative',
+								backgroundColor: file.status === 'failed' ? '#ffe6e6' : 'white',
+								border: file.status === 'failed' ? '1px solid #ff4d4d' : 'none',
+							}}
+						>
+							{file.status === 'failed' ? (
+								<ErrorOutline color="error" sx={{ mr: 1 }} />
+							) : (
+								<AttachFile color="primary" sx={{ mr: 1 }} />
+							)}
+							<Box display={'flex'} flexDirection={'column'}>
+								<Typography
+									variant="caption"
+									fontWeight="bold"
+									color={file.status === 'failed' ? 'error' : 'textPrimary'}
+								>
+									{file.file.name}
+								</Typography>
+								<Typography variant="caption" color="textSecondary">
+									{getFileSize(file.file.size)}
+								</Typography>
 
-				<List
-					sx={{
-						width: '100%',
-						maxHeight: '100%',
-						overflow: 'auto',
-						display: 'flex',
-						gap: 0,
-					}}
-				>
-					{files.map((file) => (
-						<ListItem key={file.id}>
-							<Paper
-								elevation={1}
-								sx={{
-									padding: 2,
-									display: 'flex',
-									alignItems: 'center',
-									minWidth: 200,
-									position: 'relative',
-									backgroundColor:
-										file.status === 'failed' ? '#ffe6e6' : 'white',
-									border:
-										file.status === 'failed' ? '1px solid #ff4d4d' : 'none',
-								}}
-							>
-								{file.status === 'failed' ? (
-									<ErrorOutline color="error" sx={{ mr: 1 }} />
-								) : (
-									<AttachFile color="primary" sx={{ mr: 1 }} />
-								)}
-								<Box display={'flex'} flexDirection={'column'}>
-									<Typography
-										variant="caption"
-										fontWeight="bold"
-										color={file.status === 'failed' ? 'error' : 'textPrimary'}
-									>
-										{file.file.name}
-									</Typography>
-									<Typography variant="caption" color="textSecondary">
-										{getFileSize(file.file.size)}
-									</Typography>
-
-									{/* {file.status === 'loading' && (
+								{/* {file.status === 'loading' && (
 										<LinearProgress
 											variant="determinate"
 											value={file.progress}
@@ -164,52 +158,51 @@ export const DragAndDropForm: React.FC<DragAndDropFormProps> = ({
 										/>
 									)} */}
 
-									{file.status === 'failed' && (
-										<LinearProgress
-											variant="determinate"
-											value={100}
-											sx={{
-												mt: 1,
-												backgroundColor: '#ffcccc',
-												'& .MuiLinearProgress-bar': {
-													backgroundColor: '#ff4d4d',
-												},
-											}}
-										/>
-									)}
-								</Box>
+								{file.status === 'failed' && (
+									<LinearProgress
+										variant="determinate"
+										value={100}
+										sx={{
+											mt: 1,
+											backgroundColor: '#ffcccc',
+											'& .MuiLinearProgress-bar': {
+												backgroundColor: '#ff4d4d',
+											},
+										}}
+									/>
+								)}
+							</Box>
 
-								<IconButton
-									size="small"
-									onClick={(e) => {
-										e.stopPropagation();
-										removeFileHandler(file.id);
-									}}
-									sx={{
-										position: 'absolute',
-										top: -5,
-										right: -5,
-										color: '#ccc',
-									}}
-								>
-									<ClearIcon />
-								</IconButton>
-							</Paper>
-						</ListItem>
-					))}
-				</List>
-				<input
-					multiple
-					style={{ display: 'none' }}
-					id="file-upload"
-					type="file"
-					ref={fileInputRef}
-					accept={SUPPORTED_FILE_TYPES.join(',')}
-					onChange={(e) =>
-						e.target.files && selectFileHandler(Array.from(e.target.files))
-					}
-				/>
-			</Paper>
-		</Stack>
+							<IconButton
+								size="small"
+								onClick={(e) => {
+									e.stopPropagation();
+									removeFileHandler(file.id);
+								}}
+								sx={{
+									position: 'absolute',
+									top: -5,
+									right: -5,
+									color: '#ccc',
+								}}
+							>
+								<ClearIcon />
+							</IconButton>
+						</Paper>
+					</ListItem>
+				))}
+			</List>
+			<input
+				multiple
+				style={{ display: 'none' }}
+				id="file-upload"
+				type="file"
+				ref={fileInputRef}
+				accept={SUPPORTED_FILE_TYPES.join(',')}
+				onChange={(e) =>
+					e.target.files && selectFileHandler(Array.from(e.target.files))
+				}
+			/>
+		</Paper>
 	);
 };

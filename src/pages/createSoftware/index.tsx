@@ -9,7 +9,8 @@ import { HideDuration, RoutePaths } from '../../utils';
 export default function CreateSoftwarePage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const [createSoftwareTrigger] = useCreateSoftware();
+	const [createSoftwareTrigger, { isLoading: isCreating }] =
+		useCreateSoftware();
 	const notifications = useNotifications();
 
 	const handleSubmit = async (data: {
@@ -47,6 +48,7 @@ export default function CreateSoftwarePage() {
 	return (
 		<Box>
 			<CreateOrModifyForm
+				loading={isCreating}
 				title={t('addSoftware')}
 				label={t('softwareName')}
 				onSubmit={handleSubmit}

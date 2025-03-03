@@ -177,6 +177,8 @@ import {
 	usePostSoftwareDocumentMutation as useCreateSoftwareDocument,
 	usePutSoftwareDocumentMutation as useUpdateSoftwareDocument,
 	useDeleteSoftwareDocumentMutation as useDeleteSoftwareDocument,
+	useGetAllAttachmentsQuery as useGetAllSoftDocAttachments,
+	usePutAttachmentMutation as useUpdateSoftDocAttachment,
 } from './software-document';
 
 export {
@@ -186,7 +188,10 @@ export {
 	useCreateSoftwareDocument,
 	useUpdateSoftwareDocument,
 	useDeleteSoftwareDocument,
+	useGetAllSoftDocAttachments,
+	useUpdateSoftDocAttachment,
 };
+
 import {
 	moduleDocumentApi,
 	useGetAllModuleDocumentsByVersionIdQuery as useGetAllModuleDocumentByVersionId,
@@ -194,8 +199,9 @@ import {
 	usePostModuleDocumentMutation as useCreateModuleDocument,
 	usePutModuleDocumentMutation as useUpdateModuleDocument,
 	useDeleteModuleDocumentMutation as useDeleteModuleDocument,
+	useGetAllAttachmentsQuery as useGetAllModuleAttachments,
+	usePutAttachmentMutation as useUpdateModDocAttachment,
 } from './module-document';
-
 export {
 	moduleDocumentApi,
 	useGetAllModuleDocumentByVersionId,
@@ -203,6 +209,8 @@ export {
 	useCreateModuleDocument,
 	useUpdateModuleDocument,
 	useDeleteModuleDocument,
+	useGetAllModuleAttachments,
+	useUpdateModDocAttachment,
 };
 
 import {

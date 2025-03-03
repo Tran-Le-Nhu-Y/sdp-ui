@@ -1,16 +1,22 @@
 // Need to use the React-specific entry point to import createApi
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/module-document-mapper';
+import { toEntity as toFileMetadata } from './mapper/file-mapper';
 
+const baseUrl = `${import.meta.env.VITE_API_GATEWAY}/software/module/document`;
 // Define a service using a base URL and expected endpoints
 export const moduleDocumentApi = createApi({
 	reducerPath: 'moduleDocumentApi',
 	baseQuery: fetchBaseQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/module/document`,
+		baseUrl: baseUrl,
 		jsonContentType: 'application/json',
 		timeout: 300000,
 	}),
-	tagTypes: ['PagingModuleDocument', 'ModuleDocument'],
+	tagTypes: [
+		'PagingModuleDocument',
+		'ModuleDocument',
+		'ModuleDocumentAttachment',
+	],
 	endpoints: (builder) => ({
 		getAllModuleDocumentsByVersionId: builder.query<
 			PagingWrapper<ModuleDocument>,
@@ -130,6 +136,69 @@ export const moduleDocumentApi = createApi({
 				];
 			},
 		}),
+		getAllAttachments: builder.query<FileMetadata[], string>({
+			queryFn: async (documentId) => {
+				try {
+					const atmIdsResponse = await fetch(
+						`${baseUrl}/${documentId}/attachment`,
+						{
+							method: 'GET',
+						}
+					);
+					const atmIds: string[] = await atmIdsResponse.json();
+					const atmMetadataResponses: FileMetadataResponse[] =
+						await Promise.all(
+							atmIds.map(async (atmId) => {
+								const response = await fetch(
+									`${import.meta.env.VITE_FILE_API}/v1/file/${atmId}/metadata`,
+									{
+										method: 'GET',
+									}
+								);
+								return response.json();
+							})
+						);
+					return {
+						data: atmMetadataResponses.map(toFileMetadata),
+					};
+				} catch (error) {
+					console.error(error);
+					return {
+						error: {
+							status: 500,
+							data: {
+								message: 'Error when fetching software document attachments',
+							},
+						},
+					};
+				}
+			},
+			providesTags(_result, _error, arg) {
+				const documentId = arg;
+				return [
+					{
+						type: 'ModuleDocumentAttachment',
+						id: documentId,
+					} as const,
+				];
+			},
+		}),
+		putAttachment: builder.mutation<
+			void,
+			ModuleDocumentAttachmentUpdateRequest
+		>({
+			query: ({ documentId, attachmentId, operator }) => ({
+				url: `/${documentId}/attachment`,
+				method: 'PUT',
+				body: {
+					attachmentId: attachmentId,
+					operator: operator,
+				},
+			}),
+			invalidatesTags() {
+				return [{ type: 'ModuleDocumentAttachment' } as const];
+			},
+		}),
 	}),
 });
 
@@ -141,4 +210,6 @@ export const {
 	usePostModuleDocumentMutation,
 	usePutModuleDocumentMutation,
 	useDeleteModuleDocumentMutation,
+	useGetAllAttachmentsQuery,
+	usePutAttachmentMutation,
 } = moduleDocumentApi;
