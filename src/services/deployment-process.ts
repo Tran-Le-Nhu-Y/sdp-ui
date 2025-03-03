@@ -1,9 +1,10 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/deployment-process-mapper';
+import { fetchAuthQuery } from '../utils';
 
 export const deploymentProcessApi = createApi({
 	reducerPath: 'deploymentProcessApi',
-	baseQuery: fetchBaseQuery({
+	baseQuery: fetchAuthQuery({
 		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/deployment-process`,
 		jsonContentType: 'application/json',
 		timeout: 300000,

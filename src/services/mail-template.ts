@@ -1,9 +1,10 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/mail-template-mapper';
+import { fetchAuthQuery } from '../utils';
 
 export const mailTemplateApi = createApi({
 	reducerPath: 'mailTemplateApi',
-	baseQuery: fetchBaseQuery({
+	baseQuery: fetchAuthQuery({
 		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/mail-template`,
 		jsonContentType: 'application/json',
 		timeout: 300000,
@@ -64,7 +65,7 @@ export const mailTemplateApi = createApi({
 				transformResponse(rawResult: MailTemplateResponse) {
 					return toEntity(rawResult);
 				},
-			},
+			}
 		),
 		putMailTemplate: builder.mutation<void, MailTemplateUpdateRequest>({
 			query: ({ templateId, content, type }) => ({

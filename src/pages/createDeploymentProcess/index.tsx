@@ -27,15 +27,6 @@ import { HideDuration, RoutePaths } from '../../utils';
 import { useNotifications } from '@toolpad/core';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-interface FileAttachment {
-	id: number;
-	name: string;
-	size: string;
-	status: 'loading' | 'complete' | 'failed';
-	progress: number;
-	error?: string;
-}
-
 function SelectCustomerSection({
 	open,
 	onOpenChange,

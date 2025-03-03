@@ -1,8 +1,15 @@
 import { fetchBaseQuery, FetchBaseQueryArgs } from '@reduxjs/toolkit/query';
+import keycloak from '../services/keycloak';
 
 export function fetchAuthQuery(config?: FetchBaseQueryArgs) {
+	const token = keycloak.token;
+	if (!token) keycloak.logout();
 	return fetchBaseQuery({
 		...config,
+		prepareHeaders(headers) {
+			headers.set('Authorization', `Bearer ${token}`);
+			return headers;
+		},
 	});
 }
 

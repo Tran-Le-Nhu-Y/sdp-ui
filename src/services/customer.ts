@@ -1,9 +1,10 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/customer-mapper';
+import { fetchAuthQuery } from '../utils';
 
 export const customerApi = createApi({
 	reducerPath: 'customerApi',
-	baseQuery: fetchBaseQuery({
+	baseQuery: fetchAuthQuery({
 		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/customer`,
 		jsonContentType: 'application/json',
 		timeout: 300000,
