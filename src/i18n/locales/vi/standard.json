@@ -37,6 +37,11 @@
 	"openFilter": "Mở bộ lọc",
 	"guide": "Hướng dẫn",
 	"noDescription": "Không có mô tả",
+	"personnelList": "Danh sách nhân sự",
+	"currentStep": "Giai đoạn hiện tại",
+	"updatedDate": "Ngày cập nhật",
+	"complete": "Hoàn thành",
+	"finish": "Kết thúc",
 
 	"customer": "Khách hàng",
 	"customerName": "Tên khách hàng",
@@ -73,7 +78,6 @@
 	"modifyProduct": "Chỉnh sửa phần mềm",
 	"productNotFound": "Không tìm thấy phần mềm",
 	"attachment": "Các tập tin liên quan",
-	"complete": "Hoàn thành",
 	"dragAndDrop": "Kéo và thả các tập tin ở đây",
 	"productManagement": "Phần mềm",
 	"product": "Phần mềm",
@@ -225,6 +229,7 @@
 	"processing": "Đang xử lý...",
 	"loading": "Đang tải...",
 
+	"process": "Giai đoạn",
 	"addProcessType": "Thêm dạng giai đoạn",
 	"addProcessTypeInfor": "Thêm thông tin dạng giai đoạn",
 	"processTypeName": "Tên dạng giai đoạn",
@@ -237,6 +242,9 @@
 	"deleteProcessTypeError": "Xóa dạng giai đoạn đã xảy ra lỗi",
 	"processTypeNameRequired": "Tên dạng giai đoạn không được để trống",
 
+	"progressUpdateHistory": "Lịch sử cập nhật tiến độ",
+
+	"deploymentProcessInfor": "Thông tin quá trình triển khai",
 	"addDeploymentProcess": "Thêm quá trình triển khai",
 	"deployFor": "Triển khai cho",
 	"addDeployment": "Thêm hạng mục triển khai",
