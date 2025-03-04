@@ -1,14 +1,15 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/software-mapper';
+import { fetchAuthQuery } from '../utils';
 
 export const softwareApi = createApi({
 	reducerPath: 'softwareApi',
-	baseQuery: fetchBaseQuery({
+	baseQuery: fetchAuthQuery({
 		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software`,
 		jsonContentType: 'application/json',
 		timeout: 300000,
 	}),
-	tagTypes: ['PagingSoftware', 'FileMetadata'],
+	tagTypes: ['PagingSoftware', 'Software'],
 	endpoints: (builder) => ({
 		getAllSoftwareByUserId: builder.query<
 			PagingWrapper<Software>,
@@ -58,7 +59,7 @@ export const softwareApi = createApi({
 				return result
 					? [
 							{
-								type: 'FileMetadata',
+								type: 'Software',
 								id: result.id,
 							} as const,
 						]
@@ -103,7 +104,7 @@ export const softwareApi = createApi({
 				const { softwareId } = arg;
 				return [
 					{ type: 'PagingSoftware' } as const,
-					{ type: 'FileMetadata', id: softwareId } as const,
+					{ type: 'Software', id: softwareId } as const,
 				];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
@@ -119,7 +120,7 @@ export const softwareApi = createApi({
 				const productId = arg;
 				return [
 					{ type: 'PagingSoftware' } as const,
-					{ type: 'FileMetadata', id: productId } as const,
+					{ type: 'Software', id: productId } as const,
 				];
 			},
 			transformErrorResponse(baseQueryReturnValue) {

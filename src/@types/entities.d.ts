@@ -4,7 +4,6 @@ declare interface FileMetadata {
 	size: number;
 	createdAt: string;
 	mimeType: string;
-	url: string;
 }
 
 declare type FileOperator = 'ADD' | 'REMOVE';

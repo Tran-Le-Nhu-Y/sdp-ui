@@ -20,12 +20,14 @@ import {
 	useUpdateDocumentType,
 	useCreateDocumentType,
 } from '../../services';
-import { useDialogs, useNotifications } from '@toolpad/core';
+import { useDialogs, useNotifications, useSession } from '@toolpad/core';
 import { HideDuration, isValidLength, TextLength } from '../../utils';
 import { FilterDialog, PaginationTable } from '../../components';
 
 function DocumentTypePage() {
 	const { t } = useTranslation();
+	const session = useSession();
+	const userId = session?.user?.id ?? '';
 	const dialogs = useDialogs();
 	const notifications = useNotifications();
 	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
@@ -62,7 +64,7 @@ function DocumentTypePage() {
 
 	const [documentTypeQuery, setDocumentTypeQuery] =
 		useState<GetAllDocumentTypeQuery>({
-			userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+			userId: userId,
 			documentTypeName: '',
 			pageNumber: 0,
 			pageSize: 6,
@@ -115,7 +117,7 @@ function DocumentTypePage() {
 		await createDocumentTypeTrigger({
 			name: documentTypeCreating.name,
 			description: documentTypeCreating.description,
-			userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+			userId: userId,
 		});
 
 		setShowCreatingDocumentTypePanel(false);
@@ -189,7 +191,7 @@ function DocumentTypePage() {
 			documentTypes.isLoading,
 			documentTypes.isFetching,
 			updateDocumentType.isLoading,
-		],
+		]
 	);
 
 	return (
@@ -385,10 +387,10 @@ interface EditableDocumentTypeProps {
 	description?: string;
 
 	onNameChange: (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => void;
 	onDescriptionChange: (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => void;
 
 	onSave: () => void;

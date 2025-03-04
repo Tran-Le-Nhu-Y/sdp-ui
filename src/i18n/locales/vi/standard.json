@@ -170,6 +170,13 @@
 	"deployDocumentName": "Tên tài liệu triển khai",
 	"deployDocumentDescription": "Mô tả tài liệu triển khai",
 
+	"init": "Khởi tạo",
+	"pending": "Đang chờ",
+	"inProgress": "Đang thực hiện",
+	"done": "Hoàn thành",
+	"moreDetail": "Xem chi tiết",
+	"readMarkup": "Đánh dấu đã đọc",
+
 	"documentLabel": "Nhãn tài liệu",
 	"addDocumentLabel": "Thêm nhãn tài liệu",
 	"searchDocumentLabel": "Tìm kiếm nhãn tài liệu",

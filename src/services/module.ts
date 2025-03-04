@@ -1,9 +1,10 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/module-mapper';
+import { fetchAuthQuery } from '../utils';
 
 export const moduleApi = createApi({
 	reducerPath: 'moduleApi',
-	baseQuery: fetchBaseQuery({
+	baseQuery: fetchAuthQuery({
 		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/module`,
 		jsonContentType: 'application/json',
 		timeout: 300000,
@@ -32,7 +33,7 @@ export const moduleApi = createApi({
 				return result
 					? [
 							...result.content.map(
-								({ id }) => ({ type: 'Module', id }) as const,
+								({ id }) => ({ type: 'Module', id }) as const
 							),
 							pagingTag,
 						]

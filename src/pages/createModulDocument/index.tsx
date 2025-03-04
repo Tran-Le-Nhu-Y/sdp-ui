@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { DragAndDropForm } from '../../components';
 import { useEffect, useState } from 'react';
-import { useNotifications } from '@toolpad/core';
+import { useNotifications, useSession } from '@toolpad/core';
 import {
 	useCreateFile,
 	useCreateModuleDocument,
@@ -24,6 +24,8 @@ import { HideDuration, PathHolders } from '../../utils';
 
 export default function CreateModuleDocumentPage() {
 	const { t } = useTranslation();
+	const session = useSession();
+	const userId = session?.user?.id ?? '';
 	const navigate = useNavigate();
 	const notifications = useNotifications();
 	const moduleVersionId = useParams()[PathHolders.MODULE_VERSION_ID];

@@ -24,12 +24,12 @@ import {
 	useGetCustomerById,
 	useUpdateCustomer,
 } from '../../services';
-import { useDialogs, useNotifications } from '@toolpad/core';
+import { useDialogs, useNotifications, useSession } from '@toolpad/core';
 import { HideDuration } from '../../utils';
 import React from 'react';
 import { t } from 'i18next';
 
-function CreateCustomerFormDialog() {
+function CreateCustomerFormDialog({ userId }: { userId: string }) {
 	const [open, setOpen] = React.useState(false);
 	const [formData, setFormData] = useState({ name: '', email: '' });
 
@@ -56,7 +56,7 @@ function CreateCustomerFormDialog() {
 		const newCustomer: CustomerCreateRequest = {
 			name: formData.name.trim(),
 			email: formData.email.trim(),
-			userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+			userId: userId,
 		};
 
 		if (!newCustomer.name) {
@@ -237,6 +237,8 @@ function UpdateCustomerFormDialog({
 
 export default function CustomerManagementPage() {
 	const { t } = useTranslation();
+	const session = useSession();
+	const userId = session?.user?.id ?? '';
 	const notifications = useNotifications();
 	const dialogs = useDialogs();
 	const [filterVersionDialogOpen, setFilterVersionDialogOpen] = useState(false);
@@ -284,7 +286,7 @@ export default function CustomerManagementPage() {
 	};
 
 	const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
-		null,
+		null
 	);
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 	const handleEditClick = (customerId: string) => {
@@ -329,7 +331,7 @@ export default function CustomerManagementPage() {
 					}}
 				/>
 
-				<CreateCustomerFormDialog />
+				<CreateCustomerFormDialog userId={userId} />
 			</Stack>
 			{(customers.isLoading || customers.isFetching) && <LinearProgress />}
 			<PaginationTable

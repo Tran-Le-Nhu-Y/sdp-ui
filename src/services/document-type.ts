@@ -1,11 +1,12 @@
 // Need to use the React-specific entry point to import createApi
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/document-type-mapper';
+import { fetchAuthQuery } from '../utils';
 
 // Define a service using a base URL and expected endpoints
 export const documentTypeApi = createApi({
 	reducerPath: 'documentTypeApi',
-	baseQuery: fetchBaseQuery({
+	baseQuery: fetchAuthQuery({
 		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/document-type`,
 		jsonContentType: 'application/json',
 		timeout: 300000,
