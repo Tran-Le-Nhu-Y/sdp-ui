@@ -5,25 +5,24 @@ import {
 	Button,
 	IconButton,
 	LinearProgress,
-	List,
-	ListItem,
-	ListItemText,
 	Stack,
 	Typography,
 } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { HideDuration, PathHolders, RoutePaths } from '../../utils';
 import {
 	useDeleteModuleDocument,
+	useGetAllModuleAttachments,
 	useGetModuleDocumentById,
 } from '../../services';
 import { useDialogs, useNotifications } from '@toolpad/core';
 import { Delete, Edit } from '@mui/icons-material';
+import { AttachmentList } from '../../components';
 
 export default function ModuleDocumentDetailPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
-	const files = useState();
+	// const files = useState();
 	const dialogs = useDialogs();
 	const notifications = useNotifications();
 	const documentId = useParams()[PathHolders.MODULE_DOCUMENT_ID];
@@ -65,6 +64,10 @@ export default function ModuleDocumentDetailPage() {
 			console.log(error);
 		}
 	};
+
+	const attachments = useGetAllModuleAttachments(documentId!, {
+		skip: !documentId,
+	});
 
 	if (moduleDocument.isLoading) return <LinearProgress />;
 	return (
@@ -120,24 +123,13 @@ export default function ModuleDocumentDetailPage() {
 				</Stack>
 			</Stack>
 
-			<Stack mt={1}>
-				<List sx={{ marginTop: 2 }}>
-					<Typography variant="body1">Danh sách file đã tải lên:</Typography>
-					{files.length > 0 ? (
-						files.map((_file, index) => (
-							<ListItem key={index}>
-								<ListItemText
-								// primary={file.name}
-								// secondary={`${(file.size / 1024).toFixed(2)} KB`}
-								/>
-							</ListItem>
-						))
-					) : (
-						<Typography variant="body2" color="textSecondary">
-							{t('noFileUpload')}
-						</Typography>
-					)}
-				</List>
+			<Stack mt={1} spacing={1}>
+				<Typography variant="h6">{t('uploadedFiles')}:</Typography>
+				{(attachments.data?.length ?? 0) > 0 ? (
+					<AttachmentList attachments={attachments.data ?? []} />
+				) : (
+					<Typography variant="h6">{t('noFileUpload')}</Typography>
+				)}
 			</Stack>
 
 			<Box mt={3} display="flex" justifyContent="center" gap={2}>

@@ -12,14 +12,20 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material';
-import { DragAndDropForm, FileAttachment } from '../../components';
+import { DragAndDropForm } from '../../components';
 import { useEffect, useState } from 'react';
 import { useNotifications, useSession } from '@toolpad/core';
 import {
+	useCreateFile,
 	useCreateModuleDocument,
 	useGetAllDocumentTypesByUserId,
 } from '../../services';
-import { HideDuration, PathHolders } from '../../utils';
+import {
+	HideDuration,
+	isValidLength,
+	PathHolders,
+	TextLength,
+} from '../../utils';
 
 export default function CreateModuleDocumentPage() {
 	const { t } = useTranslation();
@@ -27,9 +33,9 @@ export default function CreateModuleDocumentPage() {
 	const userId = session?.user?.id ?? '';
 	const navigate = useNavigate();
 	const notifications = useNotifications();
-	const [, setFiles] = useState<FileAttachment[]>([]);
 	const moduleVersionId = useParams()[PathHolders.MODULE_VERSION_ID];
 	const [createModuleDocumentTrigger] = useCreateModuleDocument();
+
 	const [documentTypeQuery] = useState<GetAllDocumentTypeQuery>({
 		userId: userId,
 		documentTypeName: '',
@@ -47,31 +53,52 @@ export default function CreateModuleDocumentPage() {
 			});
 	}, [notifications, documentTypes.error, t]);
 
-	const [moduleDocumentCreating, setModuleDocumentCreating] =
-		useState<SoftwareDocumentCreateRequest>({
-			softwareVersionId: '',
-			documentTypeId: '',
-			name: '',
-		});
+	const [moduleDocumentCreating, setModuleDocumentCreating] = useState<
+		Partial<ModuleDocumentCreateRequest>
+	>({});
+
+	const [files, setFiles] = useState<File[]>([]);
+	const [uploadFileTrigger] = useCreateFile();
+	const handleFilesChange = (uploadedFiles: File[]) => {
+		setFiles(uploadedFiles);
+	};
 
 	const handleSubmit = async () => {
-		if (!moduleVersionId) return;
-		const newModuleDoc: ModuleDocumentCreateRequest = {
-			moduleVersionId: moduleVersionId,
-			documentTypeId: moduleDocumentCreating.documentTypeId,
-			name: moduleDocumentCreating.name,
-			description: moduleDocumentCreating.description,
-			attachmentIds: [],
+		const validate = () => {
+			if (!moduleDocumentCreating.documentTypeId) {
+				notifications.show(t('documentTypeRequired'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+
+			if (!moduleDocumentCreating.name?.trim()) {
+				notifications.show(t('softwareDocumentNameRequired'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+
+			return true;
 		};
-		if (!moduleDocumentCreating.name.trim()) {
-			notifications.show(t('softwareDocumentNameRequired'), {
-				severity: 'warning',
-				autoHideDuration: HideDuration.fast,
-			});
-			return;
-		}
+		if (!validate()) return;
+
 		try {
-			await createModuleDocumentTrigger(newModuleDoc);
+			const fileIds = await Promise.all(
+				files.map((file) => {
+					return uploadFileTrigger({ userId, file }).unwrap();
+				}),
+			);
+
+			await createModuleDocumentTrigger({
+				moduleVersionId: moduleVersionId!,
+				documentTypeId: moduleDocumentCreating.documentTypeId!,
+				name: moduleDocumentCreating.name!,
+				description: moduleDocumentCreating.description,
+				attachmentIds: fileIds,
+			}).unwrap();
 			navigate(-1);
 			notifications.show(t('createSoftwareDocumentSuccess'), {
 				severity: 'success',
@@ -90,15 +117,11 @@ export default function CreateModuleDocumentPage() {
 		navigate(-1);
 	};
 
-	const handleFilesChange = (uploadedFiles: File[]) => {
-		// setFiles(uploadedFiles);
-	};
-
 	if (documentTypes.isLoading) return <LinearProgress />;
 	return (
 		<Stack>
 			<Typography variant="h5" mb={3} textAlign="center">
-				{t('addDocument')}
+				{t('addModuleDocument')}
 			</Typography>
 			<Stack mb={2}>
 				<FormControl fullWidth size="small">
@@ -126,12 +149,15 @@ export default function CreateModuleDocumentPage() {
 				size="small"
 				label={t('documentName')}
 				value={moduleDocumentCreating?.name}
-				onChange={(e) =>
-					setModuleDocumentCreating((prev) => ({
-						...prev,
-						name: e.target.value, // Lưu documentTypeId vào state
-					}))
-				}
+				helperText={t('hyperTextMedium')}
+				onChange={(e) => {
+					const newValue = e.target.value;
+					if (isValidLength(newValue, TextLength.Medium))
+						setModuleDocumentCreating((prev) => ({
+							...prev,
+							name: newValue,
+						}));
+				}}
 				placeholder={`${t('enter')} ${t('documentName').toLowerCase()}...`}
 			/>
 
@@ -144,12 +170,15 @@ export default function CreateModuleDocumentPage() {
 						fullWidth
 						size="medium"
 						value={moduleDocumentCreating?.description}
-						onChange={(e) =>
-							setModuleDocumentCreating((prev) => ({
-								...prev,
-								description: e.target.value, // Lưu documentTypeId vào state
-							}))
-						}
+						helperText={t('hyperTextVeryLong')}
+						onChange={(e) => {
+							const newValue = e.target.value;
+							if (isValidLength(newValue, TextLength.VeryLong))
+								setModuleDocumentCreating((prev) => ({
+									...prev,
+									description: newValue,
+								}));
+						}}
 						placeholder={`${t('enter')} ${t('documentDescription').toLowerCase()}...`}
 						multiline
 						rows={4}

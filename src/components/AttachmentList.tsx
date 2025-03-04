@@ -24,15 +24,16 @@ export const AttachmentList = ({
 			sx={{
 				marginTop: 2,
 				display: 'flex',
-				justifyItems: 'flex-start',
+				flexDirection: 'column',
 				gap: 1,
-				overflow: 'auto',
 				border: '1px solid #ccc',
 				borderRadius: 1,
+				maxHeight: 350,
+				overflowY: 'auto',
 			}}
 		>
 			{attachments.map((file) => (
-				<ListItem key={file.id} sx={{ width: 'fit-content' }}>
+				<ListItem key={file.id} sx={{ width: '100%' }}>
 					<Paper
 						elevation={1}
 						sx={{
@@ -40,6 +41,7 @@ export const AttachmentList = ({
 							display: 'flex',
 							alignItems: 'center',
 							minWidth: 200,
+							width: '100%',
 							position: 'relative',
 						}}
 					>

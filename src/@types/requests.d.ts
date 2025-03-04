@@ -157,14 +157,13 @@ declare interface ModuleDocumentCreateRequest {
 declare interface ModuleDocumentUpdateRequest {
 	name: string;
 	description?: string?;
-	attachmentIds: string[];
 	moduleDocumentId: string;
 }
 
 declare interface ModuleDocumentAttachmentUpdateRequest {
 	documentId: string;
 	attachmentId: string;
-	operator: 'ADD' | 'REMOVE';
+	operator: FileOperator;
 }
 
 declare interface MailTemplateCreateRequest {
