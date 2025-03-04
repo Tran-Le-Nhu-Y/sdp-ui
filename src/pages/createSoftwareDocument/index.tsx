@@ -20,7 +20,12 @@ import {
 	useCreateSoftwareDocument,
 	useGetAllDocumentTypesByUserId,
 } from '../../services';
-import { HideDuration, PathHolders } from '../../utils';
+import {
+	HideDuration,
+	isValidLength,
+	PathHolders,
+	TextLength,
+} from '../../utils';
 
 export default function CreateSoftwareDocumentPage() {
 	const { t } = useTranslation();
@@ -88,7 +93,7 @@ export default function CreateSoftwareDocumentPage() {
 			const fileIds = await Promise.all(
 				files.map((file) => {
 					return uploadFileTrigger({ userId, file }).unwrap();
-				})
+				}),
 			);
 			await createTrigger({
 				softwareVersionId: softwareVersionId!,
@@ -116,7 +121,7 @@ export default function CreateSoftwareDocumentPage() {
 	return (
 		<Stack spacing={1}>
 			<Typography variant="h5" mb={3} textAlign="center">
-				{t('addDocument')}
+				{t('addSoftwareDocument')}
 			</Typography>
 			{isCreating && <LinearProgress />}
 			<Stack mb={2}>
@@ -145,12 +150,15 @@ export default function CreateSoftwareDocumentPage() {
 				size="small"
 				label={t('documentName')}
 				value={documentCreating?.name}
-				onChange={(e) =>
-					setDocumentCreating((prev) => ({
-						...prev,
-						name: e.target.value, // Lưu documentTypeId vào state
-					}))
-				}
+				helperText={t('hyperTextMedium')}
+				onChange={(e) => {
+					const newValue = e.target.value;
+					if (isValidLength(newValue, TextLength.Medium))
+						setDocumentCreating((prev) => ({
+							...prev,
+							name: newValue,
+						}));
+				}}
 				placeholder={`${t('enter')} ${t('documentName').toLowerCase()}...`}
 			/>
 
@@ -162,13 +170,16 @@ export default function CreateSoftwareDocumentPage() {
 					<TextField
 						fullWidth
 						size="medium"
+						helperText={t('hyperTextVeryLong')}
 						value={documentCreating?.description}
-						onChange={(e) =>
-							setDocumentCreating((prev) => ({
-								...prev,
-								description: e.target.value, // Lưu documentTypeId vào state
-							}))
-						}
+						onChange={(e) => {
+							const newValue = e.target.value;
+							if (isValidLength(newValue, TextLength.VeryLong))
+								setDocumentCreating((prev) => ({
+									...prev,
+									description: newValue,
+								}));
+						}}
 						placeholder={`${t('enter')} ${t('documentDescription').toLowerCase()}...`}
 						multiline
 						rows={4}

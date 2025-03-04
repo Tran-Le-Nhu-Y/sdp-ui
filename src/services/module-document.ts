@@ -110,7 +110,6 @@ export const moduleDocumentApi = createApi({
 				body: {
 					name: data.name,
 					description: data.description,
-					attachmentIds: data.attachmentIds,
 				},
 			}),
 			invalidatesTags(_result, _error, arg) {
@@ -144,7 +143,7 @@ export const moduleDocumentApi = createApi({
 						`${baseUrl}/${documentId}/attachment`,
 						{
 							method: 'GET',
-						}
+						},
 					);
 					const atmIds: string[] = await atmIdsResponse.json();
 					const atmMetadataResponses: FileMetadataResponse[] =
@@ -154,10 +153,10 @@ export const moduleDocumentApi = createApi({
 									`${import.meta.env.VITE_FILE_API}/v1/file/${atmId}/metadata`,
 									{
 										method: 'GET',
-									}
+									},
 								);
 								return response.json();
-							})
+							}),
 						);
 					return {
 						data: atmMetadataResponses.map(toFileMetadata),

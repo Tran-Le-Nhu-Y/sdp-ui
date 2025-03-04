@@ -157,7 +157,6 @@ declare interface ModuleDocumentCreateRequest {
 declare interface ModuleDocumentUpdateRequest {
 	name: string;
 	description?: string?;
-	attachmentIds: string[];
 	moduleDocumentId: string;
 }
 

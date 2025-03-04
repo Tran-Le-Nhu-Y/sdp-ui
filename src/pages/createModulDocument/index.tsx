@@ -20,7 +20,12 @@ import {
 	useCreateModuleDocument,
 	useGetAllDocumentTypesByUserId,
 } from '../../services';
-import { HideDuration, PathHolders } from '../../utils';
+import {
+	HideDuration,
+	isValidLength,
+	PathHolders,
+	TextLength,
+} from '../../utils';
 
 export default function CreateModuleDocumentPage() {
 	const { t } = useTranslation();
@@ -30,7 +35,6 @@ export default function CreateModuleDocumentPage() {
 	const notifications = useNotifications();
 	const moduleVersionId = useParams()[PathHolders.MODULE_VERSION_ID];
 	const [createModuleDocumentTrigger] = useCreateModuleDocument();
-	const userId = 'd28bf637-280e-49b5-b575-5278b34d1dfe';
 
 	const [documentTypeQuery] = useState<GetAllDocumentTypeQuery>({
 		userId: userId,
@@ -117,7 +121,7 @@ export default function CreateModuleDocumentPage() {
 	return (
 		<Stack>
 			<Typography variant="h5" mb={3} textAlign="center">
-				{t('addDocument')}
+				{t('addModuleDocument')}
 			</Typography>
 			<Stack mb={2}>
 				<FormControl fullWidth size="small">
@@ -145,12 +149,15 @@ export default function CreateModuleDocumentPage() {
 				size="small"
 				label={t('documentName')}
 				value={moduleDocumentCreating?.name}
-				onChange={(e) =>
-					setModuleDocumentCreating((prev) => ({
-						...prev,
-						name: e.target.value, // Lưu documentTypeId vào state
-					}))
-				}
+				helperText={t('hyperTextMedium')}
+				onChange={(e) => {
+					const newValue = e.target.value;
+					if (isValidLength(newValue, TextLength.Medium))
+						setModuleDocumentCreating((prev) => ({
+							...prev,
+							name: newValue,
+						}));
+				}}
 				placeholder={`${t('enter')} ${t('documentName').toLowerCase()}...`}
 			/>
 
@@ -163,12 +170,15 @@ export default function CreateModuleDocumentPage() {
 						fullWidth
 						size="medium"
 						value={moduleDocumentCreating?.description}
-						onChange={(e) =>
-							setModuleDocumentCreating((prev) => ({
-								...prev,
-								description: e.target.value, // Lưu documentTypeId vào state
-							}))
-						}
+						helperText={t('hyperTextVeryLong')}
+						onChange={(e) => {
+							const newValue = e.target.value;
+							if (isValidLength(newValue, TextLength.VeryLong))
+								setModuleDocumentCreating((prev) => ({
+									...prev,
+									description: newValue,
+								}));
+						}}
 						placeholder={`${t('enter')} ${t('documentDescription').toLowerCase()}...`}
 						multiline
 						rows={4}
