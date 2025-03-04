@@ -35,6 +35,7 @@ import {
 	ModifyModuleDocumentPage,
 	ModuleDocumentDetailPage,
 	DeploymentPhaseTypePage,
+	DeploymentProcessDetailPage,
 } from './pages/index.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
@@ -136,6 +137,7 @@ const router = createBrowserRouter(
 				path={RoutePaths.TEMPLATE_COMPLETE_DEPLOYMENT}
 				element={<TemplateCompleteDeploymentPage />}
 			/>
+			<Route path="logout" element={<DeploymentProcessDetailPage />} />
 		</Route>,
 	),
 );
