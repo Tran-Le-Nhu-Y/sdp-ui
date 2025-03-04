@@ -24,7 +24,7 @@ import {
 } from '../../services';
 import { DataGridProps, GridColDef } from '@mui/x-data-grid';
 import { HideDuration, RoutePaths } from '../../utils';
-import { useNotifications } from '@toolpad/core';
+import { useNotifications, useSession } from '@toolpad/core';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 function SelectCustomerSection({
@@ -131,10 +131,12 @@ function SelectCustomerSection({
 }
 
 function SelectSoftwareAndVersionSection({
+	userId,
 	open,
 	onOpenChange,
 	onModelChange,
 }: {
+	userId: string;
 	open: boolean;
 	onOpenChange: (isOpen: boolean) => void;
 	onModelChange: (model?: { softwareId: string; versionId: string }) => void;
@@ -143,7 +145,7 @@ function SelectSoftwareAndVersionSection({
 	const [selectedModel, setSelectedModel] = useState<SoftwareAndVersion>();
 	const [versionQuery, setVersionQuery] =
 		useState<GetAllSoftwareVersionByUserQuery>({
-			userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+			userId: userId,
 			softwareName: '',
 			versionName: '',
 			pageNumber: 0,
@@ -415,6 +417,8 @@ function SelectModuleAndVersionSection({
 
 export default function CreateDeploymentProcessPage() {
 	const { t } = useTranslation();
+	const session = useSession();
+	const userId = session?.user?.id ?? '';
 	const notifications = useNotifications();
 	const navigate = useNavigate();
 	const [expandControl, setExpandControl] = useState({
@@ -430,7 +434,6 @@ export default function CreateDeploymentProcessPage() {
 		}>
 	>();
 	const [, setFiles] = useState<FileAttachment[]>([]);
-	const userId = 'd28bf637-280e-49b5-b575-5278b34d1dfe';
 
 	const [createProcessTrigger, { isLoading: isCreateLoading }] =
 		useCreateDeploymentProcess();

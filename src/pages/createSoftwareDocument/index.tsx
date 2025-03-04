@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { DragAndDropForm } from '../../components';
 import { useEffect, useState } from 'react';
-import { useNotifications } from '@toolpad/core';
+import { useNotifications, useSession } from '@toolpad/core';
 import {
 	useCreateFile,
 	useCreateSoftwareDocument,
@@ -27,7 +27,8 @@ export default function CreateSoftwareDocumentPage() {
 	const navigate = useNavigate();
 	const notifications = useNotifications();
 	const softwareVersionId = useParams()[PathHolders.SOFTWARE_VERSION_ID];
-	const userId = 'd28bf637-280e-49b5-b575-5278b34d1dfe';
+	const session = useSession();
+	const userId = session?.user?.id ?? '';
 
 	const [documentTypeQuery] = useState<GetAllDocumentTypeQuery>({
 		userId: userId,

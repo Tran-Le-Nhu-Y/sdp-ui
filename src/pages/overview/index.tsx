@@ -20,7 +20,7 @@ import {
 } from '../../components';
 import { useState } from 'react';
 import { t } from 'i18next';
-import { useNotifications } from '@toolpad/core';
+import { useNotifications, useSession } from '@toolpad/core';
 import { HideDuration } from '../../utils';
 import { useGetAllCustomers, useGetAllSoftwareByUserId } from '../../services';
 
@@ -56,6 +56,7 @@ function a11yProps(index: number) {
 export default function OverviewPage() {
 	const { t } = useTranslation();
 	const [value, setValue] = React.useState(0);
+	const session = useSession();
 
 	const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
 		setValue(newValue);
@@ -75,7 +76,7 @@ export default function OverviewPage() {
 				</Tabs>
 			</Box>
 			<CustomTabPanel value={value} index={0}>
-				<ProductTable />
+				<ProductTable userId={session?.user?.id ?? ''} />
 			</CustomTabPanel>
 			<CustomTabPanel value={value} index={1}>
 				<CustomerTable />
@@ -87,11 +88,11 @@ export default function OverviewPage() {
 	);
 }
 
-const ProductTable = () => {
+const ProductTable = ({ userId }: { userId: string }) => {
 	const notifications = useNotifications();
 	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 	const [softwareQuery, setSoftwareQuery] = useState<GetAllSoftwareQuery>({
-		userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+		userId: userId,
 		softwareName: '',
 		pageNumber: 0,
 		pageSize: 6,

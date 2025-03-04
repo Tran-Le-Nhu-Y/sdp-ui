@@ -14,7 +14,7 @@ import {
 } from '@mui/material';
 import { DragAndDropForm, FileAttachment } from '../../components';
 import { useEffect, useState } from 'react';
-import { useNotifications } from '@toolpad/core';
+import { useNotifications, useSession } from '@toolpad/core';
 import {
 	useCreateModuleDocument,
 	useGetAllDocumentTypesByUserId,
@@ -23,13 +23,15 @@ import { HideDuration, PathHolders } from '../../utils';
 
 export default function CreateModuleDocumentPage() {
 	const { t } = useTranslation();
+	const session = useSession();
+	const userId = session?.user?.id ?? '';
 	const navigate = useNavigate();
 	const notifications = useNotifications();
 	const [, setFiles] = useState<FileAttachment[]>([]);
 	const moduleVersionId = useParams()[PathHolders.MODULE_VERSION_ID];
 	const [createModuleDocumentTrigger] = useCreateModuleDocument();
 	const [documentTypeQuery] = useState<GetAllDocumentTypeQuery>({
-		userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+		userId: userId,
 		documentTypeName: '',
 		pageNumber: 0,
 		pageSize: 6,
