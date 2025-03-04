@@ -72,6 +72,7 @@ export enum RoutePaths {
 
 	DEPLOYMENT_PROCESS = '/deployment/process',
 	CREATE_DEPLOYMENT_PROCESS = '/deployment/process/create',
+	DEPLOYMENT_PROCESS_DETAIL = `/deployment/process/:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
 
 	DEPLOYMENT_PHASE_TYPE = '/deployment/phase-type',
 

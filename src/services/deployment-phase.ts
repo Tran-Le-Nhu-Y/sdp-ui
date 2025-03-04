@@ -28,7 +28,7 @@ export const deploymentPhaseApi = createApi({
 				return result
 					? [
 							...result.content.map(
-								({ id }) => ({ type: 'DeploymentPhase', id }) as const
+								({ id }) => ({ type: 'DeploymentPhase', id }) as const,
 							),
 							pagingTag,
 						]

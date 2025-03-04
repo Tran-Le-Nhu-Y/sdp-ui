@@ -24,6 +24,7 @@ import CreateModuleDocumentPage from './createModulDocument';
 import ModifyModuleDocumentPage from './modifyModuleDocument';
 import ModuleDocumentDetailPage from './moduleDocumentDetail';
 import DeploymentPhaseTypePage from './deploymentPhaseType';
+import DeploymentProcessDetailPage from './deploymentProcessDetail';
 
 export {
 	OverviewPage,
@@ -40,6 +41,7 @@ export {
 	CreateModuleVersionPage,
 	ModifyModuleVersionPage,
 	DeploymentProcessPage,
+	DeploymentProcessDetailPage,
 	DeploymentPhaseTypePage,
 	CreateDeploymentProcessPage,
 	CreateSoftwareDocumentPage,
