@@ -12,10 +12,11 @@ import {
 	TextField,
 	Typography,
 } from '@mui/material';
-import { DragAndDropForm, FileAttachment } from '../../components';
+import { DragAndDropForm } from '../../components';
 import { useEffect, useState } from 'react';
 import { useNotifications } from '@toolpad/core';
 import {
+	useCreateFile,
 	useCreateModuleDocument,
 	useGetAllDocumentTypesByUserId,
 } from '../../services';
@@ -25,11 +26,12 @@ export default function CreateModuleDocumentPage() {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const notifications = useNotifications();
-	const [, setFiles] = useState<FileAttachment[]>([]);
 	const moduleVersionId = useParams()[PathHolders.MODULE_VERSION_ID];
 	const [createModuleDocumentTrigger] = useCreateModuleDocument();
+	const userId = 'd28bf637-280e-49b5-b575-5278b34d1dfe';
+
 	const [documentTypeQuery] = useState<GetAllDocumentTypeQuery>({
-		userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+		userId: userId,
 		documentTypeName: '',
 		pageNumber: 0,
 		pageSize: 6,
@@ -45,31 +47,52 @@ export default function CreateModuleDocumentPage() {
 			});
 	}, [notifications, documentTypes.error, t]);
 
-	const [moduleDocumentCreating, setModuleDocumentCreating] =
-		useState<SoftwareDocumentCreateRequest>({
-			softwareVersionId: '',
-			documentTypeId: '',
-			name: '',
-		});
+	const [moduleDocumentCreating, setModuleDocumentCreating] = useState<
+		Partial<ModuleDocumentCreateRequest>
+	>({});
+
+	const [files, setFiles] = useState<File[]>([]);
+	const [uploadFileTrigger] = useCreateFile();
+	const handleFilesChange = (uploadedFiles: File[]) => {
+		setFiles(uploadedFiles);
+	};
 
 	const handleSubmit = async () => {
-		if (!moduleVersionId) return;
-		const newModuleDoc: ModuleDocumentCreateRequest = {
-			moduleVersionId: moduleVersionId,
-			documentTypeId: moduleDocumentCreating.documentTypeId,
-			name: moduleDocumentCreating.name,
-			description: moduleDocumentCreating.description,
-			attachmentIds: [],
+		const validate = () => {
+			if (!moduleDocumentCreating.documentTypeId) {
+				notifications.show(t('documentTypeRequired'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+
+			if (!moduleDocumentCreating.name?.trim()) {
+				notifications.show(t('softwareDocumentNameRequired'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+
+			return true;
 		};
-		if (!moduleDocumentCreating.name.trim()) {
-			notifications.show(t('softwareDocumentNameRequired'), {
-				severity: 'warning',
-				autoHideDuration: HideDuration.fast,
-			});
-			return;
-		}
+		if (!validate()) return;
+
 		try {
-			await createModuleDocumentTrigger(newModuleDoc);
+			const fileIds = await Promise.all(
+				files.map((file) => {
+					return uploadFileTrigger({ userId, file }).unwrap();
+				}),
+			);
+
+			await createModuleDocumentTrigger({
+				moduleVersionId: moduleVersionId!,
+				documentTypeId: moduleDocumentCreating.documentTypeId!,
+				name: moduleDocumentCreating.name!,
+				description: moduleDocumentCreating.description,
+				attachmentIds: fileIds,
+			}).unwrap();
 			navigate(-1);
 			notifications.show(t('createSoftwareDocumentSuccess'), {
 				severity: 'success',
@@ -86,10 +109,6 @@ export default function CreateModuleDocumentPage() {
 
 	const handleCancel = () => {
 		navigate(-1);
-	};
-
-	const handleFilesChange = (uploadedFiles: File[]) => {
-		// setFiles(uploadedFiles);
 	};
 
 	if (documentTypes.isLoading) return <LinearProgress />;

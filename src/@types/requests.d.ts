@@ -164,7 +164,7 @@ declare interface ModuleDocumentUpdateRequest {
 declare interface ModuleDocumentAttachmentUpdateRequest {
 	documentId: string;
 	attachmentId: string;
-	operator: 'ADD' | 'REMOVE';
+	operator: FileOperator;
 }
 
 declare interface MailTemplateCreateRequest {
