@@ -1,3 +1,7 @@
+import { keycloakApi, useGetByIdQuery as useGetUser } from './keycloak-query';
+
+export { keycloakApi, useGetUser };
+
 import {
 	fileApi,
 	useGetQuery as useGetFile,

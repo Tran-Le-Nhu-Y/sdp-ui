@@ -11,6 +11,7 @@ import {
 	mailTemplateApi,
 	moduleDocumentApi,
 	fileApi,
+	keycloakApi,
 } from '../services';
 import { moduleApi } from '../services/module';
 import { moduleVersionApi } from '../services/module-version';
@@ -30,6 +31,7 @@ export const store = configureStore({
 		[moduleDocumentApi.reducerPath]: moduleDocumentApi.reducer,
 		[mailTemplateApi.reducerPath]: mailTemplateApi.reducer,
 		[fileApi.reducerPath]: fileApi.reducer,
+		[keycloakApi.reducerPath]: keycloakApi.reducer,
 	},
 	// Adding the api middleware enables caching, invalidation, polling,
 	// and other useful features of `rtk-query`.
@@ -47,7 +49,8 @@ export const store = configureStore({
 			moduleVersionApi.middleware,
 			moduleDocumentApi.middleware,
 			mailTemplateApi.middleware,
-			fileApi.middleware
+			fileApi.middleware,
+			keycloakApi.middleware
 		);
 	},
 });

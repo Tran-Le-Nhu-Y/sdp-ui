@@ -137,3 +137,11 @@ declare interface MailTemplateResponse {
 	createdAtMs: number;
 	updatedAtMs: number?;
 }
+
+declare interface UserRepresentation {
+	id: string;
+	username: string?;
+	firstName: string?;
+	lastName: string?;
+	email: string?;
+}

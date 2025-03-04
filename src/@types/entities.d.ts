@@ -1,3 +1,10 @@
+declare interface UserMetadata {
+	id: string;
+	firstName: string?;
+	lastName: string?;
+	email: string?;
+}
+
 declare interface FileMetadata {
 	id: string;
 	name: string;
