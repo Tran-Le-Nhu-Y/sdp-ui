@@ -25,7 +25,7 @@ import {
 	useGetAllSoftwareByUserId,
 	useGetAllVersionsBySoftwareId,
 } from '../../services';
-import { useDialogs, useNotifications } from '@toolpad/core';
+import { useDialogs, useNotifications, useSession } from '@toolpad/core';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HideDuration, PathHolders, RoutePaths } from '../../utils';
@@ -208,12 +208,13 @@ function SoftwareVersionInner({
 export default function SoftwarePage() {
 	const { t } = useTranslation('standard');
 	const navigate = useNavigate();
+	const session = useSession();
 	const notifications = useNotifications();
 	const dialogs = useDialogs();
 	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
 
 	const [softwareQuery, setSoftwareQuery] = useState<GetAllSoftwareQuery>({
-		userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+		userId: session?.user?.id ?? '',
 		softwareName: '',
 		pageNumber: 0,
 		pageSize: 6,

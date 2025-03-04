@@ -1,8 +1,15 @@
+import { Box, LinearProgress, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+
 export default function HydrateFallback() {
+	const { t } = useTranslation('standard');
+
 	return (
-		<div id="loading-splash">
-			<div id="loading-splash-spinner" />
-			<p>Loading, please wait...</p>
-		</div>
+		<Box>
+			<LinearProgress />
+			<Typography variant="h6" textAlign="center">
+				{t('loading')}
+			</Typography>
+		</Box>
 	);
 }

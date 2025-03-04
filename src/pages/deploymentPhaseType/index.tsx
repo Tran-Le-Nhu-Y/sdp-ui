@@ -24,12 +24,12 @@ import {
 	useGetDeploymentPhaseTypeById,
 	useUpdateDeploymentPhaseType,
 } from '../../services';
-import { useDialogs, useNotifications } from '@toolpad/core';
+import { useDialogs, useNotifications, useSession } from '@toolpad/core';
 import { HideDuration } from '../../utils';
 import React from 'react';
 import { t } from 'i18next';
 
-function CreateDeploymentPhaseTypeFormDialog() {
+function CreateDeploymentPhaseTypeFormDialog({ userId }: { userId: string }) {
 	const [open, setOpen] = React.useState(false);
 	const [formData, setFormData] = useState({ name: '', description: '' });
 
@@ -56,7 +56,7 @@ function CreateDeploymentPhaseTypeFormDialog() {
 		const newType: DeploymentPhaseTypeCreateRequest = {
 			name: formData.name.trim(),
 			description: formData.description.trim(),
-			userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+			userId: userId,
 		};
 
 		if (!newType.name) {
@@ -240,13 +240,15 @@ function UpdateDeploymentPhaseTypeFormDialog({
 
 export default function DeploymentPhaseTypePage() {
 	const { t } = useTranslation();
+	const session = useSession();
+	const userId = session?.user?.id ?? '';
 	const notifications = useNotifications();
 	const dialogs = useDialogs();
 	const [filterVersionDialogOpen, setFilterVersionDialogOpen] = useState(false);
 
 	const [deploymentPhaseTypeQuery, setDeploymentPhaseTypeQuery] =
 		useState<GetAllDeploymentPhaseTypeQuery>({
-			userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+			userId: userId,
 			name: '',
 			pageNumber: 0,
 			pageSize: 6,
@@ -255,7 +257,7 @@ export default function DeploymentPhaseTypePage() {
 		deploymentPhaseTypeQuery!,
 		{
 			skip: !deploymentPhaseTypeQuery,
-		},
+		}
 	);
 	useEffect(() => {
 		if (types.isError)
@@ -337,7 +339,7 @@ export default function DeploymentPhaseTypePage() {
 					}}
 				/>
 
-				<CreateDeploymentPhaseTypeFormDialog />
+				<CreateDeploymentPhaseTypeFormDialog userId={userId} />
 			</Stack>
 			{types.isLoading ? (
 				<LinearProgress />

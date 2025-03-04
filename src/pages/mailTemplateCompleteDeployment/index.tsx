@@ -16,7 +16,7 @@ import {
 	useUpdateMailTemplate,
 } from '../../services';
 import { HideDuration } from '../../utils';
-import { useNotifications } from '@toolpad/core';
+import { useNotifications, useSession } from '@toolpad/core';
 
 function UseGuideScrollDialog() {
 	const { t } = useTranslation();
@@ -76,6 +76,8 @@ function UseGuideScrollDialog() {
 
 export default function TemplateCompleteDeploymentPage() {
 	const { t } = useTranslation();
+	const session = useSession();
+	const userId = session?.user?.id ?? '';
 	const notifications = useNotifications();
 	const [content, setContent] = useState<string | null>(null);
 	const [isEditing, setIsEditing] = useState(false);
@@ -83,7 +85,6 @@ export default function TemplateCompleteDeploymentPage() {
 		useCreateMailTemplate();
 	const [updateMailTemplateTrigger, mailTemplateUpdating] =
 		useUpdateMailTemplate();
-	const userId = 'd28bf637-280e-49b5-b575-5278b34d1dfe';
 
 	const handleEdit = () => {
 		setIsEditing(true);

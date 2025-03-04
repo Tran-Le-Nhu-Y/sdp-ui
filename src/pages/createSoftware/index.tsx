@@ -3,11 +3,13 @@ import { CreateOrModifyForm } from '../../components';
 import { useNavigate } from 'react-router-dom';
 import { useCreateSoftware } from '../../services';
 import { Box } from '@mui/material';
-import { useNotifications } from '@toolpad/core';
+import { useNotifications, useSession } from '@toolpad/core';
 import { HideDuration, RoutePaths } from '../../utils';
 
 export default function CreateSoftwarePage() {
 	const { t } = useTranslation();
+	const session = useSession();
+	const userId = session?.user?.id ?? '';
 	const navigate = useNavigate();
 	const [createSoftwareTrigger, { isLoading: isCreating }] =
 		useCreateSoftware();
@@ -20,7 +22,7 @@ export default function CreateSoftwarePage() {
 		const newSoftware: SoftwareCreateRequest = {
 			name: data.name,
 			description: data.description,
-			userId: 'd28bf637-280e-49b5-b575-5278b34d1dfe',
+			userId: userId,
 		};
 		if (!data.name.trim()) {
 			notifications.show(t('softwareNameRequired'), {

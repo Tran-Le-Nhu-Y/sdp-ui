@@ -1,9 +1,10 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/file-mapper';
+import { fetchAuthQuery } from '../utils';
 
 export const fileApi = createApi({
 	reducerPath: 'fileApi',
-	baseQuery: fetchBaseQuery({
+	baseQuery: fetchAuthQuery({
 		baseUrl: `${import.meta.env.VITE_FILE_API}/v1/file`,
 		jsonContentType: 'application/json',
 		timeout: 300000,

@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { AttachmentList, DragAndDropForm } from '../../components';
 import { useEffect, useMemo, useState } from 'react';
-import { useDialogs, useNotifications } from '@toolpad/core';
+import { useDialogs, useNotifications, useSession } from '@toolpad/core';
 import SaveIcon from '@mui/icons-material/Save';
 import {
 	useCreateFile,
@@ -31,7 +31,8 @@ export default function ModifySoftwareDocumentPage() {
 	const dialogs = useDialogs();
 	const navigate = useNavigate();
 	const notifications = useNotifications();
-	const userId = 'd28bf637-280e-49b5-b575-5278b34d1dfe';
+	const session = useSession();
+	const userId = session?.user?.id ?? '';
 	const documentId = useParams()[PathHolders.SOFTWARE_DOCUMENT_ID];
 	const [loading, setLoading] = useState(false);
 

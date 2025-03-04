@@ -1,74 +1,39 @@
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {
-	Collapse,
-	IconButton,
+	Accordion,
+	AccordionDetails,
+	AccordionProps,
+	AccordionSummary,
 	Stack,
-	StackProps,
-	Tooltip,
 	Typography,
 } from '@mui/material';
 import { DataGrid, DataGridProps } from '@mui/x-data-grid';
-import { t } from 'i18next';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-interface CollapsibleDataGridProps {
-	sx?: StackProps;
+interface CollapsibleDataGridProps extends Omit<AccordionProps, 'children'> {
 	label: string;
-	title: string;
-	collapsible?: boolean;
-	disableCollapsedHelperText?: string;
-	open?: boolean;
-	onOpenChange: (isOpen: boolean) => void;
 	dataProps: DataGridProps;
 }
 
-function CollapsibleDataGrid({
-	sx,
-	open,
-	collapsible = true,
-	disableCollapsedHelperText,
-	label,
-	title,
-	dataProps,
-	onOpenChange,
-}: CollapsibleDataGridProps) {
+function CollapsibleDataGrid(props: CollapsibleDataGridProps) {
+	const { label, title, dataProps } = props;
 	return (
-		<Stack {...sx}>
-			<Stack direction={'row'} spacing={1} width={'auto'}>
-				<Typography variant="h6" sx={{ opacity: 0.8 }}>
-					{label}:
-				</Typography>
-				<Typography
-					variant="h6"
-					overflow={'hidden'}
-					textOverflow={'ellipsis'}
-					sx={{ maxWidth: 600, fontWeight: 10, opacity: 0.8 }}
-				>
-					{title}
-				</Typography>
-				<Tooltip
-					followCursor={!collapsible}
-					title={
-						collapsible ? t('expand/collapse') : disableCollapsedHelperText
-					}
-				>
-					<IconButton
-						size="small"
-						onClick={() => {
-							if (onOpenChange && collapsible) onOpenChange(!open);
-						}}
+		<Accordion {...props}>
+			<AccordionSummary expandIcon={<ExpandMoreIcon />}>
+				<Stack direction={'row'} gap={1}>
+					<Typography variant="h6" sx={{ opacity: 0.8 }}>
+						{label}:
+					</Typography>
+					<Typography
+						variant="h6"
+						overflow={'hidden'}
+						textOverflow={'ellipsis'}
+						sx={{ maxWidth: 600, fontWeight: 10, opacity: 0.8 }}
 					>
-						{open ? (
-							<KeyboardArrowUpIcon />
-						) : (
-							<KeyboardArrowDownIcon
-								color={collapsible ? 'inherit' : 'disabled'}
-							/>
-						)}
-					</IconButton>
-				</Tooltip>
-			</Stack>
-			<Collapse in={collapsible && open} unmountOnExit>
+						{title}
+					</Typography>
+				</Stack>
+			</AccordionSummary>
+			<AccordionDetails>
 				<DataGrid
 					autoPageSize
 					rowSelection
@@ -76,8 +41,8 @@ function CollapsibleDataGrid({
 					keepNonExistentRowsSelected
 					{...dataProps}
 				/>
-			</Collapse>
-		</Stack>
+			</AccordionDetails>
+		</Accordion>
 	);
 }
 
