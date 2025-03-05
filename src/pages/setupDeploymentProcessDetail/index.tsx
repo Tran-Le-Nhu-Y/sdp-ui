@@ -181,7 +181,7 @@ function VerticalLinearStepper() {
 	);
 }
 
-const DeploymentProcessDetailPage = () => {
+const SetupDeploymentProcessPage = () => {
 	const { t } = useTranslation();
 	const [value, setValue] = React.useState(0);
 	const notifications = useNotifications();
@@ -342,55 +342,8 @@ const DeploymentProcessDetailPage = () => {
 					/>
 				</CustomTabPanel>
 			</Box>
-
-			<Typography variant="h6" gutterBottom>
-				{t('progressUpdateHistory')}
-			</Typography>
-			<PaginationTable
-				headers={
-					<>
-						<TableCell key={`deployer`} align="center">
-							{t('deployer')}
-						</TableCell>
-
-						<TableCell key={`email`} align="center">
-							{t('email')}
-						</TableCell>
-						<TableCell key={`process`} align="center">
-							{t('process')}
-						</TableCell>
-						<TableCell key={`updatedDate`} align="center">
-							{t('updatedDate')}
-						</TableCell>
-					</>
-				}
-				count={deploymentData.phases.length ?? 0}
-				rows={deploymentData.phases ?? []}
-				onPageChange={(newPage) =>
-					setModuleQuery((prev) => {
-						return { ...prev, ...newPage };
-					})
-				}
-				getCell={(row) => (
-					<TableRow key={row.id}>
-						<TableCell key={`deployer`} align="center">
-							{row.name}
-						</TableCell>
-
-						<TableCell key={`email`} align="center">
-							{row.email}
-						</TableCell>
-						<TableCell key={`process`} align="center">
-							{row.step}
-						</TableCell>
-						<TableCell key={`updatedDate`} align="center">
-							{row.updatedAt}
-						</TableCell>
-					</TableRow>
-				)}
-			/>
 		</Container>
 	);
 };
 
-export default DeploymentProcessDetailPage;
+export default SetupDeploymentProcessPage;

@@ -5,16 +5,11 @@ import {
 	AccordionSummary,
 	Box,
 	Button,
-	LinearProgress,
 	Stack,
 	Tooltip,
 	Typography,
 } from '@mui/material';
-import {
-	CollapsibleDataGrid,
-	DragAndDropForm,
-	FileAttachment,
-} from '../../components';
+import { CollapsibleDataGrid } from '../../components';
 import { useEffect, useMemo, useState } from 'react';
 import {
 	useCreateDeploymentProcess,
@@ -22,10 +17,11 @@ import {
 	useGetAllVersionsBySoftwareVersionId,
 	useGetAllVersionsByUserId,
 } from '../../services';
-import { DataGridProps, GridColDef } from '@mui/x-data-grid';
+import { GridColDef } from '@mui/x-data-grid';
 import { HideDuration, RoutePaths } from '../../utils';
 import { useNotifications, useSession } from '@toolpad/core';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SaveIcon from '@mui/icons-material/Save';
 
 function SelectCustomerSection({
 	open,
@@ -49,69 +45,6 @@ function SelectCustomerSection({
 		name: string;
 	}>();
 
-	const dataProps: DataGridProps = useMemo(
-		() => ({
-			pageSizeOptions: [5, 10, 25],
-			loading: customers.isLoading,
-			rows: customers.data?.content,
-			rowCount: customers?.data?.totalElements,
-			columns: [
-				{
-					field: 'name',
-					type: 'string',
-					headerName: t('customerName'),
-					sortable: false,
-					editable: false,
-					filterable: false,
-					headerAlign: 'center',
-					width: 400,
-					minWidth: 250,
-				},
-				{
-					field: 'email',
-					type: 'string',
-					headerName: t('email'),
-					sortable: false,
-					editable: false,
-					filterable: false,
-					headerAlign: 'center',
-					align: 'center',
-					width: 400,
-					minWidth: 250,
-				},
-			],
-			checkboxSelection: true,
-			disableMultipleRowSelection: true,
-			getRowId: (row: Customer) => `${row.id}$${row.name}`,
-			rowSelectionModel:
-				selectedCustomer && `${selectedCustomer.id}$${selectedCustomer.name}`,
-			onRowSelectionModelChange: (model) => {
-				if (model.length === 1) {
-					const [id, name] = model[0].toString().split('$');
-					setSelectedCustomer({ id: id, name: name });
-					onCustomerChange(id);
-				} else {
-					setSelectedCustomer(undefined);
-					onCustomerChange(undefined);
-				}
-			},
-			onPaginationModelChange: (model) =>
-				setCustomerQuery((pre) => ({
-					...pre,
-					pageNumber: model.page,
-					pageSize: model.pageSize,
-				})),
-		}),
-		[
-			customers.data?.content,
-			customers.data?.totalElements,
-			customers.isLoading,
-			onCustomerChange,
-			selectedCustomer,
-			t,
-		]
-	);
-
 	const title = useMemo(
 		() => selectedCustomer?.name ?? t('notSelected'),
 		[selectedCustomer?.name, t]
@@ -122,7 +55,70 @@ function SelectCustomerSection({
 			expanded={open}
 			label={t('customer')}
 			title={title}
-			dataProps={dataProps}
+			dataProps={{
+				pageSizeOptions: [5, 10, 25],
+				loading: customers.isLoading,
+				rows: customers.data?.content,
+				rowCount: customers?.data?.totalElements,
+				initialState: {
+					pagination: {
+						paginationModel: {
+							page: 0,
+							pageSize: 5,
+						},
+					},
+				},
+				columns: [
+					{
+						field: 'name',
+						type: 'string',
+						headerName: t('customerName'),
+						sortable: false,
+						editable: false,
+						filterable: false,
+						headerAlign: 'center',
+						width: 400,
+						minWidth: 250,
+					},
+					{
+						field: 'email',
+						type: 'string',
+						headerName: t('email'),
+						sortable: false,
+						editable: false,
+						filterable: false,
+						headerAlign: 'center',
+						align: 'center',
+						width: 400,
+						minWidth: 250,
+					},
+				],
+				checkboxSelection: true,
+				disableMultipleRowSelection: true,
+				getRowId: (row: Customer) => `${row.id}$${row.name}`,
+				rowSelectionModel:
+					selectedCustomer && `${selectedCustomer.id}$${selectedCustomer.name}`,
+				onRowSelectionModelChange: (model) => {
+					if (model.length === 1) {
+						const [id, name] = model[0].toString().split('$');
+						setSelectedCustomer({ id: id, name: name });
+						onCustomerChange(id);
+					} else {
+						setSelectedCustomer(undefined);
+						onCustomerChange(undefined);
+					}
+				},
+				paginationModel: {
+					pageSize: customerQuery.pageSize ?? 5,
+					page: customerQuery.pageNumber ?? 0,
+				},
+				onPaginationModelChange: (model) =>
+					setCustomerQuery((pre) => ({
+						...pre,
+						pageNumber: model.page,
+						pageSize: model.pageSize,
+					})),
+			}}
 			onChange={(_e, expanded) => {
 				onOpenChange(expanded);
 			}}
@@ -192,60 +188,60 @@ function SelectSoftwareAndVersionSection({
 		[selectedModel, t]
 	);
 
-	const dataProps: DataGridProps = useMemo(
-		() => ({
-			pageSizeOptions: [5, 10, 25],
-			loading: pagingData.isLoading,
-			rows: pagingData.data?.content,
-			rowCount: pagingData?.data?.totalElements,
-			columns: columns,
-			checkboxSelection: true,
-			disableMultipleRowSelection: true,
-			getRowId: (row: SoftwareAndVersion) =>
-				`${row.softwareId}$${row.softwareName}$${row.versionId}$${row.versionName}`,
-			rowSelectionModel:
-				selectedModel &&
-				`${selectedModel.softwareId}$${selectedModel.softwareName}$${selectedModel.versionId}$${selectedModel.versionName}`,
-			onRowSelectionModelChange: (model) => {
-				if (model.length === 1) {
-					const [softwareId, softwareName, versionId, versionName] = model[0]
-						.toString()
-						.split('$');
-					setSelectedModel({
-						softwareId,
-						softwareName,
-						versionId,
-						versionName,
-					});
-					onModelChange({ softwareId, versionId });
-				} else {
-					setSelectedModel(undefined);
-					onModelChange(undefined);
-				}
-			},
-			onPaginationModelChange: (model) =>
-				setVersionQuery((pre) => ({
-					...pre,
-					pageNumber: model.page,
-					pageSize: model.pageSize,
-				})),
-		}),
-		[
-			columns,
-			onModelChange,
-			selectedModel,
-			pagingData.data?.content,
-			pagingData.data?.totalElements,
-			pagingData.isLoading,
-		]
-	);
-
 	return (
 		<CollapsibleDataGrid
 			expanded={open}
 			label={t('software')}
 			title={title}
-			dataProps={dataProps}
+			dataProps={{
+				pageSizeOptions: [5, 10, 25],
+				loading: pagingData.isLoading,
+				rows: pagingData.data?.content,
+				rowCount: pagingData?.data?.totalElements,
+				columns: columns,
+				initialState: {
+					pagination: {
+						paginationModel: {
+							page: 0,
+							pageSize: 5,
+						},
+					},
+				},
+				checkboxSelection: true,
+				disableMultipleRowSelection: true,
+				getRowId: (row: SoftwareAndVersion) =>
+					`${row.softwareId}$${row.softwareName}$${row.versionId}$${row.versionName}`,
+				rowSelectionModel:
+					selectedModel &&
+					`${selectedModel.softwareId}$${selectedModel.softwareName}$${selectedModel.versionId}$${selectedModel.versionName}`,
+				onRowSelectionModelChange: (model) => {
+					if (model.length === 1) {
+						const [softwareId, softwareName, versionId, versionName] = model[0]
+							.toString()
+							.split('$');
+						setSelectedModel({
+							softwareId,
+							softwareName,
+							versionId,
+							versionName,
+						});
+						onModelChange({ softwareId, versionId });
+					} else {
+						setSelectedModel(undefined);
+						onModelChange(undefined);
+					}
+				},
+				paginationModel: {
+					pageSize: versionQuery.pageSize ?? 5,
+					page: versionQuery.pageNumber ?? 0,
+				},
+				onPaginationModelChange: (model) =>
+					setVersionQuery((pre) => ({
+						...pre,
+						pageNumber: model.page,
+						pageSize: model.pageSize,
+					})),
+			}}
 			onChange={(_e, expanded) => {
 				onOpenChange(expanded);
 			}}
@@ -321,64 +317,7 @@ function SelectModuleAndVersionSection({
 		[t]
 	);
 
-	const title = useMemo(
-		() => `${selectedModules.length} ${t('selected')}`,
-		[selectedModules.length, t]
-	);
-
-	const dataProps: DataGridProps = useMemo(
-		() => ({
-			pageSizeOptions: [5, 10, 25],
-			loading: pagingData.isLoading,
-			rows: pagingData.data?.content,
-			rowCount: pagingData?.data?.totalElements,
-			columns: columns,
-			checkboxSelection: true,
-			getRowId: (row: ModuleAndVersion) =>
-				`${row.moduleId}$${row.moduleName}$${row.versionId}$${row.versionName}`,
-			rowSelectionModel: selectedModules.map(
-				(model) =>
-					`${model.moduleId}$${model.moduleName}$${model.versionId}$${model.versionName}`
-			),
-			onRowSelectionModelChange: (selectionModel) => {
-				const modules = selectionModel.map((m) => {
-					const [moduleId, moduleName, versionId, versionName] = m
-						.toString()
-						.split('$');
-					return {
-						moduleId,
-						moduleName,
-						versionId,
-						versionName,
-					};
-				});
-				setSelectedModules(modules);
-				onModelChange(
-					modules.map(({ moduleId, versionId }) => ({
-						moduleId: moduleId,
-						versionId: versionId,
-					}))
-				);
-			},
-			onPaginationModelChange: (model) =>
-				setVersionQuery(
-					(pre) =>
-						pre && {
-							...pre,
-							pageNumber: model.page,
-							pageSize: model.pageSize,
-						}
-				),
-		}),
-		[
-			pagingData.isLoading,
-			pagingData.data?.content,
-			pagingData.data?.totalElements,
-			columns,
-			selectedModules,
-			onModelChange,
-		]
-	);
+	const title = `${selectedModules.length} ${t('selected')}`;
 
 	if ((softwareVersionId?.length ?? 0) <= 0)
 		return (
@@ -407,7 +346,61 @@ function SelectModuleAndVersionSection({
 			label={t('moduleList')}
 			expanded={open}
 			title={title}
-			dataProps={dataProps}
+			dataProps={{
+				pageSizeOptions: [5, 10, 25],
+				loading: pagingData.isLoading || pagingData.isFetching,
+				rows: pagingData.data?.content,
+				rowCount: pagingData?.data?.totalElements,
+				columns: columns,
+				initialState: {
+					pagination: {
+						paginationModel: {
+							page: 0,
+							pageSize: 5,
+						},
+					},
+				},
+				checkboxSelection: true,
+				getRowId: (row: ModuleAndVersion) =>
+					`${row.moduleId}$${row.moduleName}$${row.versionId}$${row.versionName}`,
+				rowSelectionModel: selectedModules.map(
+					(model) =>
+						`${model.moduleId}$${model.moduleName}$${model.versionId}$${model.versionName}`
+				),
+				onRowSelectionModelChange: (selectionModel) => {
+					const modules = selectionModel.map((m) => {
+						const [moduleId, moduleName, versionId, versionName] = m
+							.toString()
+							.split('$');
+						return {
+							moduleId,
+							moduleName,
+							versionId,
+							versionName,
+						};
+					});
+					setSelectedModules(modules);
+					onModelChange(
+						modules.map(({ moduleId, versionId }) => ({
+							moduleId: moduleId,
+							versionId: versionId,
+						}))
+					);
+				},
+				paginationModel: {
+					pageSize: versionQuery.pageSize ?? 5,
+					page: versionQuery.pageNumber ?? 0,
+				},
+				onPaginationModelChange: (model) =>
+					setVersionQuery(
+						(pre) =>
+							pre && {
+								...pre,
+								pageNumber: model.page,
+								pageSize: model.pageSize,
+							}
+					),
+			}}
 			onChange={(_e, expanded) => {
 				onOpenChange(expanded);
 			}}
@@ -433,9 +426,8 @@ export default function CreateDeploymentProcessPage() {
 			modules: Array<{ id: string; versionId: string }>;
 		}>
 	>();
-	const [, setFiles] = useState<FileAttachment[]>([]);
 
-	const [createProcessTrigger, { isLoading: isCreateLoading }] =
+	const [createProcessTrigger, { isLoading: isCreating }] =
 		useCreateDeploymentProcess();
 
 	const handleSubmit = async () => {
@@ -468,7 +460,7 @@ export default function CreateDeploymentProcessPage() {
 			const softwareVersionId = processCreating?.software?.versionId;
 
 			await createProcessTrigger({
-				userId,
+				userId: userId,
 				customerId: customerId!,
 				softwareVersionId: softwareVersionId!,
 				moduleVersionIds: moduleVersionIds!,
@@ -490,17 +482,11 @@ export default function CreateDeploymentProcessPage() {
 		navigate(RoutePaths.DEPLOYMENT_PROCESS);
 	};
 
-	const handleFilesChange = (uploadedFiles: File[]) => {
-		// setFiles(uploadedFiles);
-	};
-
 	return (
 		<Stack>
 			<Typography variant="h5" mb={3} textAlign="center">
 				{t('addDeploymentProcess')}
 			</Typography>
-
-			{isCreateLoading && <LinearProgress />}
 
 			<Stack gap={1}>
 				<SelectCustomerSection
@@ -517,6 +503,7 @@ export default function CreateDeploymentProcessPage() {
 				/>
 
 				<SelectSoftwareAndVersionSection
+					userId={userId}
 					open={expandControl.software}
 					onOpenChange={(isOpen) =>
 						setExpandControl((pre) => ({ ...pre, software: isOpen }))
@@ -549,12 +536,17 @@ export default function CreateDeploymentProcessPage() {
 						}));
 					}}
 				/>
-
-				<DragAndDropForm onFilesChange={handleFilesChange} />
 			</Stack>
 
 			<Box mt={3} display="flex" justifyContent="center" gap={2}>
-				<Button variant="contained" color="primary" onClick={handleSubmit}>
+				<Button
+					loading={isCreating}
+					loadingPosition="start"
+					startIcon={<SaveIcon />}
+					variant="contained"
+					color="primary"
+					onClick={handleSubmit}
+				>
 					{t('submit')}
 				</Button>
 				<Button variant="outlined" color="secondary" onClick={handleCancel}>

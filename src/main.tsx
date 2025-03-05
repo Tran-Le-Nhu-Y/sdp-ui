@@ -36,6 +36,7 @@ import {
 	ModuleDocumentDetailPage,
 	DeploymentPhaseTypePage,
 	DeploymentProcessDetailPage,
+	SetupDeploymentProcessPage,
 } from './pages/index.tsx';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
@@ -120,6 +121,14 @@ const router = createBrowserRouter(
 				element={<DeploymentProcessPage />}
 			/>
 			<Route
+				path={RoutePaths.SETUP_DEPLOYMENT_PROCESS}
+				element={<SetupDeploymentProcessPage />}
+			/>
+			<Route
+				path={RoutePaths.DEPLOYMENT_PROCESS_DETAIL}
+				element={<DeploymentProcessDetailPage />}
+			/>
+			<Route
 				path={RoutePaths.CREATE_DEPLOYMENT_PROCESS}
 				element={<CreateDeploymentProcessPage />}
 			/>
@@ -137,7 +146,6 @@ const router = createBrowserRouter(
 				path={RoutePaths.TEMPLATE_COMPLETE_DEPLOYMENT}
 				element={<TemplateCompleteDeploymentPage />}
 			/>
-			<Route path="logout" element={<DeploymentProcessDetailPage />} />
 		</Route>
 	)
 );

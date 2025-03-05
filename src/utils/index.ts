@@ -1,17 +1,6 @@
 import { fetchBaseQuery, FetchBaseQueryArgs } from '@reduxjs/toolkit/query';
 import keycloak from '../services/keycloak';
-
-export function fetchAuthQuery(config?: FetchBaseQueryArgs) {
-	const token = keycloak.token;
-	if (!token) keycloak.logout();
-	return fetchBaseQuery({
-		...config,
-		prepareHeaders(headers) {
-			headers.set('Authorization', `Bearer ${token}`);
-			return headers;
-		},
-	});
-}
+import { DeploymentProcessStatus } from '../@types/entities';
 
 export enum TextLength {
 	Short = 6,
@@ -20,9 +9,6 @@ export enum TextLength {
 	VeryLong = 255,
 	ExtremeLong = 60000,
 }
-
-export const isValidLength = (text: string, length: TextLength) =>
-	text.length <= length;
 
 export enum PathHolders {
 	SOFTWARE_ID = 'softwareId',
@@ -73,6 +59,7 @@ export enum RoutePaths {
 	DEPLOYMENT_PROCESS = '/deployment/process',
 	CREATE_DEPLOYMENT_PROCESS = '/deployment/process/create',
 	DEPLOYMENT_PROCESS_DETAIL = `/deployment/process/:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
+	SETUP_DEPLOYMENT_PROCESS = `/deployment/process/:${PathHolders.DEPLOYMENT_PROCESS_ID}/setup`,
 
 	DEPLOYMENT_PHASE_TYPE = '/deployment/phase-type',
 
@@ -85,8 +72,38 @@ export enum HideDuration {
 	slow = 5000,
 }
 
+export function fetchAuthQuery(config?: FetchBaseQueryArgs) {
+	const token = keycloak.token;
+	if (!token) keycloak.logout();
+	return fetchBaseQuery({
+		...config,
+		prepareHeaders(headers) {
+			headers.set('Authorization', `Bearer ${token}`);
+			return headers;
+		},
+	});
+}
+
+export const isValidLength = (text: string, length: TextLength) =>
+	text.length <= length;
+
 export function getFileSize(bytes: number) {
 	if (bytes < 1e3) return `${bytes} bytes`;
 	else if (bytes >= 1e3 && bytes < 1e6) return `${(bytes / 1e3).toFixed(1)} KB`;
 	else return `${(bytes / 1e6).toFixed(1)} MB`;
+}
+
+export function getDeploymentProcessStatusTransKey(
+	status: DeploymentProcessStatus
+) {
+	const record: Record<
+		DeploymentProcessStatus,
+		'init' | 'pending' | 'inProgress' | 'done'
+	> = {
+		INIT: 'init',
+		PENDING: 'pending',
+		IN_PROGRESS: 'inProgress',
+		DONE: 'done',
+	};
+	return record[status];
 }
