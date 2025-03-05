@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 
 import 'react-quill/dist/quill.snow.css';
 import TextEditor from './TextEditor';
+import { isValidLength, TextLength } from '../utils';
 
 interface CreateOrModifyFormProps {
 	loading?: boolean;
@@ -34,7 +35,7 @@ const CreateOrModifyForm: React.FC<CreateOrModifyFormProps> = ({
 }) => {
 	const [name, setName] = useState(showModifyValues?.name ?? '');
 	const [description, setDescription] = useState(
-		showModifyValues?.description ?? ''
+		showModifyValues?.description ?? '',
 	);
 	const { t } = useTranslation();
 	const handleSubmit = () => {
@@ -51,9 +52,13 @@ const CreateOrModifyForm: React.FC<CreateOrModifyFormProps> = ({
 				<TextField
 					fullWidth
 					size="small"
+					helperText={t('hyperTextMedium')}
 					label={label}
 					value={name}
-					onChange={(e) => setName(e.target.value)}
+					onChange={(e) => {
+						const newValue = e.target.value;
+						if (isValidLength(newValue, TextLength.Medium)) setName(newValue);
+					}}
 					placeholder={`${t('enter')} ${label.toLowerCase()}...`}
 				/>
 			</Box>
