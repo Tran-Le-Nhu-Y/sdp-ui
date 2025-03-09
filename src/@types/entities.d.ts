@@ -1,4 +1,4 @@
-export type ResourceRoles = 'software_admin' | 'deployment_person';
+declare type ResourceRoles = 'software_admin' | 'deployment_person';
 
 declare interface UserMetadata {
 	id: string;

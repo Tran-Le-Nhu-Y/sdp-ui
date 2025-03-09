@@ -93,3 +93,12 @@ declare interface GetAllDeploymentPhaseTypeQuery {
 	pageNumber?: number?;
 	pageSize?: number?;
 }
+
+declare interface UserQuery {
+	email?: string;
+	firstName?: string;
+	lastName?: string;
+	exact: boolean;
+	pageNumber?: number;
+	pageSize?: number;
+}

@@ -1,6 +1,16 @@
-import { fetchBaseQuery, FetchBaseQueryArgs } from '@reduxjs/toolkit/query';
+import {
+	BaseQueryFn,
+	fetchBaseQuery,
+	FetchBaseQueryArgs,
+	FetchBaseQueryError,
+} from '@reduxjs/toolkit/query';
 import keycloak from '../services/keycloak';
-import { DeploymentProcessStatus } from '../@types/entities';
+import axios, {
+	AxiosError,
+	AxiosInstance,
+	AxiosRequestConfig,
+	CreateAxiosDefaults,
+} from 'axios';
 
 export enum TextLength {
 	Short = 6,
@@ -72,14 +82,62 @@ export enum HideDuration {
 	slow = 5000,
 }
 
+export const axiosBaseQuery =
+	(
+		instance: AxiosInstance
+	): BaseQueryFn<
+		{
+			url: string;
+			method?: AxiosRequestConfig['method'];
+			data?: AxiosRequestConfig['data'];
+			params?: AxiosRequestConfig['params'];
+			headers?: AxiosRequestConfig['headers'];
+		},
+		unknown,
+		FetchBaseQueryError
+	> =>
+	async ({ url, method, data, params, headers }) => {
+		try {
+			const result = await instance({
+				url,
+				method,
+				data,
+				params,
+				headers,
+			});
+			return { data: result.data };
+		} catch (axiosError) {
+			const err = axiosError as AxiosError;
+			return {
+				error: {
+					status: err.response!.status!,
+					data: err.response?.data || err.message,
+				},
+			};
+		}
+	};
+
 export function fetchAuthQuery(config?: FetchBaseQueryArgs) {
 	const token = keycloak.token;
 	if (!token) keycloak.logout();
 	return fetchBaseQuery({
 		...config,
-		prepareHeaders(headers) {
+		prepareHeaders(headers, api) {
 			headers.set('Authorization', `Bearer ${token}`);
+			if (config?.prepareHeaders) config.prepareHeaders(headers, api);
 			return headers;
+		},
+	});
+}
+
+export function createAxiosInstance(config?: CreateAxiosDefaults) {
+	const token = keycloak.token;
+	if (!token) keycloak.logout();
+	return axios.create({
+		...config,
+		headers: {
+			...config?.headers,
+			Authorization: `Bearer ${token}`,
 		},
 	});
 }
@@ -106,4 +164,23 @@ export function getDeploymentProcessStatusTransKey(
 		DONE: 'done',
 	};
 	return record[status];
+}
+
+const RESOURCE_CLIENT = import.meta.env.VITE_KEYCLOAK_RESOURCE_CLIENT;
+export function checkRoles({
+	checkAll = true,
+	requiredRoles,
+}: {
+	checkAll?: boolean;
+	requiredRoles?: ResourceRoles[];
+}) {
+	if (!requiredRoles) return true;
+
+	if (checkAll)
+		return requiredRoles.every((role) =>
+			keycloak.hasResourceRole(role, RESOURCE_CLIENT)
+		);
+	return requiredRoles.some((role) =>
+		keycloak.hasResourceRole(role, RESOURCE_CLIENT)
+	);
 }

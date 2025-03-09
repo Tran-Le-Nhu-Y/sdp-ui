@@ -1,15 +1,14 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/deployment-process-mapper';
-import { fetchAuthQuery } from '../utils';
+import { axiosBaseQuery } from '../utils';
+import { softwareInst, userInst } from './instance';
+import { AxiosError } from 'axios';
 
+const EXTENSION_URL = 'deployment-process';
 export const deploymentProcessApi = createApi({
 	reducerPath: 'deploymentProcessApi',
-	baseQuery: fetchAuthQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/deployment-process`,
-		jsonContentType: 'application/json',
-		timeout: 300000,
-	}),
-	tagTypes: ['PagingDeploymentProcess', 'DeploymentProcess'],
+	baseQuery: axiosBaseQuery(softwareInst),
+	tagTypes: ['PagingDeploymentProcess', 'DeploymentProcess', 'Member'],
 	endpoints: (builder) => ({
 		getAllProcesses: builder.query<
 			PagingWrapper<DeploymentProcess>,
@@ -22,7 +21,7 @@ export const deploymentProcessApi = createApi({
 				pageNumber,
 				pageSize,
 			}) => ({
-				url: ``,
+				url: `/${EXTENSION_URL}`,
 				method: 'GET',
 				params: {
 					softwareVersionName: softwareVersionName,
@@ -60,7 +59,7 @@ export const deploymentProcessApi = createApi({
 		}),
 		getProcess: builder.query<DeploymentProcess, string>({
 			query: (processId) => ({
-				url: `/${processId}`,
+				url: `/${EXTENSION_URL}/${processId}`,
 				method: 'GET',
 			}),
 			providesTags(result) {
@@ -80,12 +79,50 @@ export const deploymentProcessApi = createApi({
 				return toEntity(rawResult);
 			},
 		}),
+		getMembers: builder.query<Array<UserMetadata>, number>({
+			async queryFn(processId) {
+				try {
+					const memberIds: Array<string> = (
+						await softwareInst.get(`/${EXTENSION_URL}/${processId}/member`, {})
+					).data;
+
+					const users = await Promise.all(
+						memberIds.map(async (id) => {
+							const response: UserRepresentation = (
+								await userInst.get(`/users/${id}`)
+							).data;
+							return response as UserMetadata;
+						})
+					);
+					return { data: users };
+				} catch (axiosError) {
+					const err = axiosError as AxiosError;
+					return {
+						error: {
+							status: err.response!.status!,
+							data: err.response?.data || err.message,
+						},
+					};
+				}
+			},
+			providesTags(result, _err, arg) {
+				const processId = arg;
+				return result
+					? [
+							{
+								type: 'Member',
+								id: processId,
+							} as const,
+						]
+					: [];
+			},
+		}),
 		postProcess: builder.mutation<
 			DeploymentProcess,
 			DeploymentProcessCreateRequest
 		>({
 			query: ({ userId, softwareVersionId, customerId, moduleVersionIds }) => ({
-				url: `/${userId}`,
+				url: `/${EXTENSION_URL}/${userId}`,
 				method: 'POST',
 				body: {
 					softwareVersionId: softwareVersionId,
@@ -105,7 +142,7 @@ export const deploymentProcessApi = createApi({
 		}),
 		putProcess: builder.mutation<void, DeploymentProcessUpdateRequest>({
 			query: ({ processId, status }) => ({
-				url: `/${processId}`,
+				url: `/${EXTENSION_URL}/${processId}`,
 				method: 'PUT',
 				body: {
 					status: status,
@@ -122,9 +159,26 @@ export const deploymentProcessApi = createApi({
 				return baseQueryReturnValue.status;
 			},
 		}),
+		putMember: builder.mutation<void, DeploymentProcessMemberUpdateRequest>({
+			query: ({ processId, memberId, operator }) => ({
+				url: `/${EXTENSION_URL}/${processId}/member`,
+				method: 'PUT',
+				body: {
+					memberId: memberId,
+					operator: operator,
+				},
+			}),
+			invalidatesTags(_result, _error, arg) {
+				const { processId } = arg;
+				return [{ id: processId, type: 'Member' } as const];
+			},
+			transformErrorResponse(baseQueryReturnValue) {
+				return baseQueryReturnValue.status;
+			},
+		}),
 		deleteProcess: builder.mutation<void, number>({
 			query: (processId: number) => ({
-				url: `/${processId}`,
+				url: `/${EXTENSION_URL}/${processId}`,
 				method: 'DELETE',
 			}),
 			invalidatesTags(_result, _error, arg) {
@@ -146,7 +200,9 @@ export const deploymentProcessApi = createApi({
 export const {
 	useGetAllProcessesQuery,
 	useGetProcessQuery,
+	useGetMembersQuery,
 	usePostProcessMutation,
 	usePutProcessMutation,
+	usePutMemberMutation,
 	useDeleteProcessMutation,
 } = deploymentProcessApi;

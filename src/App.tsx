@@ -24,7 +24,7 @@ import {
 	PageContainer,
 	Session,
 } from '@toolpad/core';
-import { PathHolders } from './utils';
+import { checkRoles, PathHolders } from './utils';
 import { useEffect, useMemo, useState } from 'react';
 import keycloak from './services/keycloak';
 import { HydrateFallback } from './components';
@@ -122,7 +122,7 @@ function CustomToolbarActions() {
 					>
 						{data.map(({ title, description }, idx) => (
 							<>
-								<ListItem alignItems="flex-start">
+								<ListItem key={idx} alignItems="flex-start">
 									<ListItemText
 										primary={
 											<Typography
@@ -150,7 +150,9 @@ function CustomToolbarActions() {
 										}
 									/>
 								</ListItem>
-								{idx < data.length - 1 && <Divider component="li" />}
+								{idx < data.length - 1 && (
+									<Divider key={`${idx}-divider`} component="li" />
+								)}
 							</>
 						))}
 					</List>
@@ -201,75 +203,95 @@ function App() {
 			});
 	}, []);
 
-	const navigation: Navigation = useMemo(
-		() => [
+	const navigation: Navigation = useMemo(() => {
+		const globalNavs = [
 			{
 				segment: 'overview',
 				title: t('overview'),
 				icon: <DashboardIcon />,
 			},
-			{
-				segment: 'customer',
-				title: t('customer'),
-				icon: <Diversity1Icon />,
-			},
-			{
-				segment: 'software',
-				title: t('software'),
-				icon: <WysiwygIcon />,
-				pattern: `software{/:${PathHolders.SOFTWARE_ID}}*`,
-			},
-			{
-				segment: 'deployment',
-				title: t('deployment'),
-				icon: <DnsIcon />,
-				children: [
-					{
-						segment: 'process',
-						title: t('deploymentProcess'),
-						icon: <DnsIcon />,
-						pattern: `process{/:${PathHolders.DEPLOYMENT_PROCESS_ID}}*`,
-					},
-					{
-						segment: 'phase-type',
-						title: t('deploymentPhaseType'),
-						icon: <LabelIcon />,
-						pattern: `phase-type{/:${PathHolders.DEPLOYMENT_PHASE_TYPE_ID}}*`,
-					},
-				],
-			},
-			{
-				segment: 'document-type',
-				title: t('documentType'),
-				icon: <LabelIcon />,
-			},
-			{
-				segment: 'mail-template',
-				title: t('createMailTemplate'),
-				icon: <ContactMailIcon />,
-				children: [
-					{
-						segment: 'software-expiration',
-						title: t('softwareExpiration'),
-						icon: <AssignmentLateIcon />,
-						pattern: `software-expiration{/:${PathHolders.TEMPLATE_SOFTWARE_EXPIRATION_ID}}*`,
-					},
-					{
-						segment: 'complete-deployment',
-						title: t('completeDeployment'),
-						icon: <AssignmentTurnedInIcon />,
-						pattern: `complete-deployment{/:${PathHolders.TEMPLATE_COMPLETE_DEPLOYMENT_ID}}*`,
-					},
-				],
-			},
-			{
-				segment: 'notification',
-				title: t('notification'),
-				icon: <NotificationsActiveIcon />,
-			},
-		],
-		[t]
-	);
+		];
+
+		if (checkRoles({ requiredRoles: ['software_admin'] }))
+			return [
+				...globalNavs,
+				{
+					segment: 'customer',
+					title: t('customer'),
+					icon: <Diversity1Icon />,
+				},
+				{
+					segment: 'software',
+					title: t('software'),
+					icon: <WysiwygIcon />,
+					pattern: `software{/:${PathHolders.SOFTWARE_ID}}*`,
+				},
+				{
+					segment: 'deployment',
+					title: t('deployment'),
+					icon: <DnsIcon />,
+					children: [
+						{
+							segment: 'process',
+							title: t('deploymentProcess'),
+							icon: <DnsIcon />,
+							pattern: `process{/:${PathHolders.DEPLOYMENT_PROCESS_ID}}*`,
+						},
+						{
+							segment: 'phase-type',
+							title: t('deploymentPhaseType'),
+							icon: <LabelIcon />,
+							pattern: `phase-type{/:${PathHolders.DEPLOYMENT_PHASE_TYPE_ID}}*`,
+						},
+					],
+				},
+				{
+					segment: 'document-type',
+					title: t('documentType'),
+					icon: <LabelIcon />,
+				},
+				{
+					segment: 'mail-template',
+					title: t('createMailTemplate'),
+					icon: <ContactMailIcon />,
+					children: [
+						{
+							segment: 'software-expiration',
+							title: t('softwareExpiration'),
+							icon: <AssignmentLateIcon />,
+							pattern: `software-expiration{/:${PathHolders.TEMPLATE_SOFTWARE_EXPIRATION_ID}}*`,
+						},
+						{
+							segment: 'complete-deployment',
+							title: t('completeDeployment'),
+							icon: <AssignmentTurnedInIcon />,
+							pattern: `complete-deployment{/:${PathHolders.TEMPLATE_COMPLETE_DEPLOYMENT_ID}}*`,
+						},
+					],
+				},
+				{
+					segment: 'notification',
+					title: t('notification'),
+					icon: <NotificationsActiveIcon />,
+				},
+			];
+		else if (checkRoles({ requiredRoles: ['deployment_person'] }))
+			return [
+				...globalNavs,
+				{
+					segment: 'deployment/process',
+					title: t('deploymentProcess'),
+					icon: <DnsIcon />,
+					pattern: `deployment/process{/:${PathHolders.DEPLOYMENT_PROCESS_ID}}*`,
+				},
+				{
+					segment: 'notification',
+					title: t('notification'),
+					icon: <NotificationsActiveIcon />,
+				},
+			];
+		else return [];
+	}, [t]);
 
 	const authentication: Authentication = useMemo(() => {
 		return {

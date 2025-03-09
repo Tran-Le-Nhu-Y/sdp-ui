@@ -1,12 +1,12 @@
 declare interface PagingWrapper<T> {
 	content: Array<T>;
-	first: boolean;
-	last: boolean;
+	first?: boolean;
+	last?: boolean;
 	number: number;
-	numberOfElements: number;
 	size: number;
+	numberOfElements: number;
 	totalElements: number;
-	totalPages: number;
+	totalPages?: number;
 }
 
 declare interface FileMetadataResponse {

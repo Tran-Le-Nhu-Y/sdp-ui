@@ -2,7 +2,6 @@ import {
 	Typography,
 	TableCell,
 	TableRow,
-	Container,
 	Paper,
 	Stack,
 	Box,
@@ -13,19 +12,32 @@ import {
 	StepContent,
 	Stepper,
 	StepButton,
+	Select,
+	MenuItem,
+	FormControl,
+	CircularProgress,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PaginationTable } from '../../components';
+import { PaginationTable, TabPanel } from '../../components';
 import { useParams } from 'react-router-dom';
+import { HideDuration, PathHolders } from '../../utils';
 import {
-	getDeploymentProcessStatusTransKey,
-	HideDuration,
-	PathHolders,
-} from '../../utils';
-import { useGetDeploymentProcess } from '../../services';
+	useGetAllUsers,
+	useGetDeploymentProcess,
+	useUpdateDeploymentProcess,
+} from '../../services';
 import { useNotifications } from '@toolpad/core';
 import { t } from 'i18next';
+import {
+	DataGrid,
+	GridFilterModel,
+	GridToolbarColumnsButton,
+	GridToolbarContainer,
+	GridToolbarDensitySelector,
+	GridToolbarFilterButton,
+	GridToolbarQuickFilter,
+} from '@mui/x-data-grid';
 
 const deploymentData = {
 	customer: 'Oliver Hansen',
@@ -38,12 +50,6 @@ const deploymentData = {
 		id: i + 1,
 		name: `Module ${i + 1}`,
 		version: '1.0',
-	})),
-	personnel: Array.from({ length: 5 }, (_, i) => ({
-		id: i + 1,
-		name: `Nhân sự ${i + 1}`,
-		phone: '0123456789',
-		email: 'abc@gmail.com',
 	})),
 	phases: [
 		{
@@ -62,28 +68,6 @@ const deploymentData = {
 		},
 	],
 };
-
-interface TabPanelProps {
-	children?: React.ReactNode;
-	index: number;
-	value: number;
-}
-
-function CustomTabPanel(props: TabPanelProps) {
-	const { children, value, index, ...other } = props;
-
-	return (
-		<div
-			role="tabpanel"
-			hidden={value !== index}
-			id={`simple-tabpanel-${index}`}
-			aria-labelledby={`simple-tab-${index}`}
-			{...other}
-		>
-			{value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-		</div>
-	);
-}
 
 function a11yProps(index: number) {
 	return {
@@ -113,7 +97,7 @@ const steps = [
 	},
 ];
 
-function VerticalLinearStepper() {
+function PhaseTab() {
 	const [activeStep, setActiveStep] = React.useState(0);
 
 	const handleNext = () => {
@@ -181,16 +165,185 @@ function VerticalLinearStepper() {
 	);
 }
 
+function ModuleTab() {
+	const [, setModuleQuery] = useState<GetAllModuleQuery>({
+		softwareVersionId: '',
+		moduleName: '',
+		pageNumber: 0,
+		pageSize: 6,
+	});
+
+	return (
+		<PaginationTable
+			headers={
+				<>
+					<TableCell key={`moduleName`} align="center">
+						{t('moduleName')}
+					</TableCell>
+					<TableCell key={`version`} align="center">
+						{t('version')}
+					</TableCell>
+				</>
+			}
+			count={deploymentData.modules.length ?? 0}
+			rows={deploymentData.modules ?? []}
+			onPageChange={(newPage) =>
+				setModuleQuery((prev) => {
+					return { ...prev, ...newPage };
+				})
+			}
+			getCell={(row) => (
+				<TableRow key={row.id}>
+					<TableCell key={`moduleName`} align="center">
+						{row.name}
+					</TableCell>
+
+					<TableCell key={`version`} align="center">
+						{row.version}
+					</TableCell>
+				</TableRow>
+			)}
+		/>
+	);
+}
+
+function PersonnelTab() {
+	const [userQuery, setUserQuery] = useState<UserQuery>({
+		exact: false,
+		pageNumber: 0,
+		pageSize: 5,
+	});
+	const users = useGetAllUsers(userQuery);
+	const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
+	const [filterModel, setFilterModel] = useState<GridFilterModel>();
+
+	return (
+		<Stack
+			direction={{
+				xs: 'column',
+				sm: 'row',
+			}}
+			justifyContent={'space-around'}
+			spacing={2}
+		>
+			<div style={{ display: 'flex', flexDirection: 'column' }}>
+				<DataGrid
+					slots={{
+						toolbar: () => (
+							<GridToolbarContainer>
+								<GridToolbarFilterButton />
+								<GridToolbarDensitySelector />
+								<GridToolbarColumnsButton />
+								<GridToolbarQuickFilter />
+							</GridToolbarContainer>
+						),
+					}}
+					rows={users.data?.content}
+					columns={[
+						{
+							field: 'fullName',
+							headerName: t('fullName'),
+							editable: false,
+							width: 200,
+							valueGetter: (_value, row) => {
+								return `${row.lastName || ''} ${row.firstName || ''}`;
+							},
+						},
+						{
+							field: 'email',
+							editable: false,
+							minWidth: 200,
+							headerName: t('emailAddress'),
+						},
+					]}
+					loading={users.isLoading || users.isFetching}
+					pageSizeOptions={[5, 10, 15]}
+					rowCount={users.data?.totalElements}
+					initialState={{
+						pagination: {
+							paginationModel: {
+								page: 0,
+								pageSize: 5,
+							},
+						},
+					}}
+					keepNonExistentRowsSelected
+					checkboxSelection
+					rowSelectionModel={selectedUserIds}
+					onRowSelectionModelChange={(model) => {
+						setSelectedUserIds(model.map((id) => id.toString()));
+					}}
+					paginationMode="server"
+					paginationModel={{
+						pageSize: userQuery.pageSize ?? 5,
+						page: userQuery.pageNumber ?? 0,
+					}}
+					onPaginationModelChange={(model) =>
+						setUserQuery((pre) => ({
+							...pre,
+							pageNumber: model.page,
+							pageSize: model.pageSize,
+						}))
+					}
+					filterMode="server"
+					filterModel={filterModel}
+					onFilterModelChange={(model) => {
+						setFilterModel(model);
+					}}
+				/>
+			</div>
+			<Stack direction={'column'} spacing={1}>
+				<Typography variant="h6">{t('assignedPersonnel')}</Typography>
+				<PaginationTable
+					headers={
+						<>
+							<TableCell key="fullName" align="center">
+								{t('deployer')}
+							</TableCell>
+							<TableCell key="email" align="center">
+								{t('email')}
+							</TableCell>
+						</>
+					}
+					count={0}
+					rows={[
+						{
+							id: 'test',
+							firstName: 'Test',
+							lastName: 'Test',
+							email: 'mail@gmail.com',
+						},
+					]}
+					onPageChange={(newPage) => {
+						// setModuleQuery((prev) => {
+						// 	return { ...prev, ...newPage };
+						// })
+					}}
+					getCell={(row) => (
+						<TableRow key={row.id}>
+							<TableCell key={`fullName`} align="center">
+								{`${row.lastName} ${row.firstName}`}
+							</TableCell>
+							<TableCell key={`email`} align="center">
+								{row.email}
+							</TableCell>
+						</TableRow>
+					)}
+				/>
+			</Stack>
+		</Stack>
+	);
+}
+
 const SetupDeploymentProcessPage = () => {
 	const { t } = useTranslation();
 	const [value, setValue] = React.useState(0);
+	const processId = useParams()[PathHolders.DEPLOYMENT_PROCESS_ID];
 	const notifications = useNotifications();
 
 	const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
 		setValue(newValue);
 	};
-
-	const processId = useParams()[PathHolders.DEPLOYMENT_PROCESS_ID];
 
 	const deploymentProcess = useGetDeploymentProcess(processId!, {
 		skip: !processId,
@@ -203,35 +356,71 @@ const SetupDeploymentProcessPage = () => {
 			});
 	}, [notifications, deploymentProcess.isError, t]);
 
-	const [, setModuleQuery] = useState<GetAllModuleQuery>({
-		softwareVersionId: '',
-		moduleName: '',
-		pageNumber: 0,
-		pageSize: 6,
-	});
+	const [updateProcessTrigger, { isLoading: isProcessUpdating }] =
+		useUpdateDeploymentProcess();
+	const handleUpdateProcess = async (data: DeploymentProcessUpdateRequest) => {
+		try {
+			await updateProcessTrigger(data).unwrap();
+
+			notifications.show(t('updateDeploymentProcessSuccess'), {
+				severity: 'success',
+				autoHideDuration: HideDuration.fast,
+			});
+		} catch (error) {
+			notifications.show(t('updateDeploymentProcessError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+			console.error(error);
+		}
+	};
 
 	return (
-		<Container>
-			<Typography variant="h5" align="center" gutterBottom>
-				<strong>{t('deploymentProcessInfor')}</strong>
+		<Box>
+			<Typography variant="h4" align="center" gutterBottom>
+				{t('deploymentProcessInfor')}
 			</Typography>
-			<Stack direction={'row'} justifyContent={'space-between'}>
-				<Stack>
+			<Stack
+				direction={{ xs: 'column', sm: 'row' }}
+				spacing={{
+					xs: 2,
+					sm: 2,
+					md: 0,
+				}}
+				justifyContent={{
+					xs: 'normal',
+					sm: 'space-between',
+				}}
+			>
+				<Stack spacing={1}>
 					<Typography>
 						<strong>{t('customer')}:</strong>{' '}
 						{deploymentProcess.data?.customer.name}
 					</Typography>
 					<Typography>
-						<strong>{t('status')}:</strong>{' '}
-						{deploymentProcess.data?.status &&
-							t(
-								getDeploymentProcessStatusTransKey(
-									deploymentProcess.data?.status
-								)
-							)}
+						<strong>{t('status')}:</strong>
 					</Typography>
+					<FormControl>
+						<Select
+							id="select-deployment-process-status"
+							value={deploymentProcess.data?.status}
+							defaultValue={'INIT'}
+							size="small"
+							onChange={(e) => {
+								handleUpdateProcess({
+									processId: Number(processId),
+									status: e.target.value as DeploymentProcessStatus,
+								});
+							}}
+						>
+							<MenuItem value={'INIT'}>{t('init')}</MenuItem>
+							<MenuItem value={'PENDING'}>{t('pending')}</MenuItem>
+							<MenuItem value={'IN_PROGRESS'}>{t('inProgress')}</MenuItem>
+							<MenuItem value={'DONE'}>{t('done')}</MenuItem>
+						</Select>
+					</FormControl>
 				</Stack>
-				<Stack>
+				<Stack spacing={1}>
 					<Typography>
 						<strong>{t('software')}:</strong>{' '}
 						{deploymentProcess.data?.software.name}
@@ -240,8 +429,14 @@ const SetupDeploymentProcessPage = () => {
 						<strong>{t('version')}:</strong>{' '}
 						{deploymentProcess.data?.software.version}
 					</Typography>
+					{isProcessUpdating && (
+						<Stack direction={'row'} spacing={1}>
+							<CircularProgress size={30} />
+							<Typography variant="subtitle1">{t('loading')}</Typography>
+						</Stack>
+					)}
 				</Stack>
-				<Stack>
+				<Stack spacing={1}>
 					<Typography>
 						<strong>{t('dateCreated')}:</strong>{' '}
 						{deploymentProcess.data?.createdAt}
@@ -253,96 +448,31 @@ const SetupDeploymentProcessPage = () => {
 				</Stack>
 			</Stack>
 
-			<Box sx={{ width: '100%' }}>
-				<Box
+			<Box>
+				<Tabs
 					sx={{
 						borderBottom: 1,
 						borderColor: 'divider',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
 					}}
+					value={value}
+					onChange={handleChange}
+					variant={'fullWidth'}
 				>
-					<Tabs
-						value={value}
-						onChange={handleChange}
-						aria-label="basic tabs example "
-					>
-						<Tab label={t('currentStep')} {...a11yProps(0)} />
-						<Tab label={t('moduleList')} {...a11yProps(1)} />
-						<Tab label={t('personnelList')} {...a11yProps(2)} />
-					</Tabs>
-				</Box>
-				<CustomTabPanel value={value} index={0}>
-					<VerticalLinearStepper />
-				</CustomTabPanel>
-				<CustomTabPanel value={value} index={1}>
-					<PaginationTable
-						headers={
-							<>
-								<TableCell key={`moduleName`} align="center">
-									{t('moduleName')}
-								</TableCell>
-								<TableCell key={`version`} align="center">
-									{t('version')}
-								</TableCell>
-							</>
-						}
-						count={deploymentData.modules.length ?? 0}
-						rows={deploymentData.modules ?? []}
-						onPageChange={(newPage) =>
-							setModuleQuery((prev) => {
-								return { ...prev, ...newPage };
-							})
-						}
-						getCell={(row) => (
-							<TableRow key={row.id}>
-								<TableCell key={`moduleName`} align="center">
-									{row.name}
-								</TableCell>
-
-								<TableCell key={`version`} align="center">
-									{row.version}
-								</TableCell>
-							</TableRow>
-						)}
-					/>
-				</CustomTabPanel>
-				<CustomTabPanel value={value} index={2}>
-					<PaginationTable
-						headers={
-							<>
-								<TableCell key={`deployer`} align="center">
-									{t('deployer')}
-								</TableCell>
-
-								<TableCell key={`email`} align="center">
-									{t('email')}
-								</TableCell>
-							</>
-						}
-						count={deploymentData.personnel.length ?? 0}
-						rows={deploymentData.personnel ?? []}
-						onPageChange={(newPage) =>
-							setModuleQuery((prev) => {
-								return { ...prev, ...newPage };
-							})
-						}
-						getCell={(row) => (
-							<TableRow key={row.id}>
-								<TableCell key={`deployer`} align="center">
-									{row.name}
-								</TableCell>
-
-								<TableCell key={`email`} align="center">
-									{row.email}
-								</TableCell>
-							</TableRow>
-						)}
-					/>
-				</CustomTabPanel>
+					<Tab label={t('phases')} {...a11yProps(0)} />
+					<Tab label={t('moduleList')} {...a11yProps(1)} />
+					<Tab label={t('personnelPerforms')} {...a11yProps(2)} />
+				</Tabs>
+				<TabPanel value={value} index={0}>
+					<PhaseTab />
+				</TabPanel>
+				<TabPanel value={value} index={1}>
+					<ModuleTab />
+				</TabPanel>
+				<TabPanel value={value} index={2}>
+					<PersonnelTab />
+				</TabPanel>
 			</Box>
-		</Container>
+		</Box>
 	);
 };
 

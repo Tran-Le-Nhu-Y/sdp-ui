@@ -1,6 +1,9 @@
-import { keycloakApi, useGetByIdQuery as useGetUser } from './keycloak-query';
-
-export { keycloakApi, useGetUser };
+import {
+	keycloakApi,
+	useGetByIdQuery as useGetUser,
+	useGetAllUsersQuery as useGetAllUsers,
+} from './keycloak-query';
+export { keycloakApi, useGetUser, useGetAllUsers };
 
 import {
 	fileApi,
@@ -109,17 +112,21 @@ export {
 import {
 	deploymentProcessApi,
 	useGetAllProcessesQuery as useGetAllDeploymentProcesses,
+	useGetMembersQuery as useGetDeploymentProcessMembers,
 	useGetProcessQuery as useGetDeploymentProcess,
 	usePostProcessMutation as useCreateDeploymentProcess,
 	usePutProcessMutation as useUpdateDeploymentProcess,
+	usePutMemberMutation as useUpdateDeploymentProcessMember,
 	useDeleteProcessMutation as useDeleteDeploymentProcess,
 } from './deployment-process';
 export {
 	deploymentProcessApi,
 	useGetAllDeploymentProcesses,
 	useGetDeploymentProcess,
+	useGetDeploymentProcessMembers,
 	useCreateDeploymentProcess,
 	useUpdateDeploymentProcess,
+	useUpdateDeploymentProcessMember,
 	useDeleteDeploymentProcess,
 };
 

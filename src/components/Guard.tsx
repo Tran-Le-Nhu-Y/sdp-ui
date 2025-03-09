@@ -1,8 +1,6 @@
 import { ReactNode, useMemo } from 'react';
-import { ResourceRoles } from '../@types/entities';
-import keycloak from '../services/keycloak';
+import { checkRoles } from '../utils';
 
-const RESOURCE_CLIENT = import.meta.env.VITE_KEYCLOAK_RESOURCE_CLIENT;
 const Guard = ({
 	checkAll = true,
 	requiredRoles,
@@ -10,17 +8,12 @@ const Guard = ({
 }: {
 	children: ReactNode;
 	checkAll?: boolean;
-	requiredRoles: Array<ResourceRoles>;
+	requiredRoles?: Array<ResourceRoles>;
 }) => {
-	const result = useMemo(() => {
-		if (checkAll)
-			return requiredRoles.every((role) =>
-				keycloak.hasResourceRole(role, RESOURCE_CLIENT)
-			);
-		return requiredRoles.some((role) =>
-			keycloak.hasResourceRole(role, RESOURCE_CLIENT)
-		);
-	}, [checkAll, requiredRoles]);
+	const result = useMemo(
+		() => checkRoles({ checkAll, requiredRoles }),
+		[checkAll, requiredRoles]
+	);
 
 	return result ? <>{children}</> : <></>;
 };
