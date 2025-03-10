@@ -248,10 +248,12 @@
 	"deleteDeploymentProcessSuccess": "Đã xóa quá trình triển khai",
 	"deleteDeploymentProcessError": "Xóa quá trình triển khai đã xảy ra lỗi",
 
+	"action": "Hành động",
 	"phases": "Các giai đoạn",
 	"personnelPerforms": "Nhân sự thực hiện",
 	"searchPersonnel": "Tìm kiếm nhân sự",
 	"emailAddress": "Địa chỉ Email",
+	"unassignedPersonnel": "Nhân sự chưa được bố trí",
 	"assignedPersonnel": "Nhân sự đã được bố trí",
 	"firstName": "Tên",
 	"lastName": "Họ",

@@ -1,13 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/deployment-process-mapper';
 import { axiosBaseQuery } from '../utils';
-import { softwareInst, userInst } from './instance';
-import { AxiosError } from 'axios';
+import { sdpInstance } from './instance';
 
-const EXTENSION_URL = 'deployment-process';
+const EXTENSION_URL = 'v1/software/deployment-process';
 export const deploymentProcessApi = createApi({
 	reducerPath: 'deploymentProcessApi',
-	baseQuery: axiosBaseQuery(softwareInst),
+	baseQuery: axiosBaseQuery(sdpInstance),
 	tagTypes: ['PagingDeploymentProcess', 'DeploymentProcess', 'Member'],
 	endpoints: (builder) => ({
 		getAllProcesses: builder.query<
@@ -79,32 +78,11 @@ export const deploymentProcessApi = createApi({
 				return toEntity(rawResult);
 			},
 		}),
-		getMembers: builder.query<Array<UserMetadata>, number>({
-			async queryFn(processId) {
-				try {
-					const memberIds: Array<string> = (
-						await softwareInst.get(`/${EXTENSION_URL}/${processId}/member`, {})
-					).data;
-
-					const users = await Promise.all(
-						memberIds.map(async (id) => {
-							const response: UserRepresentation = (
-								await userInst.get(`/users/${id}`)
-							).data;
-							return response as UserMetadata;
-						})
-					);
-					return { data: users };
-				} catch (axiosError) {
-					const err = axiosError as AxiosError;
-					return {
-						error: {
-							status: err.response!.status!,
-							data: err.response?.data || err.message,
-						},
-					};
-				}
-			},
+		getMemberIds: builder.query<Array<string>, number>({
+			query: (processId) => ({
+				url: `/${EXTENSION_URL}/${processId}/member`,
+				method: 'GET',
+			}),
 			providesTags(result, _err, arg) {
 				const processId = arg;
 				return result
@@ -200,7 +178,7 @@ export const deploymentProcessApi = createApi({
 export const {
 	useGetAllProcessesQuery,
 	useGetProcessQuery,
-	useGetMembersQuery,
+	useGetMemberIdsQuery,
 	usePostProcessMutation,
 	usePutProcessMutation,
 	usePutMemberMutation,

@@ -1,7 +1,7 @@
 import { createAxiosInstance } from '../utils';
 
-export const softwareInst = createAxiosInstance({
-	baseURL: `${import.meta.env.VITE_API_GATEWAY}/software`,
+export const sdpInstance = createAxiosInstance({
+	baseURL: `${import.meta.env.VITE_API_GATEWAY}`,
 });
 export const fileInst = createAxiosInstance({
 	baseURL: `${import.meta.env.VITE_FILE_API}/v1/file`,

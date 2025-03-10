@@ -1,14 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/deployment-phase';
-import { fetchAuthQuery } from '../utils';
+import { axiosBaseQuery } from '../utils';
+import { sdpInstance } from './instance';
 
+const EXTENSION_URL = 'v1/software/deployment-process/phase';
 export const deploymentPhaseApi = createApi({
 	reducerPath: 'deploymentPhaseApi',
-	baseQuery: fetchAuthQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/deployment-process/phase`,
-		jsonContentType: 'application/json',
-		timeout: 300000,
-	}),
+	baseQuery: axiosBaseQuery(sdpInstance),
 	tagTypes: ['PagingDeploymentPhases', 'DeploymentPhase'],
 	endpoints: (builder) => ({
 		getAllPhasesByProcessId: builder.query<
@@ -16,7 +14,7 @@ export const deploymentPhaseApi = createApi({
 			GetAllDeploymentPhaseQuery
 		>({
 			query: ({ processId }) => ({
-				url: `${processId}/process`,
+				url: `/${EXTENSION_URL}/${processId}/process`,
 				method: 'GET',
 			}),
 			providesTags(result) {
@@ -28,7 +26,7 @@ export const deploymentPhaseApi = createApi({
 				return result
 					? [
 							...result.content.map(
-								({ id }) => ({ type: 'DeploymentPhase', id }) as const,
+								({ id }) => ({ type: 'DeploymentPhase', id }) as const
 							),
 							pagingTag,
 						]
@@ -47,7 +45,7 @@ export const deploymentPhaseApi = createApi({
 		}),
 		getPhaseById: builder.query<DeploymentPhase, string>({
 			query: (phaseId: string) => ({
-				url: `/${phaseId}`,
+				url: `/${EXTENSION_URL}/${phaseId}`,
 				method: 'GET',
 			}),
 			providesTags(result) {
@@ -69,7 +67,7 @@ export const deploymentPhaseApi = createApi({
 		}),
 		postPhase: builder.mutation<DeploymentPhase, DeploymentPhaseCreateRequest>({
 			query: ({ processId, numOrder, description, typeId }) => ({
-				url: `/${processId}`,
+				url: `/${EXTENSION_URL}/${processId}`,
 				method: 'POST',
 				body: {
 					numOrder: numOrder,
@@ -89,7 +87,7 @@ export const deploymentPhaseApi = createApi({
 		}),
 		putPhase: builder.mutation<void, DeploymentPhaseUpdateRequest>({
 			query: ({ phaseId, numOrder, description }) => ({
-				url: `/${phaseId}`,
+				url: `/${EXTENSION_URL}/${phaseId}`,
 				method: 'PUT',
 				body: {
 					numOrder: numOrder,
@@ -109,7 +107,7 @@ export const deploymentPhaseApi = createApi({
 		}),
 		deletePhase: builder.mutation<void, string>({
 			query: (softwareId: string) => ({
-				url: `/${softwareId}`,
+				url: `/${EXTENSION_URL}/${softwareId}`,
 				method: 'DELETE',
 			}),
 			invalidatesTags(_result, _error, arg) {

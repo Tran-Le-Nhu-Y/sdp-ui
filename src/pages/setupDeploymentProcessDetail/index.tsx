@@ -2,42 +2,42 @@ import {
 	Typography,
 	TableCell,
 	TableRow,
-	Paper,
 	Stack,
 	Box,
 	Tab,
 	Tabs,
-	Button,
-	Step,
-	StepContent,
-	Stepper,
-	StepButton,
 	Select,
 	MenuItem,
 	FormControl,
 	CircularProgress,
+	LinearProgress,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PaginationTable, TabPanel } from '../../components';
 import { useParams } from 'react-router-dom';
 import { HideDuration, PathHolders } from '../../utils';
 import {
-	useGetAllUsers,
+	useGetAllUsersByRole,
 	useGetDeploymentProcess,
+	useGetDeploymentProcessMemberIds,
 	useUpdateDeploymentProcess,
+	useUpdateDeploymentProcessMember,
 } from '../../services';
 import { useNotifications } from '@toolpad/core';
 import { t } from 'i18next';
 import {
 	DataGrid,
-	GridFilterModel,
+	GridActionsCellItem,
+	GridColDef,
 	GridToolbarColumnsButton,
 	GridToolbarContainer,
 	GridToolbarDensitySelector,
 	GridToolbarFilterButton,
 	GridToolbarQuickFilter,
 } from '@mui/x-data-grid';
+import AddIcon from '@mui/icons-material/Add';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 const deploymentData = {
 	customer: 'Oliver Hansen',
@@ -76,93 +76,8 @@ function a11yProps(index: number) {
 	};
 }
 
-const steps = [
-	{
-		label: 'Select campaign settings',
-		description: `For each ad campaign that you create, you can control how much
-              you're willing to spend on clicks and conversions, which networks
-              and geographical locations you want your ads to show on, and more.`,
-	},
-	{
-		label: 'Create an ad group',
-		description:
-			'An ad group contains one or more ads which target a shared set of keywords.',
-	},
-	{
-		label: 'Create an ad',
-		description: `Try out different ad text to see what brings in the most customers,
-              and learn how to enhance your ads using features like ad extensions.
-              If you run into any problems with your ads, find out how to tell if
-              they're running and how to resolve approval issues.`,
-	},
-];
-
 function PhaseTab() {
-	const [activeStep, setActiveStep] = React.useState(0);
-
-	const handleNext = () => {
-		setActiveStep((prevActiveStep) => prevActiveStep + 1);
-	};
-
-	const handleBack = () => {
-		setActiveStep((prevActiveStep) => prevActiveStep - 1);
-	};
-
-	const handleReset = () => {
-		setActiveStep(0);
-	};
-
-	return (
-		<Box sx={{ maxWidth: 400 }}>
-			<Stepper nonLinear activeStep={activeStep} orientation="vertical">
-				{steps.map((step, index) => (
-					<Step key={step.label}>
-						<StepButton
-							optional={
-								index === steps.length - 1 ? (
-									<Typography variant="caption">Last step</Typography>
-								) : null
-							}
-							color="inherit"
-							onClick={() => {
-								setActiveStep(index);
-							}}
-						>
-							{step.label}
-						</StepButton>
-						<StepContent>
-							<Typography>{step.description}</Typography>
-
-							<Box sx={{ mb: 2 }}>
-								<Button
-									variant="contained"
-									onClick={handleNext}
-									sx={{ mt: 1, mr: 1 }}
-								>
-									{index === steps.length - 1 ? t('finish') : t('complete')}
-								</Button>
-								<Button
-									disabled={index === 0}
-									onClick={handleBack}
-									sx={{ mt: 1, mr: 1 }}
-								>
-									{t('return')}
-								</Button>
-							</Box>
-						</StepContent>
-					</Step>
-				))}
-			</Stepper>
-			{activeStep === steps.length && (
-				<Paper square elevation={0} sx={{ p: 3 }}>
-					<Typography>All steps completed - you&apos;re finished</Typography>
-					<Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
-						Reset
-					</Button>
-				</Paper>
-			)}
-		</Box>
-	);
+	return <></>;
 }
 
 function ModuleTab() {
@@ -207,131 +122,183 @@ function ModuleTab() {
 	);
 }
 
-function PersonnelTab() {
-	const [userQuery, setUserQuery] = useState<UserQuery>({
-		exact: false,
-		pageNumber: 0,
-		pageSize: 5,
-	});
-	const users = useGetAllUsers(userQuery);
-	const [selectedUserIds, setSelectedUserIds] = useState<string[]>([]);
-	const [filterModel, setFilterModel] = useState<GridFilterModel>();
+function PersonnelTab({ processId }: { processId: number }) {
+	const userQuery = useGetAllUsersByRole('deployment_person');
+	const memberIdQuery = useGetDeploymentProcessMemberIds(processId);
+	const [updateMemberTrigger, { isLoading: isUpdatingMember }] =
+		useUpdateDeploymentProcessMember();
 
+	const findUsers = useCallback(
+		(isSelected: boolean) => {
+			const memberIds = memberIdQuery.data;
+			if (!memberIds) return [];
+
+			return (
+				userQuery?.data?.filter((user) => {
+					const selected = memberIds.includes(user.id);
+					return isSelected ? selected : !selected;
+				}) ?? []
+			);
+		},
+		[memberIdQuery?.data, userQuery?.data]
+	);
+
+	const unselectedUsers = useMemo(() => findUsers(false), [findUsers]);
+	const unselectedCols: GridColDef[] = useMemo(
+		() => [
+			{
+				field: 'fullName',
+				headerName: t('fullName'),
+				editable: false,
+				width: 200,
+				valueGetter: (_value, row) => {
+					return `${row.lastName || ''} ${row.firstName || ''}`;
+				},
+			},
+			{
+				field: 'email',
+				editable: false,
+				minWidth: 200,
+				headerName: t('emailAddress'),
+			},
+			{
+				field: 'actions',
+				headerName: t('action'),
+				type: 'actions',
+				width: 40,
+				getActions: (params) => [
+					<GridActionsCellItem
+						icon={<AddIcon />}
+						color="success"
+						label="Add"
+						onClick={() => {
+							const memberId = params.id.toString();
+							updateMemberTrigger({
+								processId: processId,
+								memberId: memberId,
+								operator: 'ADD',
+							});
+						}}
+					/>,
+				],
+			},
+		],
+		[processId, updateMemberTrigger]
+	);
+
+	const selectedUsers = useMemo(() => findUsers(true), [findUsers]);
+	const selectedCols: GridColDef[] = useMemo(
+		() => [
+			{
+				field: 'fullName',
+				headerName: t('fullName'),
+				editable: false,
+				width: 200,
+				valueGetter: (_value, row) => {
+					return `${row.lastName || ''} ${row.firstName || ''}`;
+				},
+			},
+			{
+				field: 'email',
+				editable: false,
+				minWidth: 200,
+				headerName: t('emailAddress'),
+			},
+			{
+				field: 'actions',
+				headerName: t('action'),
+				type: 'actions',
+				width: 40,
+				getActions: (params) => [
+					<GridActionsCellItem
+						icon={<DeleteIcon />}
+						color="error"
+						label="Delete"
+						onClick={() => {
+							const memberId = params.id.toString();
+							updateMemberTrigger({
+								processId: processId,
+								memberId: memberId,
+								operator: 'REMOVE',
+							});
+						}}
+					/>,
+				],
+			},
+		],
+		[processId, updateMemberTrigger]
+	);
+
+	if (userQuery.isLoading || memberIdQuery.isLoading) return <LinearProgress />;
 	return (
-		<Stack
-			direction={{
-				xs: 'column',
-				sm: 'row',
-			}}
-			justifyContent={'space-around'}
-			spacing={2}
-		>
-			<div style={{ display: 'flex', flexDirection: 'column' }}>
-				<DataGrid
-					slots={{
-						toolbar: () => (
-							<GridToolbarContainer>
-								<GridToolbarFilterButton />
-								<GridToolbarDensitySelector />
-								<GridToolbarColumnsButton />
-								<GridToolbarQuickFilter />
-							</GridToolbarContainer>
-						),
-					}}
-					rows={users.data?.content}
-					columns={[
-						{
-							field: 'fullName',
-							headerName: t('fullName'),
-							editable: false,
-							width: 200,
-							valueGetter: (_value, row) => {
-								return `${row.lastName || ''} ${row.firstName || ''}`;
-							},
-						},
-						{
-							field: 'email',
-							editable: false,
-							minWidth: 200,
-							headerName: t('emailAddress'),
-						},
-					]}
-					loading={users.isLoading || users.isFetching}
-					pageSizeOptions={[5, 10, 15]}
-					rowCount={users.data?.totalElements}
-					initialState={{
-						pagination: {
-							paginationModel: {
-								page: 0,
-								pageSize: 5,
-							},
-						},
-					}}
-					keepNonExistentRowsSelected
-					checkboxSelection
-					rowSelectionModel={selectedUserIds}
-					onRowSelectionModelChange={(model) => {
-						setSelectedUserIds(model.map((id) => id.toString()));
-					}}
-					paginationMode="server"
-					paginationModel={{
-						pageSize: userQuery.pageSize ?? 5,
-						page: userQuery.pageNumber ?? 0,
-					}}
-					onPaginationModelChange={(model) =>
-						setUserQuery((pre) => ({
-							...pre,
-							pageNumber: model.page,
-							pageSize: model.pageSize,
-						}))
-					}
-					filterMode="server"
-					filterModel={filterModel}
-					onFilterModelChange={(model) => {
-						setFilterModel(model);
-					}}
-				/>
-			</div>
-			<Stack direction={'column'} spacing={1}>
-				<Typography variant="h6">{t('assignedPersonnel')}</Typography>
-				<PaginationTable
-					headers={
-						<>
-							<TableCell key="fullName" align="center">
-								{t('deployer')}
-							</TableCell>
-							<TableCell key="email" align="center">
-								{t('email')}
-							</TableCell>
-						</>
-					}
-					count={0}
-					rows={[
-						{
-							id: 'test',
-							firstName: 'Test',
-							lastName: 'Test',
-							email: 'mail@gmail.com',
-						},
-					]}
-					onPageChange={(newPage) => {
-						// setModuleQuery((prev) => {
-						// 	return { ...prev, ...newPage };
-						// })
-					}}
-					getCell={(row) => (
-						<TableRow key={row.id}>
-							<TableCell key={`fullName`} align="center">
-								{`${row.lastName} ${row.firstName}`}
-							</TableCell>
-							<TableCell key={`email`} align="center">
-								{row.email}
-							</TableCell>
-						</TableRow>
-					)}
-				/>
+		<>
+			{isUpdatingMember && <LinearProgress />}
+			<Stack
+				direction={{
+					xs: 'column',
+					sm: 'row',
+				}}
+				justifyContent={'space-around'}
+				spacing={2}
+			>
+				<Stack direction={'column'} spacing={1}>
+					<Typography variant="h6">{t('unassignedPersonnel')}</Typography>
+					<div style={{ display: 'flex', flexDirection: 'column' }}>
+						<DataGrid
+							slots={{
+								toolbar: () => (
+									<GridToolbarContainer>
+										<GridToolbarFilterButton />
+										<GridToolbarDensitySelector />
+										<GridToolbarColumnsButton />
+										<GridToolbarQuickFilter />
+									</GridToolbarContainer>
+								),
+							}}
+							rows={unselectedUsers}
+							columns={unselectedCols}
+							pageSizeOptions={[5, 10, 15]}
+							initialState={{
+								pagination: {
+									paginationModel: {
+										page: 0,
+										pageSize: 5,
+									},
+								},
+							}}
+						/>
+					</div>
+				</Stack>
+				<Stack direction={'column'} spacing={1}>
+					<Typography variant="h6">{t('assignedPersonnel')}</Typography>
+					<div style={{ display: 'flex', flexDirection: 'column' }}>
+						<DataGrid
+							slots={{
+								toolbar: () => (
+									<GridToolbarContainer>
+										<GridToolbarFilterButton />
+										<GridToolbarDensitySelector />
+										<GridToolbarColumnsButton />
+										<GridToolbarQuickFilter />
+									</GridToolbarContainer>
+								),
+							}}
+							rows={selectedUsers}
+							columns={selectedCols}
+							pageSizeOptions={[5, 10, 15]}
+							initialState={{
+								pagination: {
+									paginationModel: {
+										page: 0,
+										pageSize: 5,
+									},
+								},
+							}}
+						/>
+					</div>
+				</Stack>
 			</Stack>
-		</Stack>
+		</>
 	);
 }
 
@@ -469,7 +436,7 @@ const SetupDeploymentProcessPage = () => {
 					<ModuleTab />
 				</TabPanel>
 				<TabPanel value={value} index={2}>
-					<PersonnelTab />
+					<PersonnelTab processId={Number(processId)} />
 				</TabPanel>
 			</Box>
 		</Box>
