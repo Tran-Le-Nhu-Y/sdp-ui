@@ -1,16 +1,14 @@
 // Need to use the React-specific entry point to import createApi
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/software-version-mapper';
-import { fetchAuthQuery } from '../utils';
+import { axiosBaseQuery } from '../utils';
+import { sdpInstance } from './instance';
 
+const EXTENSION_URL = 'v1/software/version';
 // Define a service using a base URL and expected endpoints
 export const softwareVersionApi = createApi({
 	reducerPath: 'softwareVersionApi',
-	baseQuery: fetchAuthQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/version`,
-		jsonContentType: 'application/json',
-		timeout: 300000,
-	}),
+	baseQuery: axiosBaseQuery(sdpInstance),
 	tagTypes: ['PagingSoftwareVersions', 'SoftwareVersion'],
 	endpoints: (builder) => ({
 		getAllVersionsBySoftwareId: builder.query<
@@ -18,7 +16,7 @@ export const softwareVersionApi = createApi({
 			GetAllSoftwareVersionQuery
 		>({
 			query: ({ softwareId, versionName, pageNumber, pageSize }) => ({
-				url: `/${softwareId}/software`,
+				url: `/${EXTENSION_URL}/${softwareId}/software`,
 				method: 'GET',
 				params: {
 					name: versionName,
@@ -57,7 +55,7 @@ export const softwareVersionApi = createApi({
 			GetAllSoftwareVersionByUserQuery
 		>({
 			query: ({ userId, softwareName, versionName, pageNumber, pageSize }) => ({
-				url: `/${userId}/user`,
+				url: `/${EXTENSION_URL}/${userId}/user`,
 				method: 'GET',
 				params: {
 					softwareName: softwareName,
@@ -80,7 +78,7 @@ export const softwareVersionApi = createApi({
 		}),
 		getSoftwareVersionById: builder.query<SoftwareVersion, string>({
 			query: (versionId: string) => ({
-				url: `/${versionId}`,
+				url: `/${EXTENSION_URL}/${versionId}`,
 				method: 'GET',
 			}),
 			providesTags(result) {
@@ -105,7 +103,7 @@ export const softwareVersionApi = createApi({
 			SoftwareVersionCreateRequest
 		>({
 			query: (data: SoftwareVersionCreateRequest) => ({
-				url: `/${data.softwareId}`,
+				url: `/${EXTENSION_URL}/${data.softwareId}`,
 				method: 'POST',
 				body: {
 					name: data.name,
@@ -124,7 +122,7 @@ export const softwareVersionApi = createApi({
 		}),
 		putSoftwareVersion: builder.mutation<void, SoftwareVersionUpdateRequest>({
 			query: (data: SoftwareVersionUpdateRequest) => ({
-				url: `/${data.versionId}`,
+				url: `/${EXTENSION_URL}/${data.versionId}`,
 				method: 'PUT',
 				body: {
 					name: data.name,
@@ -144,7 +142,7 @@ export const softwareVersionApi = createApi({
 		}),
 		deleteSoftwareVersion: builder.mutation<void, string>({
 			query: (versionId: string) => ({
-				url: `/${versionId}`,
+				url: `/${EXTENSION_URL}/${versionId}`,
 				method: 'DELETE',
 			}),
 			invalidatesTags(_result, _error, arg) {

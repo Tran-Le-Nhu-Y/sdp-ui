@@ -1,9 +1,4 @@
-import {
-	BaseQueryFn,
-	fetchBaseQuery,
-	FetchBaseQueryArgs,
-	FetchBaseQueryError,
-} from '@reduxjs/toolkit/query';
+import { BaseQueryFn, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import keycloak from '../services/keycloak';
 import axios, {
 	AxiosError,
@@ -82,6 +77,21 @@ export enum HideDuration {
 	slow = 5000,
 }
 
+export const axiosQueryHandler = async <T>(func: () => Promise<T>) => {
+	try {
+		const result = await func();
+		return { data: result };
+	} catch (axiosError) {
+		const err = axiosError as AxiosError;
+		return {
+			error: {
+				status: err.response!.status!,
+				data: err.response?.data || err.message,
+			},
+		};
+	}
+};
+
 export const axiosBaseQuery =
 	(
 		instance: AxiosInstance
@@ -116,19 +126,6 @@ export const axiosBaseQuery =
 			};
 		}
 	};
-
-export function fetchAuthQuery(config?: FetchBaseQueryArgs) {
-	const token = keycloak.token;
-	if (!token) keycloak.logout();
-	return fetchBaseQuery({
-		...config,
-		prepareHeaders(headers, api) {
-			headers.set('Authorization', `Bearer ${token}`);
-			if (config?.prepareHeaders) config.prepareHeaders(headers, api);
-			return headers;
-		},
-	});
-}
 
 export function createAxiosInstance(config?: CreateAxiosDefaults) {
 	const token = keycloak.token;

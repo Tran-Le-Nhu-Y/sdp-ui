@@ -1,14 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/mail-template-mapper';
-import { fetchAuthQuery } from '../utils';
+import { axiosBaseQuery } from '../utils';
+import { sdpInstance } from './instance';
 
+const EXTENSION_URL = 'v1/software/mail-template';
 export const mailTemplateApi = createApi({
 	reducerPath: 'mailTemplateApi',
-	baseQuery: fetchAuthQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/mail-template`,
-		jsonContentType: 'application/json',
-		timeout: 300000,
-	}),
+	baseQuery: axiosBaseQuery(sdpInstance),
 	tagTypes: ['MailTemplate'],
 	endpoints: (builder) => ({
 		getMailTemplate: builder.query<
@@ -16,7 +14,7 @@ export const mailTemplateApi = createApi({
 			{ userId: string; type: MailTemplateType }
 		>({
 			query: ({ userId, type }) => ({
-				url: `/${userId}/user`,
+				url: `/${EXTENSION_URL}/${userId}/user`,
 				method: 'GET',
 				params: {
 					type: type,
@@ -43,7 +41,7 @@ export const mailTemplateApi = createApi({
 		postMailTemplate: builder.mutation<MailTemplate, MailTemplateCreateRequest>(
 			{
 				query: ({ userId, content, type }) => ({
-					url: `/${userId}`,
+					url: `/${EXTENSION_URL}/${userId}`,
 					method: 'POST',
 					body: {
 						content: content,
@@ -69,7 +67,7 @@ export const mailTemplateApi = createApi({
 		),
 		putMailTemplate: builder.mutation<void, MailTemplateUpdateRequest>({
 			query: ({ templateId, content, type }) => ({
-				url: `/${templateId}`,
+				url: `/${EXTENSION_URL}/${templateId}`,
 				method: 'PUT',
 				body: {
 					content: content,

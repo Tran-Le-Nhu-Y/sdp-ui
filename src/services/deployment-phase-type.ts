@@ -14,7 +14,7 @@ export const deploymentPhaseTypeApi = createApi({
 			GetAllDeploymentPhaseTypeQuery
 		>({
 			query: ({ userId, name, pageNumber, pageSize }) => ({
-				url: `/${EXTENSION_URL}${userId}/user`,
+				url: `/${EXTENSION_URL}/${userId}/user`,
 				method: 'GET',
 				params: {
 					name: name,

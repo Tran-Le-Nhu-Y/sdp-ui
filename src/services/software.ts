@@ -1,14 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/software-mapper';
-import { fetchAuthQuery } from '../utils';
+import { axiosBaseQuery } from '../utils';
+import { sdpInstance } from './instance';
 
+const EXTENSION_URL = 'v1/software';
 export const softwareApi = createApi({
 	reducerPath: 'softwareApi',
-	baseQuery: fetchAuthQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software`,
-		jsonContentType: 'application/json',
-		timeout: 300000,
-	}),
+	baseQuery: axiosBaseQuery(sdpInstance),
 	tagTypes: ['PagingSoftware', 'Software'],
 	endpoints: (builder) => ({
 		getAllSoftwareByUserId: builder.query<
@@ -16,7 +14,7 @@ export const softwareApi = createApi({
 			GetAllSoftwareQuery
 		>({
 			query: ({ userId, softwareName, pageNumber, pageSize }) => ({
-				url: `/${userId}/user`,
+				url: `/${EXTENSION_URL}/${userId}/user`,
 				method: 'GET',
 				params: {
 					name: softwareName,
@@ -52,7 +50,7 @@ export const softwareApi = createApi({
 		}),
 		getSoftwareById: builder.query<Software, string>({
 			query: (softwareId: string) => ({
-				url: `/${softwareId}`,
+				url: `/${EXTENSION_URL}/${softwareId}`,
 				method: 'GET',
 			}),
 			providesTags(result) {
@@ -74,7 +72,7 @@ export const softwareApi = createApi({
 		}),
 		postSoftware: builder.mutation<Software, SoftwareCreateRequest>({
 			query: (data: SoftwareCreateRequest) => ({
-				url: `/${data.userId}`,
+				url: `/${EXTENSION_URL}/${data.userId}`,
 				method: 'POST',
 				body: {
 					name: data.name,
@@ -93,7 +91,7 @@ export const softwareApi = createApi({
 		}),
 		putSoftware: builder.mutation<void, SoftwareUpdateRequest>({
 			query: (data: SoftwareUpdateRequest) => ({
-				url: `/${data.softwareId}`,
+				url: `/${EXTENSION_URL}/${data.softwareId}`,
 				method: 'PUT',
 				body: {
 					name: data.name,
@@ -113,7 +111,7 @@ export const softwareApi = createApi({
 		}),
 		deleteSoftware: builder.mutation<void, string>({
 			query: (softwareId: string) => ({
-				url: `/${softwareId}`,
+				url: `/${EXTENSION_URL}/${softwareId}`,
 				method: 'DELETE',
 			}),
 			invalidatesTags(_result, _error, arg) {

@@ -1,14 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/module-mapper';
-import { fetchAuthQuery } from '../utils';
+import { axiosBaseQuery } from '../utils';
+import { sdpInstance } from './instance';
 
+const EXTENSION_URL = 'v1/software/module';
 export const moduleApi = createApi({
 	reducerPath: 'moduleApi',
-	baseQuery: fetchAuthQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/module`,
-		jsonContentType: 'application/json',
-		timeout: 300000,
-	}),
+	baseQuery: axiosBaseQuery(sdpInstance),
 	tagTypes: ['PagingModule', 'Module'],
 	endpoints: (builder) => ({
 		getAllModuleBySoftwareVersionId: builder.query<
@@ -16,7 +14,7 @@ export const moduleApi = createApi({
 			GetAllModuleQuery
 		>({
 			query: ({ softwareVersionId, moduleName, pageNumber, pageSize }) => ({
-				url: `/${softwareVersionId}/software-version`,
+				url: `/${EXTENSION_URL}/${softwareVersionId}/software-version`,
 				method: 'GET',
 				params: {
 					moduleName: moduleName,
@@ -52,7 +50,7 @@ export const moduleApi = createApi({
 		}),
 		getModuleById: builder.query<Module, string>({
 			query: (moduleId: string) => ({
-				url: `/${moduleId}`,
+				url: `/${EXTENSION_URL}/${moduleId}`,
 				method: 'GET',
 			}),
 			providesTags(result) {
@@ -74,7 +72,7 @@ export const moduleApi = createApi({
 		}),
 		postModule: builder.mutation<Module, ModuleCreateRequest>({
 			query: (data: ModuleCreateRequest) => ({
-				url: `/${data.softwareVersionId}`,
+				url: `/${EXTENSION_URL}/${data.softwareVersionId}`,
 				method: 'POST',
 				body: {
 					name: data.name,
@@ -93,7 +91,7 @@ export const moduleApi = createApi({
 		}),
 		putModule: builder.mutation<void, ModuleUpdateRequest>({
 			query: (data: ModuleUpdateRequest) => ({
-				url: `/${data.moduleId}`,
+				url: `/${EXTENSION_URL}/${data.moduleId}`,
 				method: 'PUT',
 				body: {
 					name: data.name,
@@ -113,7 +111,7 @@ export const moduleApi = createApi({
 		}),
 		deleteModule: builder.mutation<void, string>({
 			query: (moduleId: string) => ({
-				url: `/${moduleId}`,
+				url: `/${EXTENSION_URL}/${moduleId}`,
 				method: 'DELETE',
 			}),
 			invalidatesTags(_result, _error, arg) {
