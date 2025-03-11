@@ -6,6 +6,7 @@ import axios, {
 	AxiosRequestConfig,
 	CreateAxiosDefaults,
 } from 'axios';
+import dayjs, { Dayjs } from 'dayjs';
 
 export enum TextLength {
 	Short = 6,
@@ -181,3 +182,11 @@ export function checkRoles({
 		keycloak.hasResourceRole(role, RESOURCE_CLIENT)
 	);
 }
+
+export const normalizeDateFormat = (date: Dayjs) => {
+	return date.format('YYYY-MM-DD');
+};
+
+export const parseToDayjs = (date: string) => {
+	return dayjs(date, 'YYYY-MM-DD');
+};

@@ -87,6 +87,12 @@ declare interface DeploymentPhaseResponse {
 	type: {
 		name: string;
 	};
+	plannedStartDate: string;
+	plannedEndDate: string;
+	actualStartDate: string?;
+	actualEndDate: string?;
+	isDone: boolean;
+	userLastUpdatedId: string?;
 }
 
 declare interface DeploymentPhaseTypeResponse {

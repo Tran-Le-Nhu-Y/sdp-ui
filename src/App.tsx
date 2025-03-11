@@ -4,6 +4,9 @@ import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 import './App.css';
 
+import 'dayjs/locale/vi';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AppProvider } from '@toolpad/core/react-router-dom';
 import { Outlet } from 'react-router';
 import WysiwygIcon from '@mui/icons-material/Wysiwyg';
@@ -306,23 +309,25 @@ function App() {
 
 	if (!session) return <HydrateFallback />;
 	return (
-		<AppProvider
-			theme={theme}
-			authentication={authentication}
-			session={session}
-			navigation={navigation}
-		>
-			<DashboardLayout
-				slots={{
-					appTitle: CustomAppTitle,
-					toolbarActions: CustomToolbarActions,
-				}}
+		<LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
+			<AppProvider
+				theme={theme}
+				authentication={authentication}
+				session={session}
+				navigation={navigation}
 			>
-				<PageContainer breadcrumbs={[]}>
-					<Outlet />
-				</PageContainer>
-			</DashboardLayout>
-		</AppProvider>
+				<DashboardLayout
+					slots={{
+						appTitle: CustomAppTitle,
+						toolbarActions: CustomToolbarActions,
+					}}
+				>
+					<PageContainer breadcrumbs={[]}>
+						<Outlet />
+					</PageContainer>
+				</DashboardLayout>
+			</AppProvider>
+		</LocalizationProvider>
 	);
 }
 

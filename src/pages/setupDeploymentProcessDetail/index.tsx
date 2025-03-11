@@ -11,21 +11,37 @@ import {
 	FormControl,
 	CircularProgress,
 	LinearProgress,
+	Button,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	TextField,
 } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PaginationTable, TabPanel } from '../../components';
 import { useParams } from 'react-router-dom';
-import { HideDuration, PathHolders } from '../../utils';
 import {
+	HideDuration,
+	isValidLength,
+	normalizeDateFormat,
+	parseToDayjs,
+	PathHolders,
+	TextLength,
+} from '../../utils';
+import {
+	useCreateDeploymentPhase,
+	useDeleteDeploymentPhase,
+	useGetAllDeploymentPhasesByProcessId,
+	useGetAllDeploymentPhaseTypesByUserId,
 	useGetAllUsersByRole,
 	useGetDeploymentProcess,
 	useGetDeploymentProcessMemberIds,
 	useUpdateDeploymentProcess,
 	useUpdateDeploymentProcessMember,
 } from '../../services';
-import { useNotifications } from '@toolpad/core';
-import { t } from 'i18next';
+import { useNotifications, useSession } from '@toolpad/core';
 import {
 	DataGrid,
 	GridActionsCellItem,
@@ -38,6 +54,7 @@ import {
 } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 const deploymentData = {
 	customer: 'Oliver Hansen',
@@ -76,11 +93,357 @@ function a11yProps(index: number) {
 	};
 }
 
-function PhaseTab() {
-	return <></>;
+function AddPhaseDialog({
+	processId,
+	open,
+	onClose,
+}: {
+	processId: number;
+	open: boolean;
+	onClose: () => void;
+}) {
+	const { t } = useTranslation('standard');
+	const notifications = useNotifications();
+	const userId = useSession()?.user?.id ?? '';
+
+	const [phaseTypeQueryReq, setPhaseTypeQueryReq] =
+		useState<GetAllDeploymentPhaseTypeQuery>({
+			userId: userId,
+			pageNumber: 0,
+			pageSize: 5,
+		});
+	const phaseTypeQuery =
+		useGetAllDeploymentPhaseTypesByUserId(phaseTypeQueryReq);
+	useEffect(() => {
+		if (phaseTypeQuery.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+	}, [notifications, phaseTypeQuery.isError, t]);
+	const phaseTypeCols: GridColDef[] = useMemo(
+		() => [
+			{
+				field: 'name',
+				headerName: t('deploymentPhaseType'),
+				editable: false,
+				type: 'string',
+				width: 150,
+			},
+		],
+		[t]
+	);
+
+	const [createProps, setCreateProps] = useState<
+		Partial<Omit<DeploymentPhaseCreateRequest, 'processId'>>
+	>({ numOrder: 0 });
+	const [createPhaseTrigger, { isLoading: isPhaseCreating }] =
+		useCreateDeploymentPhase();
+	const addPhaseHandler = async () => {
+		try {
+			await createPhaseTrigger({
+				processId,
+				typeId: createProps.typeId!,
+				numOrder: createProps.numOrder!,
+				plannedStartDate: createProps.plannedStartDate!,
+				plannedEndDate: createProps.plannedEndDate!,
+			}).unwrap();
+
+			notifications.show(t('addPhaseSuccess'), {
+				severity: 'success',
+				autoHideDuration: HideDuration.fast,
+			});
+			setCreateProps({ numOrder: 0 });
+		} catch (error) {
+			console.error(error);
+			notifications.show(t('addPhaseError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+		} finally {
+			onClose();
+		}
+	};
+
+	return (
+		<Dialog open={open} onClose={onClose}>
+			<DialogTitle>{t('addPhase')}</DialogTitle>
+			<DialogContent>
+				<Stack direction={'column'} spacing={2}>
+					<TextField
+						required
+						id="num-order"
+						name="numOrder"
+						label={t('numOrder')}
+						fullWidth
+						type="number"
+						variant="standard"
+						value={createProps?.numOrder ?? 0}
+						onChange={(e) => {
+							const numOrder = Number(e.currentTarget.value);
+							if (
+								!Number.isSafeInteger(numOrder) ||
+								numOrder < 0 ||
+								numOrder > 100
+							)
+								return;
+
+							setCreateProps((pre) => ({ ...pre, numOrder: numOrder }));
+						}}
+					/>
+					<TextField
+						margin="dense"
+						id="description"
+						name="description"
+						value={createProps?.description}
+						label={t('description')}
+						fullWidth
+						variant="standard"
+						multiline
+						onChange={(e) => {
+							const value = e.currentTarget.value;
+							if (isValidLength(value, TextLength.VeryLong))
+								setCreateProps((pre) => ({ ...pre, description: value }));
+						}}
+					/>
+					<div style={{ display: 'flex', flexDirection: 'column' }}>
+						<DataGrid
+							checkboxSelection
+							disableMultipleRowSelection
+							onRowSelectionModelChange={(model) => {
+								if (model.length > 0)
+									setCreateProps((pre) => ({
+										...pre,
+										typeId: model[0].toString(),
+									}));
+								else
+									setCreateProps((pre) => ({
+										...pre,
+										typeId: undefined,
+									}));
+							}}
+							rows={phaseTypeQuery.data?.content}
+							rowCount={phaseTypeQuery.data?.totalElements}
+							paginationMode="server"
+							paginationModel={{
+								page: phaseTypeQueryReq.pageNumber ?? 0,
+								pageSize: phaseTypeQueryReq.pageSize ?? 5,
+							}}
+							onPaginationModelChange={(model) => {
+								setPhaseTypeQueryReq((pre) => ({
+									...pre,
+									pageNumber: model.page,
+									pageSize: model.pageSize,
+								}));
+							}}
+							columns={phaseTypeCols}
+							pageSizeOptions={[5, 10, 15]}
+							initialState={{
+								pagination: {
+									paginationModel: {
+										page: 0,
+										pageSize: 5,
+									},
+								},
+							}}
+						/>
+					</div>
+					<DatePicker
+						label={t('plannedStartDate')}
+						maxDate={
+							createProps.plannedEndDate
+								? parseToDayjs(createProps.plannedEndDate)
+								: undefined
+						}
+						onChange={(value) => {
+							if (!value) return;
+							const date = normalizeDateFormat(value);
+							setCreateProps((pre) => ({ ...pre, plannedStartDate: date }));
+						}}
+					/>
+					<DatePicker
+						label={t('plannedEndDate')}
+						minDate={
+							createProps.plannedStartDate
+								? parseToDayjs(createProps.plannedStartDate)
+								: undefined
+						}
+						onChange={(value) => {
+							if (!value) return;
+							const date = normalizeDateFormat(value);
+							setCreateProps((pre) => ({ ...pre, plannedEndDate: date }));
+						}}
+					/>
+				</Stack>
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={onClose}>{t('cancel')}</Button>
+				<Button
+					disabled={
+						createProps.typeId === undefined ||
+						createProps.plannedStartDate === undefined ||
+						createProps.plannedEndDate === undefined
+					}
+					loading={isPhaseCreating}
+					loadingPosition="start"
+					onClick={addPhaseHandler}
+				>
+					{t('add')}
+				</Button>
+			</DialogActions>
+		</Dialog>
+	);
+}
+
+function PhaseTab({ processId }: { processId: number }) {
+	const { t } = useTranslation('standard');
+	const notifications = useNotifications();
+	const [openCreateDialog, setOpenCreateDialog] = useState(false);
+	const phaseQuery = useGetAllDeploymentPhasesByProcessId({
+		processId: processId,
+	});
+
+	const [deletePhaseTrigger, { isLoading: isPhaseDeleting }] =
+		useDeleteDeploymentPhase();
+
+	const cols: GridColDef[] = useMemo(
+		() => [
+			{
+				field: 'numOrder',
+				headerName: t('numOrder'),
+				editable: false,
+				width: 120,
+				type: 'number',
+			},
+			{
+				field: 'phaseType',
+				editable: false,
+				minWidth: 200,
+				headerName: t('deploymentPhaseType'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.type.name;
+				},
+			},
+			{
+				field: 'plannedStartDate',
+				editable: false,
+				minWidth: 200,
+				headerName: t('plannedStartDate'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return `${row.lastName || ''} ${row.firstName || ''}`;
+				},
+			},
+			{
+				field: 'plannedEndDate',
+				editable: false,
+				minWidth: 200,
+				headerName: t('plannedEndDate'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return `${row.lastName || ''} ${row.firstName || ''}`;
+				},
+			},
+			{
+				field: 'actions',
+				headerName: t('action'),
+				type: 'actions',
+				width: 100,
+				getActions: (params) => [
+					<GridActionsCellItem
+						icon={<AddIcon />}
+						color="success"
+						label="Edit"
+						onClick={() => {}}
+					/>,
+					<GridActionsCellItem
+						icon={<DeleteIcon />}
+						color="success"
+						label="Delete"
+						onClick={async () => {
+							const phaseId = params.id.toString();
+							try {
+								await deletePhaseTrigger(phaseId).unwrap();
+
+								notifications.show(t('deletePhaseSuccess'), {
+									severity: 'success',
+									autoHideDuration: HideDuration.fast,
+								});
+							} catch (error) {
+								console.error(error);
+								notifications.show(t('deletePhaseError'), {
+									severity: 'error',
+									autoHideDuration: HideDuration.fast,
+								});
+							}
+						}}
+					/>,
+				],
+			},
+		],
+		[deletePhaseTrigger, notifications, t]
+	);
+
+	return (
+		<>
+			<AddPhaseDialog
+				open={openCreateDialog}
+				processId={processId}
+				onClose={() => {
+					setOpenCreateDialog(false);
+				}}
+			/>
+			<Stack direction={'column'} spacing={1}>
+				<Button
+					color="primary"
+					variant="contained"
+					sx={{
+						alignSelf: 'flex-end',
+						width: 'fit-content',
+					}}
+					onClick={() => setOpenCreateDialog(true)}
+				>
+					{t('addPhase')}
+				</Button>
+
+				{isPhaseDeleting && <LinearProgress />}
+
+				<div style={{ display: 'flex', flexDirection: 'column' }}>
+					<DataGrid
+						slots={{
+							toolbar: () => (
+								<GridToolbarContainer>
+									<GridToolbarFilterButton />
+									<GridToolbarDensitySelector />
+									<GridToolbarColumnsButton />
+									<GridToolbarQuickFilter />
+								</GridToolbarContainer>
+							),
+						}}
+						rows={phaseQuery.data}
+						columns={cols}
+						pageSizeOptions={[5, 10, 15]}
+						initialState={{
+							pagination: {
+								paginationModel: {
+									page: 0,
+									pageSize: 5,
+								},
+							},
+							sorting: {
+								sortModel: [{ field: 'numOrder', sort: 'asc' }],
+							},
+						}}
+					/>
+				</div>
+			</Stack>
+		</>
+	);
 }
 
 function ModuleTab() {
+	const { t } = useTranslation('standard');
 	const [, setModuleQuery] = useState<GetAllModuleQuery>({
 		softwareVersionId: '',
 		moduleName: '',
@@ -123,10 +486,36 @@ function ModuleTab() {
 }
 
 function PersonnelTab({ processId }: { processId: number }) {
+	const { t } = useTranslation('standard');
+	const notifications = useNotifications();
 	const userQuery = useGetAllUsersByRole('deployment_person');
 	const memberIdQuery = useGetDeploymentProcessMemberIds(processId);
 	const [updateMemberTrigger, { isLoading: isUpdatingMember }] =
 		useUpdateDeploymentProcessMember();
+
+	const updateMemberHandler = useCallback(
+		async (
+			request: DeploymentProcessMemberUpdateRequest,
+			successText: string,
+			errorText: string
+		) => {
+			try {
+				await updateMemberTrigger(request).unwrap();
+
+				notifications.show(successText, {
+					severity: 'success',
+					autoHideDuration: HideDuration.fast,
+				});
+			} catch (error) {
+				console.error(error);
+				notifications.show(errorText, {
+					severity: 'error',
+					autoHideDuration: HideDuration.fast,
+				});
+			}
+		},
+		[notifications, updateMemberTrigger]
+	);
 
 	const findUsers = useCallback(
 		(isSelected: boolean) => {
@@ -151,6 +540,7 @@ function PersonnelTab({ processId }: { processId: number }) {
 				headerName: t('fullName'),
 				editable: false,
 				width: 200,
+				type: 'string',
 				valueGetter: (_value, row) => {
 					return `${row.lastName || ''} ${row.firstName || ''}`;
 				},
@@ -160,6 +550,7 @@ function PersonnelTab({ processId }: { processId: number }) {
 				editable: false,
 				minWidth: 200,
 				headerName: t('emailAddress'),
+				type: 'string',
 			},
 			{
 				field: 'actions',
@@ -173,17 +564,21 @@ function PersonnelTab({ processId }: { processId: number }) {
 						label="Add"
 						onClick={() => {
 							const memberId = params.id.toString();
-							updateMemberTrigger({
-								processId: processId,
-								memberId: memberId,
-								operator: 'ADD',
-							});
+							updateMemberHandler(
+								{
+									processId: processId,
+									memberId: memberId,
+									operator: 'ADD',
+								},
+								t('addMemberSuccess'),
+								t('addMemberError')
+							);
 						}}
 					/>,
 				],
 			},
 		],
-		[processId, updateMemberTrigger]
+		[processId, t, updateMemberHandler]
 	);
 
 	const selectedUsers = useMemo(() => findUsers(true), [findUsers]);
@@ -216,17 +611,21 @@ function PersonnelTab({ processId }: { processId: number }) {
 						label="Delete"
 						onClick={() => {
 							const memberId = params.id.toString();
-							updateMemberTrigger({
-								processId: processId,
-								memberId: memberId,
-								operator: 'REMOVE',
-							});
+							updateMemberHandler(
+								{
+									processId: processId,
+									memberId: memberId,
+									operator: 'REMOVE',
+								},
+								t('removeMemberSuccess'),
+								t('removeMemberError')
+							);
 						}}
 					/>,
 				],
 			},
 		],
-		[processId, updateMemberTrigger]
+		[processId, t, updateMemberHandler]
 	);
 
 	if (userQuery.isLoading || memberIdQuery.isLoading) return <LinearProgress />;
@@ -303,7 +702,7 @@ function PersonnelTab({ processId }: { processId: number }) {
 }
 
 const SetupDeploymentProcessPage = () => {
-	const { t } = useTranslation();
+	const { t } = useTranslation('standard');
 	const [value, setValue] = React.useState(0);
 	const processId = useParams()[PathHolders.DEPLOYMENT_PROCESS_ID];
 	const notifications = useNotifications();
@@ -370,8 +769,7 @@ const SetupDeploymentProcessPage = () => {
 					<FormControl>
 						<Select
 							id="select-deployment-process-status"
-							value={deploymentProcess.data?.status}
-							defaultValue={'INIT'}
+							value={deploymentProcess.data?.status ?? 'INIT'}
 							size="small"
 							onChange={(e) => {
 								handleUpdateProcess({
@@ -430,7 +828,7 @@ const SetupDeploymentProcessPage = () => {
 					<Tab label={t('personnelPerforms')} {...a11yProps(2)} />
 				</Tabs>
 				<TabPanel value={value} index={0}>
-					<PhaseTab />
+					<PhaseTab processId={Number(processId)} />
 				</TabPanel>
 				<TabPanel value={value} index={1}>
 					<ModuleTab />

@@ -116,6 +116,12 @@ declare interface DeploymentPhase {
 	type: {
 		name: string;
 	};
+	plannedStartDate: string;
+	plannedEndDate: string;
+	actualStartDate: string?;
+	actualEndDate: string?;
+	isDone: boolean;
+	lastUpdatedByUserId?: string?;
 }
 
 declare interface SoftwareDocument {

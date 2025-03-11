@@ -96,10 +96,12 @@ declare interface DeploymentPhaseTypeUpdateRequest {
 }
 
 declare interface DeploymentPhaseCreateRequest {
-	processId: string;
+	processId: number;
 	numOrder: number;
 	description?: string?;
 	typeId: string;
+	plannedStartDate: string;
+	plannedEndDate: string;
 }
 
 declare interface DeploymentPhaseUpdateRequest {
