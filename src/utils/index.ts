@@ -25,6 +25,7 @@ export enum PathHolders {
 	MODULE_DOCUMENT_ID = 'moduleDocumentId',
 	CUSTOMER_ID = 'customerId',
 	DEPLOYMENT_PROCESS_ID = 'processId',
+	DEPLOYMENT_PHASE_ID = 'phaseId',
 	DEPLOYMENT_PHASE_TYPE_ID = 'phaseTypeId',
 	TEMPLATE_SOFTWARE_EXPIRATION_ID = 'softwareExpirationId',
 	TEMPLATE_COMPLETE_DEPLOYMENT_ID = 'completeDeploymentId',
@@ -67,6 +68,7 @@ export enum RoutePaths {
 	DEPLOYMENT_PROCESS_DETAIL = `/deployment/process/:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
 	SETUP_DEPLOYMENT_PROCESS = `/deployment/process/:${PathHolders.DEPLOYMENT_PROCESS_ID}/setup`,
 
+	SETUP_DEPLOYMENT_PHASE = `/deployment/process/:${PathHolders.DEPLOYMENT_PROCESS_ID}/setup/phase/:${PathHolders.DEPLOYMENT_PHASE_ID}`,
 	DEPLOYMENT_PHASE_TYPE = '/deployment/phase-type',
 
 	TEMPLATE_SOFTWARE_EXPIRATION = '/mail-template/software-expiration',

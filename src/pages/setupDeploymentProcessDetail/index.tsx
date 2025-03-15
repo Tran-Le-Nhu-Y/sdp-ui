@@ -17,17 +17,19 @@ import {
 	DialogContent,
 	DialogActions,
 	TextField,
+	Tooltip,
 } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PaginationTable, TabPanel } from '../../components';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
 	HideDuration,
 	isValidLength,
 	normalizeDateFormat,
 	parseToDayjs,
 	PathHolders,
+	RoutePaths,
 	TextLength,
 } from '../../utils';
 import {
@@ -54,6 +56,7 @@ import {
 } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 const deploymentData = {
@@ -297,6 +300,7 @@ function AddPhaseDialog({
 
 function PhaseTab({ processId }: { processId: number }) {
 	const { t } = useTranslation('standard');
+	const navigate = useNavigate();
 	const notifications = useNotifications();
 	const [openCreateDialog, setOpenCreateDialog] = useState(false);
 	const phaseQuery = useGetAllDeploymentPhasesByProcessId({
@@ -327,23 +331,21 @@ function PhaseTab({ processId }: { processId: number }) {
 			},
 			{
 				field: 'plannedStartDate',
+				align: 'center',
 				editable: false,
 				minWidth: 200,
 				headerName: t('plannedStartDate'),
+				headerAlign: 'center',
 				type: 'string',
-				valueGetter: (_value, row) => {
-					return `${row.lastName || ''} ${row.firstName || ''}`;
-				},
 			},
 			{
 				field: 'plannedEndDate',
+				align: 'center',
 				editable: false,
 				minWidth: 200,
 				headerName: t('plannedEndDate'),
+				headerAlign: 'center',
 				type: 'string',
-				valueGetter: (_value, row) => {
-					return `${row.lastName || ''} ${row.firstName || ''}`;
-				},
 			},
 			{
 				field: 'actions',
@@ -352,15 +354,29 @@ function PhaseTab({ processId }: { processId: number }) {
 				width: 100,
 				getActions: (params) => [
 					<GridActionsCellItem
-						icon={<AddIcon />}
-						color="success"
-						label="Edit"
-						onClick={() => {}}
+						icon={
+							<Tooltip title={t('edit')}>
+								<EditIcon />
+							</Tooltip>
+						}
+						label={t('edit')}
+						onClick={() => {
+							const phaseId = params.id.toString();
+							const path = RoutePaths.SETUP_DEPLOYMENT_PHASE.replace(
+								`:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
+								`${processId}`
+							).replace(`:${PathHolders.DEPLOYMENT_PHASE_ID}`, phaseId);
+							navigate(path);
+						}}
 					/>,
 					<GridActionsCellItem
-						icon={<DeleteIcon />}
-						color="success"
-						label="Delete"
+						icon={
+							<Tooltip title={t('delete')}>
+								<DeleteIcon />
+							</Tooltip>
+						}
+						color="error"
+						label={t('delete')}
 						onClick={async () => {
 							const phaseId = params.id.toString();
 							try {
@@ -382,7 +398,7 @@ function PhaseTab({ processId }: { processId: number }) {
 				],
 			},
 		],
-		[deletePhaseTrigger, notifications, t]
+		[deletePhaseTrigger, navigate, notifications, processId, t]
 	);
 
 	return (
@@ -559,9 +575,13 @@ function PersonnelTab({ processId }: { processId: number }) {
 				width: 40,
 				getActions: (params) => [
 					<GridActionsCellItem
-						icon={<AddIcon />}
+						icon={
+							<Tooltip title={t('add')}>
+								<AddIcon />
+							</Tooltip>
+						}
 						color="success"
-						label="Add"
+						label={t('add')}
 						onClick={() => {
 							const memberId = params.id.toString();
 							updateMemberHandler(
@@ -606,9 +626,13 @@ function PersonnelTab({ processId }: { processId: number }) {
 				width: 40,
 				getActions: (params) => [
 					<GridActionsCellItem
-						icon={<DeleteIcon />}
+						icon={
+							<Tooltip title={t('delete')}>
+								<DeleteIcon />
+							</Tooltip>
+						}
 						color="error"
-						label="Delete"
+						label={t('delete')}
 						onClick={() => {
 							const memberId = params.id.toString();
 							updateMemberHandler(
