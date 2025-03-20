@@ -1,12 +1,12 @@
 declare interface PagingWrapper<T> {
 	content: Array<T>;
-	first: boolean;
-	last: boolean;
+	first?: boolean;
+	last?: boolean;
 	number: number;
-	numberOfElements: number;
 	size: number;
+	numberOfElements: number;
 	totalElements: number;
-	totalPages: number;
+	totalPages?: number;
 }
 
 declare interface FileMetadataResponse {
@@ -87,6 +87,12 @@ declare interface DeploymentPhaseResponse {
 	type: {
 		name: string;
 	};
+	plannedStartDate: string;
+	plannedEndDate: string;
+	actualStartDate: string?;
+	actualEndDate: string?;
+	isDone: boolean;
+	userLastUpdatedId: string?;
 }
 
 declare interface DeploymentPhaseTypeResponse {
@@ -136,4 +142,12 @@ declare interface MailTemplateResponse {
 	type: MailTemplateType;
 	createdAtMs: number;
 	updatedAtMs: number?;
+}
+
+declare interface UserRepresentation {
+	id: string;
+	username: string?;
+	firstName: string?;
+	lastName: string?;
+	email: string?;
 }

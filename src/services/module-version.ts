@@ -1,16 +1,14 @@
 // Need to use the React-specific entry point to import createApi
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/module-version-mapper';
-import { fetchAuthQuery } from '../utils';
+import { axiosBaseQuery } from '../utils';
+import { sdpInstance } from './instance';
 
+const EXTENSION_URL = 'v1/software/module/version';
 // Define a service using a base URL and expected endpoints
 export const moduleVersionApi = createApi({
 	reducerPath: 'moduleVersionApi',
-	baseQuery: fetchAuthQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/module/version`,
-		jsonContentType: 'application/json',
-		timeout: 300000,
-	}),
+	baseQuery: axiosBaseQuery(sdpInstance),
 	tagTypes: ['PagingModuleVersion', 'ModuleVersion'],
 	endpoints: (builder) => ({
 		getAllModuleVersionsByModuleId: builder.query<
@@ -18,7 +16,7 @@ export const moduleVersionApi = createApi({
 			GetAllModuleVersionQuery
 		>({
 			query: ({ moduleId, moduleVersionName, pageNumber, pageSize }) => ({
-				url: `/${moduleId}/module`,
+				url: `/${EXTENSION_URL}/${moduleId}/module`,
 				method: 'GET',
 				params: {
 					moduleName: moduleVersionName,
@@ -63,7 +61,7 @@ export const moduleVersionApi = createApi({
 				pageNumber,
 				pageSize,
 			}) => ({
-				url: `/${softwareVersionId}/software-version`,
+				url: `/${EXTENSION_URL}/${softwareVersionId}/software-version`,
 				method: 'GET',
 				params: {
 					moduleName: moduleName,
@@ -86,7 +84,7 @@ export const moduleVersionApi = createApi({
 		}),
 		getModuleVersionById: builder.query<ModuleVersion, string>({
 			query: (moduleVersionId: string) => ({
-				url: `/${moduleVersionId}`,
+				url: `/${EXTENSION_URL}/${moduleVersionId}`,
 				method: 'GET',
 			}),
 			providesTags(result) {
@@ -111,7 +109,7 @@ export const moduleVersionApi = createApi({
 			ModuleVersionCreateRequest
 		>({
 			query: (data: ModuleVersionCreateRequest) => ({
-				url: `/${data.moduleId}`,
+				url: `/${EXTENSION_URL}/${data.moduleId}`,
 				method: 'POST',
 				body: {
 					name: data.name,
@@ -130,7 +128,7 @@ export const moduleVersionApi = createApi({
 		}),
 		putModuleVersion: builder.mutation<void, ModuleVersionUpdateRequest>({
 			query: (data: ModuleVersionUpdateRequest) => ({
-				url: `/${data.moduleVersionId}`,
+				url: `/${EXTENSION_URL}/${data.moduleVersionId}`,
 				method: 'PUT',
 				body: {
 					name: data.name,
@@ -150,7 +148,7 @@ export const moduleVersionApi = createApi({
 		}),
 		deleteModuleVersion: builder.mutation<void, string>({
 			query: (moduleVersionId: string) => ({
-				url: `/${moduleVersionId}`,
+				url: `/${EXTENSION_URL}/${moduleVersionId}`,
 				method: 'DELETE',
 			}),
 			invalidatesTags(_result, _error, arg) {

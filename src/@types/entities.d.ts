@@ -1,3 +1,12 @@
+declare type ResourceRoles = 'software_admin' | 'deployment_person';
+
+declare interface UserMetadata {
+	id: string;
+	firstName: string?;
+	lastName: string?;
+	email: string?;
+}
+
 declare interface FileMetadata {
 	id: string;
 	name: string;
@@ -107,6 +116,12 @@ declare interface DeploymentPhase {
 	type: {
 		name: string;
 	};
+	plannedStartDate: string;
+	plannedEndDate: string;
+	actualStartDate: string?;
+	actualEndDate: string?;
+	isDone: boolean;
+	lastUpdatedByUserId?: string?;
 }
 
 declare interface SoftwareDocument {

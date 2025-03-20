@@ -11,14 +11,18 @@ import {
 	Button,
 	Step,
 	StepContent,
-	StepLabel,
 	Stepper,
+	StepButton,
 } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { PaginationTable } from '../../components';
 import { useParams } from 'react-router-dom';
-import { HideDuration, PathHolders } from '../../utils';
+import {
+	getDeploymentProcessStatusTransKey,
+	HideDuration,
+	PathHolders,
+} from '../../utils';
 import { useGetDeploymentProcess } from '../../services';
 import { useNotifications } from '@toolpad/core';
 import { t } from 'i18next';
@@ -126,18 +130,22 @@ function VerticalLinearStepper() {
 
 	return (
 		<Box sx={{ maxWidth: 400 }}>
-			<Stepper activeStep={activeStep} orientation="vertical">
+			<Stepper nonLinear activeStep={activeStep} orientation="vertical">
 				{steps.map((step, index) => (
 					<Step key={step.label}>
-						<StepLabel
+						<StepButton
 							optional={
 								index === steps.length - 1 ? (
 									<Typography variant="caption">Last step</Typography>
 								) : null
 							}
+							color="inherit"
+							onClick={() => {
+								setActiveStep(index);
+							}}
 						>
 							{step.label}
-						</StepLabel>
+						</StepButton>
 						<StepContent>
 							<Typography>{step.description}</Typography>
 
@@ -214,7 +222,13 @@ const DeploymentProcessDetailPage = () => {
 						{deploymentProcess.data?.customer.name}
 					</Typography>
 					<Typography>
-						<strong>{t('status')}:</strong> {deploymentProcess.data?.status}
+						<strong>{t('status')}:</strong>{' '}
+						{deploymentProcess.data?.status &&
+							t(
+								getDeploymentProcessStatusTransKey(
+									deploymentProcess.data?.status
+								)
+							)}
 					</Typography>
 				</Stack>
 				<Stack>

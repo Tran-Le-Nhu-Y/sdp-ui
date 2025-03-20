@@ -35,8 +35,7 @@ function CollapsibleDataGrid(props: CollapsibleDataGridProps) {
 			</AccordionSummary>
 			<AccordionDetails>
 				<DataGrid
-					autoPageSize
-					rowSelection
+					// autoPageSize
 					paginationMode="server"
 					keepNonExistentRowsSelected
 					{...dataProps}

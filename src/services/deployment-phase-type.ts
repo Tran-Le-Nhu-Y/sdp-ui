@@ -1,14 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/deployment-phase-type';
-import { fetchAuthQuery } from '../utils';
+import { axiosBaseQuery } from '../utils';
+import { sdpInstance } from './instance';
 
+const EXTENSION_URL = 'v1/software/deployment-process/phase/type';
 export const deploymentPhaseTypeApi = createApi({
 	reducerPath: 'deploymentPhaseTypeApi',
-	baseQuery: fetchAuthQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/deployment-process/phase/type`,
-		jsonContentType: 'application/json',
-		timeout: 300000,
-	}),
+	baseQuery: axiosBaseQuery(sdpInstance),
 	tagTypes: ['PagingDeploymentPhaseTypes', 'DeploymentPhaseType'],
 	endpoints: (builder) => ({
 		getAllPhaseTypesByUserId: builder.query<
@@ -16,7 +14,7 @@ export const deploymentPhaseTypeApi = createApi({
 			GetAllDeploymentPhaseTypeQuery
 		>({
 			query: ({ userId, name, pageNumber, pageSize }) => ({
-				url: `${userId}/user`,
+				url: `/${EXTENSION_URL}/${userId}/user`,
 				method: 'GET',
 				params: {
 					name: name,
@@ -52,7 +50,7 @@ export const deploymentPhaseTypeApi = createApi({
 		}),
 		getPhaseTypeById: builder.query<DeploymentPhaseType, string>({
 			query: (softwareId: string) => ({
-				url: `/${softwareId}`,
+				url: `/${EXTENSION_URL}/${softwareId}`,
 				method: 'GET',
 			}),
 			providesTags(result) {
@@ -77,7 +75,7 @@ export const deploymentPhaseTypeApi = createApi({
 			DeploymentPhaseTypeCreateRequest
 		>({
 			query: ({ userId, name, description }) => ({
-				url: `/${userId}`,
+				url: `/${EXTENSION_URL}/${userId}`,
 				method: 'POST',
 				body: {
 					name: name,
@@ -96,7 +94,7 @@ export const deploymentPhaseTypeApi = createApi({
 		}),
 		putPhaseType: builder.mutation<void, DeploymentPhaseTypeUpdateRequest>({
 			query: ({ typeId, name, description }) => ({
-				url: `/${typeId}`,
+				url: `/${EXTENSION_URL}/${typeId}`,
 				method: 'PUT',
 				body: {
 					name: name,
@@ -116,7 +114,7 @@ export const deploymentPhaseTypeApi = createApi({
 		}),
 		deletePhaseType: builder.mutation<void, string>({
 			query: (typeId: string) => ({
-				url: `/${typeId}`,
+				url: `/${EXTENSION_URL}/${typeId}`,
 				method: 'DELETE',
 			}),
 			invalidatesTags(_result, _error, arg) {

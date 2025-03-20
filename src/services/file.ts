@@ -1,19 +1,17 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/file-mapper';
-import { fetchAuthQuery } from '../utils';
+import { axiosBaseQuery } from '../utils';
+import { fileInst } from './instance';
 
+const EXTENSION_URL = 'v1/file';
 export const fileApi = createApi({
 	reducerPath: 'fileApi',
-	baseQuery: fetchAuthQuery({
-		baseUrl: `${import.meta.env.VITE_FILE_API}/v1/file`,
-		jsonContentType: 'application/json',
-		timeout: 300000,
-	}),
+	baseQuery: axiosBaseQuery(fileInst),
 	tagTypes: ['FileMetadata'],
 	endpoints: (builder) => ({
 		getMetadata: builder.query<FileMetadata, string>({
 			query: (fileId) => ({
-				url: `/${fileId}/metadata`,
+				url: `/${EXTENSION_URL}/${fileId}/metadata`,
 				method: 'GET',
 			}),
 			providesTags(result) {
@@ -35,7 +33,7 @@ export const fileApi = createApi({
 		}),
 		get: builder.query<File, string>({
 			query: (fileId) => ({
-				url: `/${fileId}`,
+				url: `/${EXTENSION_URL}/${fileId}`,
 				method: 'GET',
 			}),
 			transformErrorResponse(baseQueryReturnValue) {
@@ -48,11 +46,9 @@ export const fileApi = createApi({
 				body.append('file', file, file.name);
 
 				return {
-					url: `/${userId}`,
+					url: `/${EXTENSION_URL}/${userId}`,
 					method: 'POST',
-					body: body,
-					priority: 'high',
-					responseHandler: (response) => response.text(),
+					body,
 				};
 			},
 			transformErrorResponse(baseQueryReturnValue) {
@@ -61,7 +57,7 @@ export const fileApi = createApi({
 		}),
 		delete: builder.mutation<void, string>({
 			query: (fileId) => ({
-				url: `/${fileId}`,
+				url: `/${EXTENSION_URL}/${fileId}`,
 				method: 'DELETE',
 			}),
 			invalidatesTags(_result, _error, arg) {

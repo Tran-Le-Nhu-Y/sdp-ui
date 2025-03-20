@@ -1,17 +1,12 @@
-import { fetchBaseQuery, FetchBaseQueryArgs } from '@reduxjs/toolkit/query';
+import { BaseQueryFn, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import keycloak from '../services/keycloak';
-
-export function fetchAuthQuery(config?: FetchBaseQueryArgs) {
-	const token = keycloak.token;
-	if (!token) keycloak.logout();
-	return fetchBaseQuery({
-		...config,
-		prepareHeaders(headers) {
-			headers.set('Authorization', `Bearer ${token}`);
-			return headers;
-		},
-	});
-}
+import axios, {
+	AxiosError,
+	AxiosInstance,
+	AxiosRequestConfig,
+	CreateAxiosDefaults,
+} from 'axios';
+import dayjs, { Dayjs } from 'dayjs';
 
 export enum TextLength {
 	Short = 6,
@@ -20,9 +15,6 @@ export enum TextLength {
 	VeryLong = 255,
 	ExtremeLong = 60000,
 }
-
-export const isValidLength = (text: string, length: TextLength) =>
-	text.length <= length;
 
 export enum PathHolders {
 	SOFTWARE_ID = 'softwareId',
@@ -33,6 +25,7 @@ export enum PathHolders {
 	MODULE_DOCUMENT_ID = 'moduleDocumentId',
 	CUSTOMER_ID = 'customerId',
 	DEPLOYMENT_PROCESS_ID = 'processId',
+	DEPLOYMENT_PHASE_ID = 'phaseId',
 	DEPLOYMENT_PHASE_TYPE_ID = 'phaseTypeId',
 	TEMPLATE_SOFTWARE_EXPIRATION_ID = 'softwareExpirationId',
 	TEMPLATE_COMPLETE_DEPLOYMENT_ID = 'completeDeploymentId',
@@ -73,7 +66,9 @@ export enum RoutePaths {
 	DEPLOYMENT_PROCESS = '/deployment/process',
 	CREATE_DEPLOYMENT_PROCESS = '/deployment/process/create',
 	DEPLOYMENT_PROCESS_DETAIL = `/deployment/process/:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
+	SETUP_DEPLOYMENT_PROCESS = `/deployment/process/:${PathHolders.DEPLOYMENT_PROCESS_ID}/setup`,
 
+	SETUP_DEPLOYMENT_PHASE = `/deployment/process/:${PathHolders.DEPLOYMENT_PROCESS_ID}/setup/phase/:${PathHolders.DEPLOYMENT_PHASE_ID}`,
 	DEPLOYMENT_PHASE_TYPE = '/deployment/phase-type',
 
 	TEMPLATE_SOFTWARE_EXPIRATION = '/mail-template/software-expiration',
@@ -85,8 +80,115 @@ export enum HideDuration {
 	slow = 5000,
 }
 
+export const axiosQueryHandler = async <T>(func: () => Promise<T>) => {
+	try {
+		const result = await func();
+		return { data: result };
+	} catch (axiosError) {
+		const err = axiosError as AxiosError;
+		return {
+			error: {
+				status: err.response!.status!,
+				data: err.response?.data || err.message,
+			},
+		};
+	}
+};
+
+export const axiosBaseQuery =
+	(
+		instance: AxiosInstance
+	): BaseQueryFn<
+		{
+			url: string;
+			method?: AxiosRequestConfig['method'];
+			body?: AxiosRequestConfig['data'];
+			params?: AxiosRequestConfig['params'];
+			headers?: AxiosRequestConfig['headers'];
+		},
+		unknown,
+		FetchBaseQueryError
+	> =>
+	async ({ url, method, body, params, headers }) => {
+		try {
+			const result = await instance({
+				url,
+				method,
+				data: body,
+				params,
+				headers,
+			});
+			return { data: result.data };
+		} catch (axiosError) {
+			const err = axiosError as AxiosError;
+			return {
+				error: {
+					status: err.response!.status!,
+					data: err.response?.data || err.message,
+				},
+			};
+		}
+	};
+
+export function createAxiosInstance(config?: CreateAxiosDefaults) {
+	const token = keycloak.token;
+	if (!token) keycloak.logout();
+	return axios.create({
+		...config,
+		headers: {
+			...config?.headers,
+			Authorization: `Bearer ${token}`,
+		},
+	});
+}
+
+export const isValidLength = (text: string, length: TextLength) =>
+	text.length <= length;
+
 export function getFileSize(bytes: number) {
 	if (bytes < 1e3) return `${bytes} bytes`;
 	else if (bytes >= 1e3 && bytes < 1e6) return `${(bytes / 1e3).toFixed(1)} KB`;
 	else return `${(bytes / 1e6).toFixed(1)} MB`;
 }
+
+export function getDeploymentProcessStatusTransKey(
+	status: DeploymentProcessStatus
+) {
+	const record: Record<
+		DeploymentProcessStatus,
+		'init' | 'pending' | 'inProgress' | 'done'
+	> = {
+		INIT: 'init',
+		PENDING: 'pending',
+		IN_PROGRESS: 'inProgress',
+		DONE: 'done',
+	};
+	return record[status];
+}
+
+const RESOURCE_CLIENT = import.meta.env.VITE_KEYCLOAK_RESOURCE_CLIENT;
+export function checkRoles({
+	checkAll = true,
+	requiredRoles,
+}: {
+	checkAll?: boolean;
+	requiredRoles?: ResourceRoles[];
+}) {
+	if (!requiredRoles) return true;
+
+	if (checkAll)
+		return requiredRoles.every((role) =>
+			keycloak.hasResourceRole(role, RESOURCE_CLIENT)
+		);
+	return requiredRoles.some((role) =>
+		keycloak.hasResourceRole(role, RESOURCE_CLIENT)
+	);
+}
+
+export const normalizeDateFormat = (date: Dayjs) => {
+	return date.format('YYYY-MM-DD');
+};
+
+export const parseToDayjs = (date: string) => {
+	return dayjs(date, 'YYYY-MM-DD');
+};

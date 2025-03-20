@@ -2,17 +2,15 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/module-document-mapper';
 import { toEntity as toFileMetadata } from './mapper/file-mapper';
-import { fetchAuthQuery } from '../utils';
+import { axiosBaseQuery, axiosQueryHandler } from '../utils';
+import { sdpInstance } from './instance';
+import { getMetadata as getFileMetadata } from './api/file-api';
 
-const baseUrl = `${import.meta.env.VITE_API_GATEWAY}/software/module/document`;
+const EXTENSION_URL = 'v1/software/module/document';
 // Define a service using a base URL and expected endpoints
 export const moduleDocumentApi = createApi({
 	reducerPath: 'moduleDocumentApi',
-	baseQuery: fetchAuthQuery({
-		baseUrl: baseUrl,
-		jsonContentType: 'application/json',
-		timeout: 300000,
-	}),
+	baseQuery: axiosBaseQuery(sdpInstance),
 	tagTypes: [
 		'PagingModuleDocument',
 		'ModuleDocument',
@@ -30,7 +28,7 @@ export const moduleDocumentApi = createApi({
 				pageNumber,
 				pageSize,
 			}) => ({
-				url: `/${moduleVersionId}/version`,
+				url: `/${EXTENSION_URL}/${moduleVersionId}/version`,
 				method: 'GET',
 				params: {
 					documentTypeName: documentTypeName,
@@ -60,7 +58,7 @@ export const moduleDocumentApi = createApi({
 		}),
 		getModuleDocumentById: builder.query<ModuleDocument, string>({
 			query: (documentId: string) => ({
-				url: `/${documentId}`,
+				url: `/${EXTENSION_URL}/${documentId}`,
 				method: 'GET',
 			}),
 			providesTags(result) {
@@ -78,13 +76,12 @@ export const moduleDocumentApi = createApi({
 				return toEntity(rawResult);
 			},
 		}),
-
 		postModuleDocument: builder.mutation<
 			ModuleDocument,
 			ModuleDocumentCreateRequest
 		>({
 			query: (data: ModuleDocumentCreateRequest) => ({
-				url: `/${data.moduleVersionId}`,
+				url: `/${EXTENSION_URL}/${data.moduleVersionId}`,
 				method: 'POST',
 				body: {
 					name: data.name,
@@ -105,7 +102,7 @@ export const moduleDocumentApi = createApi({
 		}),
 		putModuleDocument: builder.mutation<void, ModuleDocumentUpdateRequest>({
 			query: (data: ModuleDocumentUpdateRequest) => ({
-				url: `/${data.moduleDocumentId}`,
+				url: `/${EXTENSION_URL}/${data.moduleDocumentId}`,
 				method: 'PUT',
 				body: {
 					name: data.name,
@@ -125,7 +122,7 @@ export const moduleDocumentApi = createApi({
 		}),
 		deleteModuleDocument: builder.mutation<void, string>({
 			query: (moduleDocumentId: string) => ({
-				url: `/${moduleDocumentId}`,
+				url: `/${EXTENSION_URL}/${moduleDocumentId}`,
 				method: 'DELETE',
 			}),
 			invalidatesTags(_result, _error, arg) {
@@ -138,40 +135,16 @@ export const moduleDocumentApi = createApi({
 		}),
 		getAllAttachments: builder.query<FileMetadata[], string>({
 			queryFn: async (documentId) => {
-				try {
-					const atmIdsResponse = await fetch(
-						`${baseUrl}/${documentId}/attachment`,
-						{
-							method: 'GET',
-						},
-					);
-					const atmIds: string[] = await atmIdsResponse.json();
+				const func = async () => {
+					const atmIds: string[] = (
+						await sdpInstance.get(`/${EXTENSION_URL}/${documentId}/attachment`)
+					).data;
 					const atmMetadataResponses: FileMetadataResponse[] =
-						await Promise.all(
-							atmIds.map(async (atmId) => {
-								const response = await fetch(
-									`${import.meta.env.VITE_FILE_API}/v1/file/${atmId}/metadata`,
-									{
-										method: 'GET',
-									},
-								);
-								return response.json();
-							}),
-						);
-					return {
-						data: atmMetadataResponses.map(toFileMetadata),
-					};
-				} catch (error) {
-					console.error(error);
-					return {
-						error: {
-							status: 500,
-							data: {
-								message: 'Error when fetching software document attachments',
-							},
-						},
-					};
-				}
+						await Promise.all(atmIds.map(getFileMetadata));
+					return atmMetadataResponses.map(toFileMetadata);
+				};
+
+				return axiosQueryHandler(func);
 			},
 			providesTags(_result, _error, arg) {
 				const documentId = arg;
@@ -188,7 +161,7 @@ export const moduleDocumentApi = createApi({
 			ModuleDocumentAttachmentUpdateRequest
 		>({
 			query: ({ documentId, attachmentId, operator }) => ({
-				url: `/${documentId}/attachment`,
+				url: `/${EXTENSION_URL}/${documentId}/attachment`,
 				method: 'PUT',
 				body: {
 					attachmentId: attachmentId,

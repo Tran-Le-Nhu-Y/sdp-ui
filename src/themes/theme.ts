@@ -1,6 +1,8 @@
 import { createTheme } from '@mui/material/styles';
 import { red } from '@mui/material/colors';
-import { viVN } from '@mui/x-data-grid/locales';
+import { viVN } from '@mui/material/locale';
+import { viVN as viVNDataGrid } from '@mui/x-data-grid/locales';
+import { viVN as viVNDatePickers } from '@mui/x-date-pickers/locales';
 
 // A custom theme for this app
 const theme = createTheme(
@@ -18,7 +20,9 @@ const theme = createTheme(
 			},
 		},
 	},
-	viVN
+	viVN,
+	viVNDataGrid,
+	viVNDatePickers
 );
 
 export default theme;

@@ -53,11 +53,11 @@ export default function CreateModuleVersionPage() {
 		}
 		try {
 			await createModuleVersionTrigger(newModuleVersion);
-			navigate(-1);
 			notifications.show(t('createModuleVersionSuccess'), {
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,
 			});
+			navigate(-1);
 		} catch (error) {
 			notifications.show(t('createModuleVersionError'), {
 				severity: 'error',

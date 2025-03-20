@@ -1,14 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/customer-mapper';
-import { fetchAuthQuery } from '../utils';
+import { axiosBaseQuery } from '../utils';
+import { sdpInstance } from './instance';
 
+const EXTENSION_URL = 'v1/software/customer';
 export const customerApi = createApi({
 	reducerPath: 'customerApi',
-	baseQuery: fetchAuthQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/customer`,
-		jsonContentType: 'application/json',
-		timeout: 300000,
-	}),
+	baseQuery: axiosBaseQuery(sdpInstance),
 	tagTypes: ['PagingCustomers', 'Customer'],
 	endpoints: (builder) => ({
 		getAllCustomers: builder.query<
@@ -16,7 +14,7 @@ export const customerApi = createApi({
 			GetAllCustomerQuery
 		>({
 			query: ({ email, name, pageNumber, pageSize }) => ({
-				url: ``,
+				url: `/${EXTENSION_URL}`,
 				method: 'GET',
 				params: {
 					email: email,
@@ -53,7 +51,7 @@ export const customerApi = createApi({
 		}),
 		getCustomerById: builder.query<Customer, string>({
 			query: (customerId: string) => ({
-				url: `/${customerId}`,
+				url: `/${EXTENSION_URL}/${customerId}`,
 				method: 'GET',
 			}),
 			providesTags(result) {
@@ -75,7 +73,7 @@ export const customerApi = createApi({
 		}),
 		postCustomer: builder.mutation<Customer, CustomerCreateRequest>({
 			query: ({ name, email, userId }) => ({
-				url: `/${userId}`,
+				url: `/${EXTENSION_URL}/${userId}`,
 				method: 'POST',
 				body: {
 					name: name,
@@ -94,7 +92,7 @@ export const customerApi = createApi({
 		}),
 		putCustomer: builder.mutation<void, CustomerUpdateRequest>({
 			query: ({ name, email, customerId }) => ({
-				url: `/${customerId}`,
+				url: `/${EXTENSION_URL}/${customerId}`,
 				method: 'PUT',
 				body: {
 					name: name,
@@ -114,7 +112,7 @@ export const customerApi = createApi({
 		}),
 		deleteCustomer: builder.mutation<void, string>({
 			query: (softwareId: string) => ({
-				url: `/${softwareId}`,
+				url: `/${EXTENSION_URL}/${softwareId}`,
 				method: 'DELETE',
 			}),
 			invalidatesTags(_result, _error, arg) {

@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { FilterDialog, PaginationTable } from '../../components';
-import { useEffect, useMemo, useState } from 'react';
+import { FilterDialog, Guard, PaginationTable } from '../../components';
+import { useEffect, useState } from 'react';
 import {
 	Box,
 	Button,
@@ -11,15 +11,21 @@ import {
 	TableCell,
 	TableRow,
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
+// import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import { HideDuration, RoutePaths } from '../../utils';
+import {
+	getDeploymentProcessStatusTransKey,
+	HideDuration,
+	PathHolders,
+	RoutePaths,
+} from '../../utils';
 import {
 	useDeleteDeploymentProcess,
 	useGetAllDeploymentProcesses,
 } from '../../services';
 import { useDialogs, useNotifications } from '@toolpad/core';
+import EditIcon from '@mui/icons-material/Edit';
 
 export default function DeploymentProcessPage() {
 	const navigate = useNavigate();
@@ -45,12 +51,15 @@ export default function DeploymentProcessPage() {
 	const [deleteProcessTrigger, deleteProcess] = useDeleteDeploymentProcess();
 
 	const handleDeleteProcess = async (processId: number) => {
-		const confirmed = await dialogs.confirm('', {
-			okText: t('yes'),
-			cancelText: t('cancel'),
-			severity: 'warning',
-			title: t('deleteDeploymentProcessConfirm'),
-		});
+		const confirmed = await dialogs.confirm(
+			t('deleteDeploymentProcessConfirm'),
+			{
+				okText: t('yes'),
+				cancelText: t('cancel'),
+				severity: 'error',
+				title: t('deleteDeploymentProcess'),
+			}
+		);
 		if (!confirmed) return;
 
 		try {
@@ -68,15 +77,23 @@ export default function DeploymentProcessPage() {
 		}
 	};
 
-	const getProcessStatus: Record<DeploymentProcessStatus, string> = useMemo(
-		() => ({
-			INIT: t('init'),
-			PENDING: t('pending'),
-			IN_PROGRESS: t('inProgress'),
-			DONE: t('done'),
-		}),
-		[t]
-	);
+	const handleSetupProcess = (processId: number) => {
+		navigate(
+			RoutePaths.SETUP_DEPLOYMENT_PROCESS.replace(
+				`:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
+				`${processId}`
+			)
+		);
+	};
+
+	const handleViewProcess = (processId: number) => {
+		navigate(
+			RoutePaths.DEPLOYMENT_PROCESS_DETAIL.replace(
+				`:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
+				`${processId}`
+			)
+		);
+	};
 
 	return (
 		<Box>
@@ -134,7 +151,9 @@ export default function DeploymentProcessPage() {
 				headers={
 					<>
 						<TableCell key="softwareName">{t('softwareName')}</TableCell>
-						<TableCell key="deployFor">{t('deployFor')}</TableCell>
+						<TableCell key="deployFor" align="center">
+							{t('deployFor')}
+						</TableCell>
 						<TableCell key="status" align="center">
 							{t('status')}
 						</TableCell>
@@ -160,11 +179,11 @@ export default function DeploymentProcessPage() {
 						<TableCell key={`${row.id}-softwareName`}>
 							{row.software.name}
 						</TableCell>
-						<TableCell key={`${row.id}-deployFor`}>
+						<TableCell key={`${row.id}-deployFor`} align="center">
 							{row.customer.name}
 						</TableCell>
 						<TableCell key={`${row.id}-status`} align="center">
-							{getProcessStatus[row.status]}
+							{t(getDeploymentProcessStatusTransKey(row.status))}
 						</TableCell>
 						<TableCell key={`${row.id}-createdAt`} align="center">
 							{row.createdAt}
@@ -175,18 +194,28 @@ export default function DeploymentProcessPage() {
 
 						<TableCell>
 							<Stack direction="row">
-								<IconButton size="small" onClick={() => {}}>
-									<RemoveRedEyeIcon color="info" />
-								</IconButton>
-								<IconButton size="small" onClick={() => {}}>
-									<EditIcon color="info" />
-								</IconButton>
-								<IconButton
-									size="small"
-									onClick={() => handleDeleteProcess(row.id)}
-								>
-									<DeleteIcon color="error" />
-								</IconButton>
+								<Guard requiredRoles={['software_admin']}>
+									<IconButton
+										size="small"
+										onClick={() => handleSetupProcess(row.id)}
+									>
+										<EditIcon color="info" />
+									</IconButton>
+									<IconButton
+										size="small"
+										onClick={() => handleDeleteProcess(row.id)}
+									>
+										<DeleteIcon color="error" />
+									</IconButton>
+								</Guard>
+								<Guard requiredRoles={['deployment_person']}>
+									<IconButton
+										size="small"
+										onClick={() => handleViewProcess(row.id)}
+									>
+										<RemoveRedEyeIcon color="info" />
+									</IconButton>
+								</Guard>
 							</Stack>
 						</TableCell>
 					</TableRow>

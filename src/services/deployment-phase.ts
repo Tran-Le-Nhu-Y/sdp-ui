@@ -1,53 +1,40 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/deployment-phase';
-import { fetchAuthQuery } from '../utils';
+import { axiosBaseQuery } from '../utils';
+import { sdpInstance } from './instance';
 
+const EXTENSION_URL = 'v1/software/deployment-process/phase';
 export const deploymentPhaseApi = createApi({
 	reducerPath: 'deploymentPhaseApi',
-	baseQuery: fetchAuthQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/deployment-process/phase`,
-		jsonContentType: 'application/json',
-		timeout: 300000,
-	}),
-	tagTypes: ['PagingDeploymentPhases', 'DeploymentPhase'],
+	baseQuery: axiosBaseQuery(sdpInstance),
+	tagTypes: ['ProcessPhases', 'DeploymentPhase'],
 	endpoints: (builder) => ({
 		getAllPhasesByProcessId: builder.query<
-			PagingWrapper<DeploymentPhase>,
+			Array<DeploymentPhase>,
 			GetAllDeploymentPhaseQuery
 		>({
 			query: ({ processId }) => ({
-				url: `${processId}/process`,
+				url: `/${EXTENSION_URL}/${processId}/process`,
 				method: 'GET',
 			}),
-			providesTags(result) {
-				const pagingTag = {
-					type: 'PagingDeploymentPhases',
-					id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
-				} as const;
-
+			providesTags(result, _err, arg) {
+				const { processId } = arg;
 				return result
 					? [
-							...result.content.map(
-								({ id }) => ({ type: 'DeploymentPhase', id }) as const,
-							),
-							pagingTag,
+							{
+								type: 'ProcessPhases',
+								id: processId,
+							} as const,
 						]
-					: [pagingTag];
+					: [];
 			},
-			transformErrorResponse(baseQueryReturnValue) {
-				return baseQueryReturnValue.status;
-			},
-			transformResponse(rawResult: PagingWrapper<DeploymentPhaseResponse>) {
-				const content = rawResult.content.map(toEntity);
-				return {
-					...rawResult,
-					content,
-				};
+			transformResponse(rawResult: Array<DeploymentPhaseResponse>) {
+				return rawResult.map(toEntity);
 			},
 		}),
 		getPhaseById: builder.query<DeploymentPhase, string>({
 			query: (phaseId: string) => ({
-				url: `/${phaseId}`,
+				url: `/${EXTENSION_URL}/${phaseId}`,
 				method: 'GET',
 			}),
 			providesTags(result) {
@@ -60,36 +47,36 @@ export const deploymentPhaseApi = createApi({
 						]
 					: [];
 			},
-			transformErrorResponse(baseQueryReturnValue) {
-				return baseQueryReturnValue.status;
-			},
 			transformResponse(rawResult: DeploymentPhaseResponse) {
 				return toEntity(rawResult);
 			},
 		}),
-		postPhase: builder.mutation<DeploymentPhase, DeploymentPhaseCreateRequest>({
-			query: ({ processId, numOrder, description, typeId }) => ({
-				url: `/${processId}`,
+		postPhase: builder.mutation<string, DeploymentPhaseCreateRequest>({
+			query: ({
+				processId,
+				numOrder,
+				description,
+				typeId,
+				plannedStartDate,
+				plannedEndDate,
+			}) => ({
+				url: `/${EXTENSION_URL}/${processId}`,
 				method: 'POST',
 				body: {
 					numOrder: numOrder,
 					description: description,
 					phaseTypeId: typeId,
+					plannedStartDate: plannedStartDate,
+					plannedEndDate: plannedEndDate,
 				},
 			}),
 			invalidatesTags() {
-				return [{ type: 'PagingDeploymentPhases' } as const];
-			},
-			transformErrorResponse(baseQueryReturnValue) {
-				return baseQueryReturnValue.status;
-			},
-			transformResponse(rawResult: DeploymentPhaseResponse) {
-				return toEntity(rawResult);
+				return [{ type: 'ProcessPhases' } as const];
 			},
 		}),
 		putPhase: builder.mutation<void, DeploymentPhaseUpdateRequest>({
 			query: ({ phaseId, numOrder, description }) => ({
-				url: `/${phaseId}`,
+				url: `/${EXTENSION_URL}/${phaseId}`,
 				method: 'PUT',
 				body: {
 					numOrder: numOrder,
@@ -99,28 +86,22 @@ export const deploymentPhaseApi = createApi({
 			invalidatesTags(_result, _error, arg) {
 				const { phaseId } = arg;
 				return [
-					{ type: 'PagingDeploymentPhases' } as const,
+					{ type: 'ProcessPhases' } as const,
 					{ type: 'DeploymentPhase', id: phaseId } as const,
 				];
-			},
-			transformErrorResponse(baseQueryReturnValue) {
-				return baseQueryReturnValue.status;
 			},
 		}),
 		deletePhase: builder.mutation<void, string>({
 			query: (softwareId: string) => ({
-				url: `/${softwareId}`,
+				url: `/${EXTENSION_URL}/${softwareId}`,
 				method: 'DELETE',
 			}),
 			invalidatesTags(_result, _error, arg) {
 				const productId = arg;
 				return [
-					{ type: 'PagingDeploymentPhases' } as const,
+					{ type: 'ProcessPhases' } as const,
 					{ type: 'DeploymentPhase', id: productId } as const,
 				];
-			},
-			transformErrorResponse(baseQueryReturnValue) {
-				return baseQueryReturnValue.status;
 			},
 		}),
 	}),

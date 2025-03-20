@@ -1,16 +1,14 @@
 // Need to use the React-specific entry point to import createApi
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/document-type-mapper';
-import { fetchAuthQuery } from '../utils';
+import { axiosBaseQuery } from '../utils';
+import { sdpInstance } from './instance';
 
+const EXTENSION_URL = 'v1/software/document-type';
 // Define a service using a base URL and expected endpoints
 export const documentTypeApi = createApi({
 	reducerPath: 'documentTypeApi',
-	baseQuery: fetchAuthQuery({
-		baseUrl: `${import.meta.env.VITE_API_GATEWAY}/software/document-type`,
-		jsonContentType: 'application/json',
-		timeout: 300000,
-	}),
+	baseQuery: axiosBaseQuery(sdpInstance),
 	tagTypes: ['PagingSoftwareDocument', 'SoftwareDocument'],
 	endpoints: (builder) => ({
 		getAllDocumentTypesByUserId: builder.query<
@@ -18,7 +16,7 @@ export const documentTypeApi = createApi({
 			GetAllDocumentTypeQuery
 		>({
 			query: ({ userId, documentTypeName, pageNumber, pageSize }) => ({
-				url: `${userId}/user`,
+				url: `/${EXTENSION_URL}/${userId}/user`,
 				method: 'GET',
 				params: {
 					documentTypeName: documentTypeName,
@@ -47,7 +45,7 @@ export const documentTypeApi = createApi({
 		}),
 		getDocumentTypeById: builder.query<SdpDocumentType, string>({
 			query: (typeId: string) => ({
-				url: `/${typeId}`,
+				url: `/${EXTENSION_URL}/${typeId}`,
 				method: 'GET',
 			}),
 			providesTags(result) {
@@ -71,7 +69,7 @@ export const documentTypeApi = createApi({
 			DocumentTypeCreateRequest
 		>({
 			query: (data: DocumentTypeCreateRequest) => ({
-				url: `/${data.userId}`,
+				url: `/${EXTENSION_URL}/${data.userId}`,
 				method: 'POST',
 				body: {
 					name: data.name,
@@ -90,7 +88,7 @@ export const documentTypeApi = createApi({
 		}),
 		putDocumentType: builder.mutation<void, DocumentTypeUpdateRequest>({
 			query: (data: DocumentTypeUpdateRequest) => ({
-				url: `/${data.typeId}`,
+				url: `/${EXTENSION_URL}/${data.typeId}`,
 				method: 'PUT',
 				body: {
 					name: data.name,
@@ -110,7 +108,7 @@ export const documentTypeApi = createApi({
 		}),
 		deleteDocumentType: builder.mutation<void, string>({
 			query: (typeId: string) => ({
-				url: `/${typeId}`,
+				url: `/${EXTENSION_URL}/${typeId}`,
 				method: 'DELETE',
 			}),
 			invalidatesTags(_result, _error, arg) {

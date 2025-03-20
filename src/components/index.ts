@@ -16,7 +16,8 @@ import {
 	CollapsibleDataGridProps,
 } from './CollapsibleDataGrid';
 import { AttachmentList, AttachmentListProps } from './AttachmentList';
-
+import Guard from './Guard';
+import { TabPanel, TabPanelProps } from './TabPanel';
 export {
 	HydrateFallback,
 	CollapsibleTable,
@@ -30,11 +31,13 @@ export {
 	FilterDialog,
 	CollapsibleDataGrid,
 	AttachmentList,
+	Guard,
+	TabPanel,
 };
-
 export type {
 	CollapsibleDataGridProps,
 	FileAttachment,
 	DragAndDropFormProps,
 	AttachmentListProps,
+	TabPanelProps,
 };
