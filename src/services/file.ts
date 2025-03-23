@@ -1,12 +1,12 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/file-mapper';
 import { axiosBaseQuery } from '../utils';
-import { fileInst } from './instance';
+import { sdpInstance } from './instance';
 
 const EXTENSION_URL = 'v1/file';
 export const fileApi = createApi({
 	reducerPath: 'fileApi',
-	baseQuery: axiosBaseQuery(fileInst),
+	baseQuery: axiosBaseQuery(sdpInstance),
 	tagTypes: ['FileMetadata'],
 	endpoints: (builder) => ({
 		getMetadata: builder.query<FileMetadata, string>({
