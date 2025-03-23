@@ -136,9 +136,11 @@ import {
 	useGetPhaseByIdQuery as useGetPhaseById,
 	useGetMemberIdsQuery as useGetDeploymentPhaseMemberIds,
 	usePostPhaseMutation as useCreateDeploymentPhase,
+	useGetAllAttachmentsQuery as useGetAllPhaseAttachments,
 	usePutPhaseMutation as useUpdateDeploymentPhase,
 	usePutMemberMutation as useUpdateDeploymentPhaseMember,
 	useDeletePhaseMutation as useDeleteDeploymentPhase,
+	usePutAttachmentMutation as useUpdateDeploymentPhaseAttachment,
 } from './deployment-phase';
 export {
 	deploymentPhaseApi,
@@ -149,6 +151,8 @@ export {
 	useUpdateDeploymentPhase,
 	useUpdateDeploymentPhaseMember,
 	useDeleteDeploymentPhase,
+	useGetAllPhaseAttachments,
+	useUpdateDeploymentPhaseAttachment,
 };
 
 import {

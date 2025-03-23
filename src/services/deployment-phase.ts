@@ -1,13 +1,15 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { toEntity } from './mapper/deployment-phase';
-import { axiosBaseQuery } from '../utils';
+import { axiosBaseQuery, axiosQueryHandler } from '../utils';
 import { sdpInstance } from './instance';
+import { getMetadata as getFileMetadata } from './api/file-api';
+import { toEntity as toFileMetadata } from './mapper/file-mapper';
 
 const EXTENSION_URL = 'v1/software/deployment-process/phase';
 export const deploymentPhaseApi = createApi({
 	reducerPath: 'deploymentPhaseApi',
 	baseQuery: axiosBaseQuery(sdpInstance),
-	tagTypes: ['ProcessPhases', 'DeploymentPhase', 'Member'],
+	tagTypes: ['ProcessPhases', 'DeploymentPhase', 'Member', 'Attachment'],
 	endpoints: (builder) => ({
 		getAllPhasesByProcessId: builder.query<
 			Array<DeploymentPhase>,
@@ -66,6 +68,44 @@ export const deploymentPhaseApi = createApi({
 							} as const,
 						]
 					: [];
+			},
+		}),
+		getAllAttachments: builder.query<FileMetadata[], string>({
+			queryFn: async (phaseId) => {
+				const func = async () => {
+					const atmIds: string[] = (
+						await sdpInstance.get(`${EXTENSION_URL}/${phaseId}/attachment`)
+					).data;
+					const atmMetadataResponses: FileMetadataResponse[] =
+						await Promise.all(atmIds.map(getFileMetadata));
+					return atmMetadataResponses.map(toFileMetadata);
+				};
+				return axiosQueryHandler(func);
+			},
+			providesTags(_result, _error, arg) {
+				const phaseId = arg;
+				return [
+					{
+						type: 'Attachment',
+						id: phaseId,
+					} as const,
+				];
+			},
+		}),
+		putAttachment: builder.mutation<
+			void,
+			DeploymentPhaseAttachmentUpdateRequest
+		>({
+			query: ({ phaseId, attachmentId, operator }) => ({
+				url: `/${EXTENSION_URL}/${phaseId}/attachment`,
+				method: 'PUT',
+				body: {
+					attachmentId: attachmentId,
+					operator: operator,
+				},
+			}),
+			invalidatesTags() {
+				return [{ type: 'Attachment' } as const];
 			},
 		}),
 		postPhase: builder.mutation<string, DeploymentPhaseCreateRequest>({
@@ -145,10 +185,12 @@ export const deploymentPhaseApi = createApi({
 // auto-generated based on the defined endpoints
 export const {
 	useGetAllPhasesByProcessIdQuery,
+	useGetAllAttachmentsQuery,
 	useGetPhaseByIdQuery,
 	useGetMemberIdsQuery,
 	usePostPhaseMutation,
 	usePutPhaseMutation,
+	usePutAttachmentMutation,
 	usePutMemberMutation,
 	useDeletePhaseMutation,
 } = deploymentPhaseApi;

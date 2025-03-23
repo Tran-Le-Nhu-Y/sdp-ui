@@ -18,6 +18,8 @@ import {
 import { AttachmentList, AttachmentListProps } from './AttachmentList';
 import Guard from './Guard';
 import { TabPanel, TabPanelProps } from './TabPanel';
+import Attachment from './Attachment';
+
 export {
 	HydrateFallback,
 	CollapsibleTable,
@@ -33,6 +35,7 @@ export {
 	AttachmentList,
 	Guard,
 	TabPanel,
+	Attachment,
 };
 export type {
 	CollapsibleDataGridProps,

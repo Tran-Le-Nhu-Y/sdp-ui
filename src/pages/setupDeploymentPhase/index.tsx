@@ -6,20 +6,26 @@ import {
 	Tabs,
 	LinearProgress,
 	Tooltip,
+	styled,
+	Button,
 } from '@mui/material';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TabPanel } from '../../components';
-import { useNavigate, useParams } from 'react-router-dom';
-import { HideDuration, PathHolders } from '../../utils';
+import { Attachment, TabPanel } from '../../components';
+import { useParams } from 'react-router-dom';
+import { HideDuration, parseToDayjs, PathHolders } from '../../utils';
 import {
 	useGetAllUsersByRole,
 	useGetDeploymentProcess,
 	useGetDeploymentPhaseMemberIds,
 	useUpdateDeploymentProcess,
 	useUpdateDeploymentPhaseMember,
+	useGetPhaseById,
+	useGetAllPhaseAttachments,
+	useUpdateDeploymentPhaseAttachment,
+	useCreateFile,
 } from '../../services';
-import { useNotifications } from '@toolpad/core';
+import { useDialogs, useNotifications, useSession } from '@toolpad/core';
 import {
 	DataGrid,
 	GridActionsCellItem,
@@ -32,6 +38,9 @@ import {
 } from '@mui/x-data-grid';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 
 function a11yProps(index: number) {
 	return {
@@ -40,13 +49,190 @@ function a11yProps(index: number) {
 	};
 }
 
-function DetailTab({ processId }: { processId: number }) {
-	const { t } = useTranslation('standard');
-	const navigate = useNavigate();
-	const notifications = useNotifications();
-	const [openCreateDialog, setOpenCreateDialog] = useState(false);
+const VisuallyHiddenInput = styled('input')({
+	clip: 'rect(0 0 0 0)',
+	clipPath: 'inset(50%)',
+	height: 1,
+	overflow: 'hidden',
+	position: 'absolute',
+	bottom: 0,
+	left: 0,
+	whiteSpace: 'nowrap',
+	width: 1,
+});
 
-	return <></>;
+function DetailTab({
+	phaseId,
+	description,
+	plannedStartDate,
+	plannedEndDate,
+}: {
+	phaseId?: string;
+	description?: string | null;
+	plannedStartDate?: string;
+	plannedEndDate?: string;
+}) {
+	const { t } = useTranslation('standard');
+	const dialogs = useDialogs();
+	const notifications = useNotifications();
+	const userId = useSession()?.user?.id;
+
+	const attachments = useGetAllPhaseAttachments(phaseId!, {
+		skip: !phaseId,
+	});
+
+	const [updateAttachmentTrigger, { isLoading: isAttachmentUpdating }] =
+		useUpdateDeploymentPhaseAttachment();
+	const [uploadFileTrigger] = useCreateFile();
+	const addAttachments = async (fileList: FileList) => {
+		if (!phaseId || !userId) return;
+
+		const files: File[] = [];
+		for (let index = 0; index < fileList.length; index++) {
+			const file = fileList.item(index);
+			if (file) files.push(file);
+		}
+
+		try {
+			const attachmentIds = await Promise.all(
+				files.map(async (file) => {
+					return await uploadFileTrigger({
+						userId: userId,
+						file: file,
+					}).unwrap();
+				})
+			);
+			await Promise.all(
+				attachmentIds.map(async (attachmentId) => {
+					return await updateAttachmentTrigger({
+						phaseId: phaseId,
+						attachmentId: attachmentId,
+						operator: 'ADD',
+					}).unwrap();
+				})
+			);
+
+			notifications.show(t('updateDeploymentProcessSuccess'), {
+				severity: 'success',
+				autoHideDuration: HideDuration.fast,
+			});
+		} catch (error) {
+			notifications.show(t('updateDeploymentProcessError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+			console.error(error);
+		}
+	};
+	const deleteAttachment = async (attachmentId: string) => {
+		if (!phaseId) return;
+
+		const confirmed = await dialogs.confirm(t('deleteFileConfirm'), {
+			title: t('deleteFile'),
+			okText: t('yes'),
+			cancelText: t('cancel'),
+			severity: 'error',
+		});
+		if (!confirmed) return;
+
+		try {
+			await updateAttachmentTrigger({
+				phaseId: phaseId,
+				attachmentId: attachmentId,
+				operator: 'REMOVE',
+			}).unwrap();
+
+			notifications.show(t('updateDeploymentProcessSuccess'), {
+				severity: 'success',
+				autoHideDuration: HideDuration.fast,
+			});
+		} catch (error) {
+			notifications.show(t('updateDeploymentProcessError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+			console.error(error);
+		}
+	};
+
+	const [updateProcessTrigger, { isLoading: isProcessUpdating }] =
+		useUpdateDeploymentProcess();
+	const handleUpdateProcess = async (data: DeploymentProcessUpdateRequest) => {
+		try {
+			await updateProcessTrigger(data).unwrap();
+
+			notifications.show(t('deleteFileSuccess'), {
+				severity: 'success',
+				autoHideDuration: HideDuration.fast,
+			});
+		} catch (error) {
+			notifications.show(t('deleteFileError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+			console.error(error);
+		}
+	};
+
+	return (
+		<Stack spacing={1}>
+			{isAttachmentUpdating && <LinearProgress />}
+			<Stack direction="row" alignItems="center" spacing={1}>
+				<Typography variant="h6">{t('plannedStartDate')}:</Typography>
+				<DatePicker
+					value={plannedStartDate ? parseToDayjs(plannedStartDate) : dayjs()}
+					slotProps={{ textField: { size: 'small' } }}
+				/>
+			</Stack>
+			<Stack direction="row" alignItems="center" spacing={1}>
+				<Typography variant="h6">{t('plannedEndDate')}:</Typography>
+				<DatePicker
+					value={plannedEndDate ? parseToDayjs(plannedEndDate) : dayjs()}
+					slotProps={{ textField: { size: 'small' } }}
+				/>
+			</Stack>
+			<Typography variant="h6">{t('description')}:</Typography>
+			<Typography variant="body1">{description}</Typography>
+
+			<Stack
+				spacing={1}
+				direction={'row'}
+				alignItems={'center'}
+				overflow={'auto'}
+			>
+				<Typography variant="h6">{t('uploadedFiles')}:</Typography>
+				<Tooltip title={t('addFile')}>
+					<Button
+						component="label"
+						role={undefined}
+						variant="contained"
+						tabIndex={-1}
+						size="small"
+						startIcon={<CloudUploadIcon />}
+					>
+						{t('add')}
+						<VisuallyHiddenInput
+							type="file"
+							multiple
+							onChange={(event) => {
+								const files = event.target.files;
+								if (files) addAttachments(files);
+							}}
+						/>
+					</Button>
+				</Tooltip>
+			</Stack>
+			<Stack spacing={1} direction={'row'}>
+				{attachments?.data?.map((file) => (
+					<Attachment
+						key={file.id}
+						file={{ ...file }}
+						onRemoveClick={deleteAttachment}
+					/>
+				))}
+			</Stack>
+		</Stack>
+	);
 }
 
 function PersonnelTab({ phaseId }: { phaseId: string }) {
@@ -295,29 +481,21 @@ const SetupDeploymentPhasePage = () => {
 			});
 	}, [notifications, deploymentProcess.isError, t]);
 
-	const [updateProcessTrigger, { isLoading: isProcessUpdating }] =
-		useUpdateDeploymentProcess();
-	const handleUpdateProcess = async (data: DeploymentProcessUpdateRequest) => {
-		try {
-			await updateProcessTrigger(data).unwrap();
-
-			notifications.show(t('updateDeploymentProcessSuccess'), {
-				severity: 'success',
-				autoHideDuration: HideDuration.fast,
-			});
-		} catch (error) {
-			notifications.show(t('updateDeploymentProcessError'), {
+	const deploymentPhase = useGetPhaseById(phaseId!, {
+		skip: !phaseId,
+	});
+	useEffect(() => {
+		if (deploymentPhase.isError)
+			notifications.show(t('fetchError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
-			console.error(error);
-		}
-	};
+	}, [notifications, deploymentPhase.isError, t]);
 
 	return (
 		<Box>
 			<Typography variant="h4" align="center" gutterBottom>
-				{'Thong tin giai doan trien khai'}
+				{t('deploymentPhaseInfor')}
 			</Typography>
 			<Stack
 				direction={{ xs: 'column', sm: 'row' }}
@@ -347,24 +525,21 @@ const SetupDeploymentPhasePage = () => {
 				</Stack>
 				<Stack spacing={1}>
 					<Typography>
-						<strong>Thu tu:</strong> {deploymentProcess.data?.customer.name}
+						<strong>{t('numOrder')}:</strong> {deploymentPhase.data?.numOrder}
 					</Typography>
 					<Typography>
-						<strong>Giai doan:</strong> {deploymentProcess.data?.customer.name}
-					</Typography>
-					<Typography>
-						<strong>Dang giai doan:</strong>{' '}
-						{deploymentProcess.data?.customer.name}
+						<strong>{t('deploymentPhaseType')}:</strong>{' '}
+						{deploymentPhase.data?.type.name}
 					</Typography>
 				</Stack>
 				<Stack spacing={1}>
 					<Typography>
 						<strong>{t('dateCreated')}:</strong>{' '}
-						{deploymentProcess.data?.createdAt}
+						{deploymentPhase.data?.createdAt}
 					</Typography>
 					<Typography>
 						<strong>{t('lastUpdated')}:</strong>{' '}
-						{deploymentProcess.data?.updatedAt}
+						{deploymentPhase.data?.updatedAt}
 					</Typography>
 				</Stack>
 			</Stack>
@@ -379,11 +554,16 @@ const SetupDeploymentPhasePage = () => {
 					onChange={handleChange}
 					variant={'fullWidth'}
 				>
-					<Tab label={'Chi tiet'} {...a11yProps(0)} />
+					<Tab label={t('detail')} {...a11yProps(0)} />
 					<Tab label={t('personnelPerforms')} {...a11yProps(1)} />
 				</Tabs>
 				<TabPanel value={value} index={0}>
-					<DetailTab processId={Number(processId)} />
+					<DetailTab
+						phaseId={phaseId}
+						description={deploymentPhase.data?.description}
+						plannedStartDate={deploymentPhase.data?.plannedStartDate}
+						plannedEndDate={deploymentPhase.data?.plannedEndDate}
+					/>
 				</TabPanel>
 				<TabPanel value={value} index={1}>
 					<PersonnelTab phaseId={phaseId} />

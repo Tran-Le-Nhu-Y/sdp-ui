@@ -116,6 +116,12 @@ declare interface DeploymentPhaseMemberUpdateRequest {
 	operator: MemberOperator;
 }
 
+declare interface DeploymentPhaseAttachmentUpdateRequest {
+	phaseId: string;
+	attachmentId: string;
+	operator: FileOperator;
+}
+
 declare interface DocumentTypeCreateRequest {
 	name: string;
 	description?: string?;

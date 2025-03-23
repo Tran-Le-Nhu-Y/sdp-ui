@@ -26,7 +26,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import {
 	HideDuration,
 	isValidLength,
-	normalizeDateFormat,
+	convertToAPIDateFormat,
 	parseToDayjs,
 	PathHolders,
 	RoutePaths,
@@ -260,7 +260,7 @@ function AddPhaseDialog({
 						}
 						onChange={(value) => {
 							if (!value) return;
-							const date = normalizeDateFormat(value);
+							const date = convertToAPIDateFormat(value);
 							setCreateProps((pre) => ({ ...pre, plannedStartDate: date }));
 						}}
 					/>
@@ -273,7 +273,7 @@ function AddPhaseDialog({
 						}
 						onChange={(value) => {
 							if (!value) return;
-							const date = normalizeDateFormat(value);
+							const date = convertToAPIDateFormat(value);
 							setCreateProps((pre) => ({ ...pre, plannedEndDate: date }));
 						}}
 					/>

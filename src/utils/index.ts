@@ -182,7 +182,7 @@ export function checkRoles({
 	);
 }
 
-export const normalizeDateFormat = (date: Dayjs) => {
+export const convertToAPIDateFormat = (date: Dayjs) => {
 	return date.format('YYYY-MM-DD');
 };
 
