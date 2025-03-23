@@ -134,16 +134,20 @@ import {
 	deploymentPhaseApi,
 	useGetAllPhasesByProcessIdQuery as useGetAllDeploymentPhasesByProcessId,
 	useGetPhaseByIdQuery as useGetPhaseById,
+	useGetMemberIdsQuery as useGetDeploymentPhaseMemberIds,
 	usePostPhaseMutation as useCreateDeploymentPhase,
 	usePutPhaseMutation as useUpdateDeploymentPhase,
+	usePutMemberMutation as useUpdateDeploymentPhaseMember,
 	useDeletePhaseMutation as useDeleteDeploymentPhase,
 } from './deployment-phase';
 export {
 	deploymentPhaseApi,
 	useGetAllDeploymentPhasesByProcessId,
 	useGetPhaseById,
+	useGetDeploymentPhaseMemberIds,
 	useCreateDeploymentPhase,
 	useUpdateDeploymentPhase,
+	useUpdateDeploymentPhaseMember,
 	useDeleteDeploymentPhase,
 };
 

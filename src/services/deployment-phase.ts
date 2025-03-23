@@ -7,7 +7,7 @@ const EXTENSION_URL = 'v1/software/deployment-process/phase';
 export const deploymentPhaseApi = createApi({
 	reducerPath: 'deploymentPhaseApi',
 	baseQuery: axiosBaseQuery(sdpInstance),
-	tagTypes: ['ProcessPhases', 'DeploymentPhase'],
+	tagTypes: ['ProcessPhases', 'DeploymentPhase', 'Member'],
 	endpoints: (builder) => ({
 		getAllPhasesByProcessId: builder.query<
 			Array<DeploymentPhase>,
@@ -51,6 +51,23 @@ export const deploymentPhaseApi = createApi({
 				return toEntity(rawResult);
 			},
 		}),
+		getMemberIds: builder.query<Array<string>, string>({
+			query: (phaseId) => ({
+				url: `/${EXTENSION_URL}/${phaseId}/member`,
+				method: 'GET',
+			}),
+			providesTags(result, _err, arg) {
+				const processId = arg;
+				return result
+					? [
+							{
+								type: 'Member',
+								id: processId,
+							} as const,
+						]
+					: [];
+			},
+		}),
 		postPhase: builder.mutation<string, DeploymentPhaseCreateRequest>({
 			query: ({
 				processId,
@@ -91,6 +108,23 @@ export const deploymentPhaseApi = createApi({
 				];
 			},
 		}),
+		putMember: builder.mutation<void, DeploymentPhaseMemberUpdateRequest>({
+			query: ({ phaseId, memberId, operator }) => ({
+				url: `/${EXTENSION_URL}/${phaseId}/member`,
+				method: 'PUT',
+				body: {
+					memberId: memberId,
+					operator: operator,
+				},
+			}),
+			invalidatesTags(_result, _error, arg) {
+				const { phaseId } = arg;
+				return [{ id: phaseId, type: 'Member' } as const];
+			},
+			transformErrorResponse(baseQueryReturnValue) {
+				return baseQueryReturnValue.status;
+			},
+		}),
 		deletePhase: builder.mutation<void, string>({
 			query: (softwareId: string) => ({
 				url: `/${EXTENSION_URL}/${softwareId}`,
@@ -112,7 +146,9 @@ export const deploymentPhaseApi = createApi({
 export const {
 	useGetAllPhasesByProcessIdQuery,
 	useGetPhaseByIdQuery,
+	useGetMemberIdsQuery,
 	usePostPhaseMutation,
 	usePutPhaseMutation,
+	usePutMemberMutation,
 	useDeletePhaseMutation,
 } = deploymentPhaseApi;

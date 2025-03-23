@@ -26,6 +26,7 @@ import ModuleDocumentDetailPage from './moduleDocumentDetail';
 import DeploymentPhaseTypePage from './deploymentPhaseType';
 import DeploymentProcessDetailPage from './deploymentProcessDetail';
 import SetupDeploymentProcessPage from './setupDeploymentProcessDetail';
+import SetupDeploymentPhasePage from './setupDeploymentPhase';
 
 export {
 	OverviewPage,
@@ -56,4 +57,5 @@ export {
 	TemplateSoftwareExpirationPage,
 	TemplateCompleteDeploymentPage,
 	SetupDeploymentProcessPage,
+	SetupDeploymentPhasePage,
 };
