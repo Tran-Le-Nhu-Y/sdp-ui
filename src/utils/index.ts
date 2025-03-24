@@ -34,41 +34,38 @@ export enum PathHolders {
 export enum RoutePaths {
 	NOTIFICATION = '/notification',
 	OVERVIEW = '/overview',
-
 	CUSTOMER = '/customer',
-	CREATE_CUSTOMER = '/customer/create',
-
-	SOFTWARE = '/software',
-	CREATE_SOFTWARE = '/software/create',
-	MODIFY_SOFTWARE = `/software/:${PathHolders.SOFTWARE_ID}/modify`,
-
-	SOFTWARE_VERSION = `/software/:${PathHolders.SOFTWARE_ID}/version/:${PathHolders.SOFTWARE_VERSION_ID}`,
-	CREATE_SOFTWARE_VERSION = `/software/:${PathHolders.SOFTWARE_ID}/version/create`,
-	MODIFY_SOFTWARE_VERSION = `/software/version/:${PathHolders.SOFTWARE_VERSION_ID}/modify`,
-
-	CREATE_MODULE = `/software/version/:${PathHolders.SOFTWARE_VERSION_ID}/module/create`,
-	MODIFY_MODULE = `/software/version/module/:${PathHolders.MODULE_ID}/modify`,
-
-	MODULE_VERSION = `/software/version/module/:${PathHolders.MODULE_ID}/version/:${PathHolders.MODULE_VERSION_ID}`,
-	CREATE_MODULE_VERSION = `/software/version/module/:${PathHolders.MODULE_ID}/version/create`,
-	MODIFY_MODULE_VERSION = `/software/version/module/:${PathHolders.MODULE_VERSION_ID}/version/modify`,
-
 	DOCUMENT_TYPE = `/document-type`,
 
-	CREATE_SOFTWARE_DOCUMENT = `/software/version/:${PathHolders.SOFTWARE_VERSION_ID}/document/create`,
-	SOFTWARE_DOCUMENT = `/software/version/document/:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
-	MODIFY_SOFTWARE_DOCUMENT = `/software/version/document/:${PathHolders.SOFTWARE_DOCUMENT_ID}/modify`,
+	SOFTWARE = '/software',
+	CREATE_SOFTWARE = `${SOFTWARE}/create`,
+	MODIFY_SOFTWARE = `${SOFTWARE}/:${PathHolders.SOFTWARE_ID}/modify`,
 
-	CREATE_MODULE_DOCUMENT = `/software/module/version/:${PathHolders.MODULE_VERSION_ID}/document/create`,
-	MODULE_DOCUMENT = `/software/module/document/:${PathHolders.MODULE_DOCUMENT_ID}`,
-	MODIFY_MODULE_DOCUMENT = `/software/module/document/:${PathHolders.MODULE_DOCUMENT_ID}/modify`,
+	SOFTWARE_VERSION = `${SOFTWARE}/:${PathHolders.SOFTWARE_ID}/version/:${PathHolders.SOFTWARE_VERSION_ID}`,
+	CREATE_SOFTWARE_VERSION = `${SOFTWARE}/:${PathHolders.SOFTWARE_ID}/version/create`,
+	MODIFY_SOFTWARE_VERSION = `${SOFTWARE}/version/:${PathHolders.SOFTWARE_VERSION_ID}/modify`,
+
+	CREATE_MODULE = `${SOFTWARE}/version/:${PathHolders.SOFTWARE_VERSION_ID}/module/create`,
+	MODIFY_MODULE = `${SOFTWARE}/version/module/:${PathHolders.MODULE_ID}/modify`,
+
+	MODULE_VERSION = `${SOFTWARE}/version/module/:${PathHolders.MODULE_ID}/version/:${PathHolders.MODULE_VERSION_ID}`,
+	CREATE_MODULE_VERSION = `${SOFTWARE}/version/module/:${PathHolders.MODULE_ID}/version/create`,
+	MODIFY_MODULE_VERSION = `${SOFTWARE}/version/module/:${PathHolders.MODULE_VERSION_ID}/version/modify`,
+
+	CREATE_SOFTWARE_DOCUMENT = `${SOFTWARE}/version/:${PathHolders.SOFTWARE_VERSION_ID}/document/create`,
+	SOFTWARE_DOCUMENT = `${SOFTWARE}/version/document/:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
+	MODIFY_SOFTWARE_DOCUMENT = `${SOFTWARE}/version/document/:${PathHolders.SOFTWARE_DOCUMENT_ID}/modify`,
+
+	CREATE_MODULE_DOCUMENT = `${SOFTWARE}/module/version/:${PathHolders.MODULE_VERSION_ID}/document/create`,
+	MODULE_DOCUMENT = `${SOFTWARE}/module/document/:${PathHolders.MODULE_DOCUMENT_ID}`,
+	MODIFY_MODULE_DOCUMENT = `${MODULE_DOCUMENT}/modify`,
 
 	DEPLOYMENT_PROCESS = '/deployment/process',
-	CREATE_DEPLOYMENT_PROCESS = '/deployment/process/create',
-	DEPLOYMENT_PROCESS_DETAIL = `/deployment/process/:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
-	SETUP_DEPLOYMENT_PROCESS = `/deployment/process/:${PathHolders.DEPLOYMENT_PROCESS_ID}/setup`,
+	CREATE_DEPLOYMENT_PROCESS = `${DEPLOYMENT_PROCESS}/create`,
+	DEPLOYMENT_PROCESS_DETAIL = `${DEPLOYMENT_PROCESS}/:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
+	SETUP_DEPLOYMENT_PROCESS = `${DEPLOYMENT_PROCESS}/:${PathHolders.DEPLOYMENT_PROCESS_ID}/setup`,
 
-	SETUP_DEPLOYMENT_PHASE = `/deployment/process/:${PathHolders.DEPLOYMENT_PROCESS_ID}/setup/phase/:${PathHolders.DEPLOYMENT_PHASE_ID}`,
+	SETUP_DEPLOYMENT_PHASE = `${SETUP_DEPLOYMENT_PROCESS}/phase/:${PathHolders.DEPLOYMENT_PHASE_ID}`,
 	DEPLOYMENT_PHASE_TYPE = '/deployment/phase-type',
 
 	TEMPLATE_SOFTWARE_EXPIRATION = '/mail-template/software-expiration',
@@ -131,15 +128,34 @@ export const axiosBaseQuery =
 	};
 
 export function createAxiosInstance(config?: CreateAxiosDefaults) {
-	const token = keycloak.token;
-	if (!token) keycloak.logout();
-	return axios.create({
-		...config,
-		headers: {
-			...config?.headers,
-			Authorization: `Bearer ${token}`,
+	const instance = axios.create(config);
+
+	instance.interceptors.request.use(
+		async function (config) {
+			// Do something before request is sent
+			if (keycloak.isTokenExpired(15)) {
+				try {
+					await keycloak.updateToken(15);
+					config.headers.Authorization = `Bearer ${keycloak.token}`;
+				} catch (error) {
+					console.error(error);
+					alert('Failed to refresh the token, or the session has expired');
+					keycloak.logout();
+				}
+			} else {
+				const token = keycloak.token;
+				if (!token) keycloak.logout();
+				config.headers.Authorization = `Bearer ${keycloak.token}`;
+			}
+			return config;
 		},
-	});
+		function (error) {
+			// Do something with request error
+			return Promise.reject(error);
+		}
+	);
+
+	return instance;
 }
 
 export const isValidLength = (text: string, length: TextLength) =>
@@ -185,7 +201,7 @@ export function checkRoles({
 	);
 }
 
-export const normalizeDateFormat = (date: Dayjs) => {
+export const convertToAPIDateFormat = (date: Dayjs) => {
 	return date.format('YYYY-MM-DD');
 };
 

@@ -171,40 +171,40 @@ function CustomToolbarActions() {
 	);
 }
 
+const login = async () => {
+	const retrieveSession = async () => {
+		const { id, email, firstName, lastName } = await keycloak.loadUserProfile();
+
+		const session: Session = {
+			user: {
+				id: id,
+				name: `${lastName} ${firstName}`,
+				email: email,
+			},
+		};
+		return session;
+	};
+
+	if (keycloak.authenticated) return await retrieveSession();
+
+	await keycloak.login();
+	return await retrieveSession();
+};
+
 function App() {
 	const { t } = useTranslation();
 	const [session, setSession] = useState<Session>();
 
-	const login = async () => {
-		const retrieveSession = async () => {
-			const { id, email, firstName, lastName } =
-				await keycloak.loadUserProfile();
-
-			const session: Session = {
-				user: {
-					id: id,
-					name: `${lastName} ${firstName}`,
-					email: email,
-				},
-			};
-			return session;
-		};
-
-		if (keycloak.authenticated) return await retrieveSession();
-
-		await keycloak.login();
-		return await retrieveSession();
-	};
-
 	useEffect(() => {
-		login()
-			.then((session) => {
-				if (session) setSession(session);
-			})
-			.catch((error) => {
-				console.error(error);
-			});
-	}, []);
+		if (!session)
+			login()
+				.then((session) => {
+					if (session) setSession(session);
+				})
+				.catch((error) => {
+					console.error(error);
+				});
+	}, [session]);
 
 	const navigation: Navigation = useMemo(() => {
 		const globalNavs = [

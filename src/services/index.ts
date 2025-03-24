@@ -114,6 +114,7 @@ import {
 	useGetAllProcessesQuery as useGetAllDeploymentProcesses,
 	useGetMemberIdsQuery as useGetDeploymentProcessMemberIds,
 	useGetProcessQuery as useGetDeploymentProcess,
+	useGetAllModulesQuery as useGetAllModulesInProcess,
 	usePostProcessMutation as useCreateDeploymentProcess,
 	usePutProcessMutation as useUpdateDeploymentProcess,
 	usePutMemberMutation as useUpdateDeploymentProcessMember,
@@ -124,6 +125,7 @@ export {
 	useGetAllDeploymentProcesses,
 	useGetDeploymentProcess,
 	useGetDeploymentProcessMemberIds,
+	useGetAllModulesInProcess,
 	useCreateDeploymentProcess,
 	useUpdateDeploymentProcess,
 	useUpdateDeploymentProcessMember,
@@ -134,17 +136,25 @@ import {
 	deploymentPhaseApi,
 	useGetAllPhasesByProcessIdQuery as useGetAllDeploymentPhasesByProcessId,
 	useGetPhaseByIdQuery as useGetPhaseById,
+	useGetMemberIdsQuery as useGetDeploymentPhaseMemberIds,
 	usePostPhaseMutation as useCreateDeploymentPhase,
+	useGetAllAttachmentsQuery as useGetAllPhaseAttachments,
 	usePutPhaseMutation as useUpdateDeploymentPhase,
+	usePutMemberMutation as useUpdateDeploymentPhaseMember,
 	useDeletePhaseMutation as useDeleteDeploymentPhase,
+	usePutAttachmentMutation as useUpdateDeploymentPhaseAttachment,
 } from './deployment-phase';
 export {
 	deploymentPhaseApi,
 	useGetAllDeploymentPhasesByProcessId,
 	useGetPhaseById,
+	useGetDeploymentPhaseMemberIds,
 	useCreateDeploymentPhase,
 	useUpdateDeploymentPhase,
+	useUpdateDeploymentPhaseMember,
 	useDeleteDeploymentPhase,
+	useGetAllPhaseAttachments,
+	useUpdateDeploymentPhaseAttachment,
 };
 
 import {

@@ -108,12 +108,20 @@ declare interface DeploymentPhaseUpdateRequest {
 	phaseId: string;
 	numOrder: number;
 	description?: string?;
+	plannedStartDate: string;
+	plannedEndDate: string;
 }
 
 declare interface DeploymentPhaseMemberUpdateRequest {
 	phaseId: string;
 	memberId: string;
 	operator: MemberOperator;
+}
+
+declare interface DeploymentPhaseAttachmentUpdateRequest {
+	phaseId: string;
+	attachmentId: string;
+	operator: FileOperator;
 }
 
 declare interface DocumentTypeCreateRequest {
