@@ -336,7 +336,10 @@ function PhaseTab({ processId }: { processId: number }) {
 				minWidth: 200,
 				headerName: t('plannedStartDate'),
 				headerAlign: 'center',
-				type: 'string',
+				type: 'date',
+				valueGetter: (_value, row) => {
+					return new Date(row.plannedStartDate);
+				},
 			},
 			{
 				field: 'plannedEndDate',
@@ -345,7 +348,10 @@ function PhaseTab({ processId }: { processId: number }) {
 				minWidth: 200,
 				headerName: t('plannedEndDate'),
 				headerAlign: 'center',
-				type: 'string',
+				type: 'date',
+				valueGetter: (_value, row) => {
+					return new Date(row.plannedEndDate);
+				},
 			},
 			{
 				field: 'actions',
