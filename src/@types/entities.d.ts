@@ -99,6 +99,18 @@ declare type DeploymentProcessStatus =
 	| 'IN_PROGRESS'
 	| 'DONE';
 
+declare interface ModuleInDeploymentProcess {
+	processId: number;
+	version: {
+		id: string;
+		name: string;
+	};
+	module: {
+		id: string;
+		name: string;
+	};
+}
+
 declare interface DeploymentPhaseType {
 	id: string;
 	name: string;

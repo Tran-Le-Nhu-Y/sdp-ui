@@ -1,7 +1,5 @@
 import {
 	Typography,
-	TableCell,
-	TableRow,
 	Stack,
 	Box,
 	Tab,
@@ -21,7 +19,7 @@ import {
 } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PaginationTable, TabPanel } from '../../components';
+import { TabPanel } from '../../components';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
 	HideDuration,
@@ -37,6 +35,7 @@ import {
 	useDeleteDeploymentPhase,
 	useGetAllDeploymentPhasesByProcessId,
 	useGetAllDeploymentPhaseTypesByUserId,
+	useGetAllModulesInProcess,
 	useGetAllUsersByRole,
 	useGetDeploymentProcess,
 	useGetDeploymentProcessMemberIds,
@@ -58,36 +57,6 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-
-const deploymentData = {
-	customer: 'Oliver Hansen',
-	software: 'Oliver Hansen',
-	version: '1.0',
-	status: 'Đang triển khai',
-	startDate: '00/00/0000',
-	endDate: '00/00/0000',
-	modules: Array.from({ length: 5 }, (_, i) => ({
-		id: i + 1,
-		name: `Module ${i + 1}`,
-		version: '1.0',
-	})),
-	phases: [
-		{
-			id: 1,
-			name: 'Nguyễn Văn A',
-			email: 'a@gmail.com',
-			step: 'Lập kế hoạch',
-			updatedAt: '04/03/2019',
-		},
-		{
-			id: 2,
-			name: 'Nguyễn Văn B',
-			email: 'Đang triển khai',
-			step: 'Lập kế hoạch',
-			updatedAt: '04/03/2019',
-		},
-	],
-};
 
 function a11yProps(index: number) {
 	return {
@@ -464,46 +433,66 @@ function PhaseTab({ processId }: { processId: number }) {
 	);
 }
 
-function ModuleTab() {
+function ModuleTab({ processId }: { processId: number }) {
 	const { t } = useTranslation('standard');
-	const [, setModuleQuery] = useState<GetAllModuleQuery>({
-		softwareVersionId: '',
-		moduleName: '',
-		pageNumber: 0,
-		pageSize: 6,
-	});
+	const modulesQuery = useGetAllModulesInProcess(processId);
+
+	const cols: GridColDef[] = useMemo(
+		() => [
+			{
+				field: 'moduleName',
+				editable: false,
+				minWidth: 300,
+				headerName: t('moduleName'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.module.name;
+				},
+			},
+			{
+				field: 'versionName',
+				editable: false,
+				minWidth: 200,
+				headerName: t('version'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.version.name;
+				},
+			},
+		],
+		[t]
+	);
 
 	return (
-		<PaginationTable
-			headers={
-				<>
-					<TableCell key={`moduleName`} align="center">
-						{t('moduleName')}
-					</TableCell>
-					<TableCell key={`version`} align="center">
-						{t('version')}
-					</TableCell>
-				</>
-			}
-			count={deploymentData.modules.length ?? 0}
-			rows={deploymentData.modules ?? []}
-			onPageChange={(newPage) =>
-				setModuleQuery((prev) => {
-					return { ...prev, ...newPage };
-				})
-			}
-			getCell={(row) => (
-				<TableRow key={row.id}>
-					<TableCell key={`moduleName`} align="center">
-						{row.name}
-					</TableCell>
-
-					<TableCell key={`version`} align="center">
-						{row.version}
-					</TableCell>
-				</TableRow>
-			)}
-		/>
+		<div style={{ display: 'flex', flexDirection: 'column' }}>
+			<DataGrid
+				slots={{
+					toolbar: () => (
+						<GridToolbarContainer>
+							<GridToolbarFilterButton />
+							<GridToolbarDensitySelector />
+							<GridToolbarColumnsButton />
+							<GridToolbarQuickFilter />
+						</GridToolbarContainer>
+					),
+				}}
+				rows={modulesQuery.data}
+				columns={cols}
+				pageSizeOptions={[5, 10, 15]}
+				getRowId={(row) => row.version.id}
+				initialState={{
+					pagination: {
+						paginationModel: {
+							page: 0,
+							pageSize: 5,
+						},
+					},
+					sorting: {
+						sortModel: [{ field: 'moduleName', sort: 'asc' }],
+					},
+				}}
+			/>
+		</div>
 	);
 }
 
@@ -861,7 +850,7 @@ const SetupDeploymentProcessPage = () => {
 					<PhaseTab processId={Number(processId)} />
 				</TabPanel>
 				<TabPanel value={value} index={1}>
-					<ModuleTab />
+					<ModuleTab processId={Number(processId)} />
 				</TabPanel>
 				<TabPanel value={value} index={2}>
 					<PersonnelTab processId={Number(processId)} />

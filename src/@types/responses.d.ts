@@ -71,6 +71,18 @@ declare interface DeploymentProcessResponse {
 	};
 }
 
+declare interface ModuleInDeploymentProcessResponse {
+	processId: number;
+	version: {
+		id: string;
+		name: string;
+	};
+	module: {
+		id: string;
+		name: string;
+	};
+}
+
 declare interface DeploymentProcessMemberResponse {
 	id: string;
 	firstName: string;

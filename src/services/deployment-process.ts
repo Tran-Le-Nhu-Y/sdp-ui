@@ -7,7 +7,12 @@ const EXTENSION_URL = 'v1/software/deployment-process';
 export const deploymentProcessApi = createApi({
 	reducerPath: 'deploymentProcessApi',
 	baseQuery: axiosBaseQuery(sdpInstance),
-	tagTypes: ['PagingDeploymentProcess', 'DeploymentProcess', 'Member'],
+	tagTypes: [
+		'PagingDeploymentProcess',
+		'DeploymentProcess',
+		'Member',
+		'Module',
+	],
 	endpoints: (builder) => ({
 		getAllProcesses: builder.query<
 			PagingWrapper<DeploymentProcess>,
@@ -95,6 +100,26 @@ export const deploymentProcessApi = createApi({
 					: [];
 			},
 		}),
+		getAllModules: builder.query<Array<ModuleInDeploymentProcess>, number>({
+			query: (processId) => ({
+				url: `/${EXTENSION_URL}/${processId}/module-version`,
+				method: 'GET',
+			}),
+			providesTags(result, _err, arg) {
+				const processId = arg;
+				return result
+					? [
+							{
+								type: 'Module',
+								id: processId,
+							} as const,
+						]
+					: [];
+			},
+			transformResponse(rawResults: Array<ModuleInDeploymentProcessResponse>) {
+				return rawResults.map((result) => ({ ...result }));
+			},
+		}),
 		postProcess: builder.mutation<
 			DeploymentProcess,
 			DeploymentProcessCreateRequest
@@ -179,6 +204,7 @@ export const {
 	useGetAllProcessesQuery,
 	useGetProcessQuery,
 	useGetMemberIdsQuery,
+	useGetAllModulesQuery,
 	usePostProcessMutation,
 	usePutProcessMutation,
 	usePutMemberMutation,
