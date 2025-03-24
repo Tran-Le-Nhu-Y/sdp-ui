@@ -132,12 +132,20 @@ export const deploymentPhaseApi = createApi({
 			},
 		}),
 		putPhase: builder.mutation<void, DeploymentPhaseUpdateRequest>({
-			query: ({ phaseId, numOrder, description }) => ({
+			query: ({
+				phaseId,
+				numOrder,
+				description,
+				plannedStartDate,
+				plannedEndDate,
+			}) => ({
 				url: `/${EXTENSION_URL}/${phaseId}`,
 				method: 'PUT',
 				body: {
 					numOrder: numOrder,
 					description: description,
+					plannedStartDate: plannedStartDate,
+					plannedEndDate: plannedEndDate,
 				},
 			}),
 			invalidatesTags(_result, _error, arg) {

@@ -8,22 +8,32 @@ import {
 	Tooltip,
 	styled,
 	Button,
+	TextField,
+	IconButton,
 } from '@mui/material';
-import React, { useCallback, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Attachment, TabPanel } from '../../components';
-import { useParams } from 'react-router-dom';
-import { HideDuration, parseToDayjs, PathHolders } from '../../utils';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+	convertToAPIDateFormat,
+	HideDuration,
+	isValidLength,
+	parseToDayjs,
+	PathHolders,
+	RoutePaths,
+	TextLength,
+} from '../../utils';
 import {
 	useGetAllUsersByRole,
 	useGetDeploymentProcess,
 	useGetDeploymentPhaseMemberIds,
-	useUpdateDeploymentProcess,
 	useUpdateDeploymentPhaseMember,
 	useGetPhaseById,
 	useGetAllPhaseAttachments,
 	useUpdateDeploymentPhaseAttachment,
 	useCreateFile,
+	useUpdateDeploymentPhase,
 } from '../../services';
 import { useDialogs, useNotifications, useSession } from '@toolpad/core';
 import {
@@ -41,6 +51,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from 'dayjs';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import EditIcon from '@mui/icons-material/Edit';
+import DoneIcon from '@mui/icons-material/Done';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 function a11yProps(index: number) {
 	return {
@@ -62,11 +75,13 @@ const VisuallyHiddenInput = styled('input')({
 });
 
 function DetailTab({
+	numOrder,
 	phaseId,
 	description,
 	plannedStartDate,
 	plannedEndDate,
 }: {
+	numOrder?: number;
 	phaseId?: string;
 	description?: string | null;
 	plannedStartDate?: string;
@@ -76,6 +91,15 @@ function DetailTab({
 	const dialogs = useDialogs();
 	const notifications = useNotifications();
 	const userId = useSession()?.user?.id;
+	const [descSnapshot, setDescSnapshot] = useState(description);
+	const [enableEditDesc, setEnableEditDesc] = useState(false);
+
+	const plannedStartDateAsDayjs = plannedStartDate
+		? parseToDayjs(plannedStartDate)
+		: dayjs();
+	const plannedEndDateAsDayjs = plannedEndDate
+		? parseToDayjs(plannedEndDate)
+		: dayjs();
 
 	const attachments = useGetAllPhaseAttachments(phaseId!, {
 		skip: !phaseId,
@@ -112,12 +136,12 @@ function DetailTab({
 				})
 			);
 
-			notifications.show(t('updateDeploymentProcessSuccess'), {
+			notifications.show(t('uploadFileSuccess'), {
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,
 			});
 		} catch (error) {
-			notifications.show(t('updateDeploymentProcessError'), {
+			notifications.show(t('uploadedFileError'), {
 				severity: 'error',
 				autoHideDuration: HideDuration.fast,
 			});
@@ -142,25 +166,6 @@ function DetailTab({
 				operator: 'REMOVE',
 			}).unwrap();
 
-			notifications.show(t('updateDeploymentProcessSuccess'), {
-				severity: 'success',
-				autoHideDuration: HideDuration.fast,
-			});
-		} catch (error) {
-			notifications.show(t('updateDeploymentProcessError'), {
-				severity: 'error',
-				autoHideDuration: HideDuration.fast,
-			});
-			console.error(error);
-		}
-	};
-
-	const [updateProcessTrigger, { isLoading: isProcessUpdating }] =
-		useUpdateDeploymentProcess();
-	const handleUpdateProcess = async (data: DeploymentProcessUpdateRequest) => {
-		try {
-			await updateProcessTrigger(data).unwrap();
-
 			notifications.show(t('deleteFileSuccess'), {
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,
@@ -174,25 +179,69 @@ function DetailTab({
 		}
 	};
 
+	const [updatePhaseTrigger, { isLoading: isPhaseUpdating }] =
+		useUpdateDeploymentPhase();
+	const handleUpdatePhase = async (data: DeploymentPhaseUpdateRequest) => {
+		try {
+			await updatePhaseTrigger(data).unwrap();
+
+			notifications.show(t('updateDeploymentPhaseSuccess'), {
+				severity: 'success',
+				autoHideDuration: HideDuration.fast,
+			});
+		} catch (error) {
+			notifications.show(t('updateDeploymentPhaseError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+			console.error(error);
+		}
+	};
+
 	return (
 		<Stack spacing={1}>
-			{isAttachmentUpdating && <LinearProgress />}
+			{(isAttachmentUpdating || isPhaseUpdating) && <LinearProgress />}
+
 			<Stack direction="row" alignItems="center" spacing={1}>
 				<Typography variant="h6">{t('plannedStartDate')}:</Typography>
 				<DatePicker
-					value={plannedStartDate ? parseToDayjs(plannedStartDate) : dayjs()}
 					slotProps={{ textField: { size: 'small' } }}
+					value={plannedStartDateAsDayjs}
+					maxDate={plannedEndDateAsDayjs}
+					onChange={(value) => {
+						if (!value || !phaseId || !numOrder || !plannedEndDate) return;
+
+						const dateAsString = convertToAPIDateFormat(value);
+						handleUpdatePhase({
+							numOrder,
+							phaseId,
+							description: descSnapshot,
+							plannedStartDate: dateAsString,
+							plannedEndDate,
+						});
+					}}
 				/>
 			</Stack>
 			<Stack direction="row" alignItems="center" spacing={1}>
 				<Typography variant="h6">{t('plannedEndDate')}:</Typography>
 				<DatePicker
-					value={plannedEndDate ? parseToDayjs(plannedEndDate) : dayjs()}
 					slotProps={{ textField: { size: 'small' } }}
+					value={plannedEndDateAsDayjs}
+					minDate={plannedStartDateAsDayjs}
+					onChange={(value) => {
+						if (!value || !phaseId || !numOrder || !plannedStartDate) return;
+
+						const dateAsString = convertToAPIDateFormat(value);
+						handleUpdatePhase({
+							numOrder,
+							phaseId,
+							description: descSnapshot,
+							plannedStartDate,
+							plannedEndDate: dateAsString,
+						});
+					}}
 				/>
 			</Stack>
-			<Typography variant="h6">{t('description')}:</Typography>
-			<Typography variant="body1">{description}</Typography>
 
 			<Stack
 				spacing={1}
@@ -230,6 +279,54 @@ function DetailTab({
 						onRemoveClick={deleteAttachment}
 					/>
 				))}
+			</Stack>
+
+			<Stack direction={'column'}>
+				<Stack direction={'row'} spacing={1} alignItems={'center'}>
+					<Typography variant="h6">{t('description')}:</Typography>
+					{enableEditDesc ? (
+						<IconButton
+							color="primary"
+							onClick={() => {
+								if (
+									!phaseId ||
+									!numOrder ||
+									!plannedStartDate ||
+									!plannedEndDate
+								)
+									return;
+
+								handleUpdatePhase({
+									numOrder,
+									phaseId,
+									description: descSnapshot,
+									plannedStartDate,
+									plannedEndDate,
+								});
+								setEnableEditDesc(false);
+							}}
+						>
+							<DoneIcon />
+						</IconButton>
+					) : (
+						<IconButton color="primary" onClick={() => setEnableEditDesc(true)}>
+							<EditIcon />
+						</IconButton>
+					)}
+				</Stack>
+				<TextField
+					id="deployment-phase-description"
+					multiline
+					rows={4}
+					disabled={!enableEditDesc}
+					helperText={`${t('max')} ${TextLength.VeryLong} ${t('character')}`}
+					value={descSnapshot}
+					onChange={(e) => {
+						const newDesc = e.target.value;
+						if (isValidLength(newDesc, TextLength.VeryLong))
+							setDescSnapshot(newDesc);
+					}}
+				/>
 			</Stack>
 		</Stack>
 	);
@@ -461,6 +558,7 @@ function PersonnelTab({ phaseId }: { phaseId: string }) {
 
 const SetupDeploymentPhasePage = () => {
 	const { t } = useTranslation('standard');
+	const navigate = useNavigate();
 	const [value, setValue] = React.useState(0);
 	const processId = useParams()[PathHolders.DEPLOYMENT_PROCESS_ID];
 	const phaseId = useParams()[PathHolders.DEPLOYMENT_PHASE_ID] ?? '';
@@ -541,6 +639,20 @@ const SetupDeploymentPhasePage = () => {
 						<strong>{t('lastUpdated')}:</strong>{' '}
 						{deploymentPhase.data?.updatedAt}
 					</Typography>
+					<Button
+						variant="outlined"
+						sx={{ width: 'fit-content' }}
+						startIcon={<ArrowBackIcon />}
+						onClick={() => {
+							const path = RoutePaths.SETUP_DEPLOYMENT_PROCESS.replace(
+								`:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
+								`${processId}`
+							);
+							navigate(path);
+						}}
+					>
+						{t('return')}
+					</Button>
 				</Stack>
 			</Stack>
 
@@ -560,6 +672,7 @@ const SetupDeploymentPhasePage = () => {
 				<TabPanel value={value} index={0}>
 					<DetailTab
 						phaseId={phaseId}
+						numOrder={deploymentPhase.data?.numOrder}
 						description={deploymentPhase.data?.description}
 						plannedStartDate={deploymentPhase.data?.plannedStartDate}
 						plannedEndDate={deploymentPhase.data?.plannedEndDate}

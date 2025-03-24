@@ -108,6 +108,8 @@ declare interface DeploymentPhaseUpdateRequest {
 	phaseId: string;
 	numOrder: number;
 	description?: string?;
+	plannedStartDate: string;
+	plannedEndDate: string;
 }
 
 declare interface DeploymentPhaseMemberUpdateRequest {
