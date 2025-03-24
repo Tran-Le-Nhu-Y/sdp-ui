@@ -128,26 +128,25 @@ export const axiosBaseQuery =
 	};
 
 export function createAxiosInstance(config?: CreateAxiosDefaults) {
-	const instance = axios.create({
-		...config,
-	});
+	const instance = axios.create(config);
 
 	instance.interceptors.request.use(
 		async function (config) {
 			// Do something before request is sent
-			const token = keycloak.token;
-			if (!token) keycloak.logout();
 			if (keycloak.isTokenExpired(15)) {
 				try {
 					await keycloak.updateToken(15);
+					config.headers.Authorization = `Bearer ${keycloak.token}`;
 				} catch (error) {
 					console.error(error);
 					alert('Failed to refresh the token, or the session has expired');
 					keycloak.logout();
 				}
+			} else {
+				const token = keycloak.token;
+				if (!token) keycloak.logout();
+				config.headers.Authorization = `Bearer ${keycloak.token}`;
 			}
-
-			config.headers.Authorization = `Bearer ${token}`;
 			return config;
 		},
 		function (error) {
