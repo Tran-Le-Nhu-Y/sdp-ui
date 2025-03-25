@@ -250,7 +250,7 @@ function DetailTab({
 				overflow={'auto'}
 			>
 				<Typography variant="h6">{t('uploadedFiles')}:</Typography>
-				<Tooltip title={t('addFile')}>
+				<Tooltip arrow title={t('addFile')}>
 					<Button
 						component="label"
 						role={undefined}
@@ -285,33 +285,40 @@ function DetailTab({
 				<Stack direction={'row'} spacing={1} alignItems={'center'}>
 					<Typography variant="h6">{t('description')}:</Typography>
 					{enableEditDesc ? (
-						<IconButton
-							color="primary"
-							onClick={() => {
-								if (
-									!phaseId ||
-									!numOrder ||
-									!plannedStartDate ||
-									!plannedEndDate
-								)
-									return;
+						<Tooltip arrow title={t('submit')}>
+							<IconButton
+								color="primary"
+								onClick={() => {
+									if (
+										!phaseId ||
+										!numOrder ||
+										!plannedStartDate ||
+										!plannedEndDate
+									)
+										return;
 
-								handleUpdatePhase({
-									numOrder,
-									phaseId,
-									description: descSnapshot,
-									plannedStartDate,
-									plannedEndDate,
-								});
-								setEnableEditDesc(false);
-							}}
-						>
-							<DoneIcon />
-						</IconButton>
+									handleUpdatePhase({
+										numOrder,
+										phaseId,
+										description: descSnapshot,
+										plannedStartDate,
+										plannedEndDate,
+									});
+									setEnableEditDesc(false);
+								}}
+							>
+								<DoneIcon />
+							</IconButton>
+						</Tooltip>
 					) : (
-						<IconButton color="primary" onClick={() => setEnableEditDesc(true)}>
-							<EditIcon />
-						</IconButton>
+						<Tooltip arrow title={t('edit')}>
+							<IconButton
+								color="primary"
+								onClick={() => setEnableEditDesc(true)}
+							>
+								<EditIcon />
+							</IconButton>
+						</Tooltip>
 					)}
 				</Stack>
 				<TextField
