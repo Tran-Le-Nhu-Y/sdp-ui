@@ -275,7 +275,7 @@ function DetailTab({
 				{attachments?.data?.map((file) => (
 					<Attachment
 						key={file.id}
-						file={{ ...file }}
+						metadata={file}
 						onRemoveClick={deleteAttachment}
 					/>
 				))}

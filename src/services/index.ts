@@ -7,14 +7,15 @@ export { keycloakApi, useGetUser, useGetAllUsersByRole };
 
 import {
 	fileApi,
-	useGetQuery as useGetFile,
 	useGetMetadataQuery as useGetFileMetadata,
 	usePostMutation as useCreateFile,
 	useDeleteMutation as useDeleteFile,
 } from './file';
+import { getDownloadPath, createDownloadUrl } from './api/file-api';
 export {
 	fileApi,
-	useGetFile,
+	getDownloadPath,
+	createDownloadUrl,
 	useGetFileMetadata,
 	useCreateFile,
 	useDeleteFile,

@@ -31,15 +31,6 @@ export const fileApi = createApi({
 				return toEntity(rawResult);
 			},
 		}),
-		get: builder.query<File, string>({
-			query: (fileId) => ({
-				url: `/${EXTENSION_URL}/${fileId}`,
-				method: 'GET',
-			}),
-			transformErrorResponse(baseQueryReturnValue) {
-				return baseQueryReturnValue.status;
-			},
-		}),
 		post: builder.mutation<string, FileCreateRequest>({
 			query: ({ userId, file }) => {
 				const body = new FormData();
@@ -73,9 +64,5 @@ export const fileApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const {
-	useGetMetadataQuery,
-	useGetQuery,
-	usePostMutation,
-	useDeleteMutation,
-} = fileApi;
+export const { useGetMetadataQuery, usePostMutation, useDeleteMutation } =
+	fileApi;

@@ -2,7 +2,7 @@ import { List, ListItem } from '@mui/material';
 import Attachment from './Attachment';
 
 export interface AttachmentListProps {
-	attachments: Array<{ id: string; name: string; size: number }>;
+	attachments: Array<FileMetadata>;
 	onRemoveClick?: (id: string) => void;
 }
 
@@ -25,7 +25,7 @@ export const AttachmentList = ({
 		>
 			{attachments.map((file) => (
 				<ListItem key={file.id} sx={{ width: '100%' }}>
-					<Attachment file={file} onRemoveClick={onRemoveClick} />
+					<Attachment metadata={file} onRemoveClick={onRemoveClick} />
 				</ListItem>
 			))}
 		</List>

@@ -41,6 +41,7 @@
 	"deletePhaseSuccess": "Xóa giai đoạn triển khai thành công.",
 	"deletePhaseError": "Xóa giai đoạn triển khai đã xảy ra lỗi.",
 	"enterDescription": "Nhập mô tả tại đây...",
+	"downloadFileError": "Không thể tải tập tin do đã xảy ra lỗi.",
 	"noFileUpload": "Không có tập tin nào được tải lên",
 	"uploadedFiles": "Các tập tin đã tải lên",
 	"uploadedFileError": "Tải lên các tập tin đã xảy ra lỗi",
