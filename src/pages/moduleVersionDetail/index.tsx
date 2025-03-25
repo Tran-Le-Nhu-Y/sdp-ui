@@ -139,7 +139,7 @@ function DocumentsOfVersionTable({
 					variant="contained"
 					onClick={() =>
 						navigate(
-							`${RoutePaths.CREATE_MODULE_DOCUMENT.replace(`:${PathHolders.MODULE_VERSION_ID}`, versionId)}`,
+							`${RoutePaths.CREATE_MODULE_DOCUMENT.replace(`:${PathHolders.MODULE_VERSION_ID}`, versionId)}`
 						)
 					}
 				>
@@ -188,8 +188,8 @@ function DocumentsOfVersionTable({
 										navigate(
 											RoutePaths.MODULE_DOCUMENT.replace(
 												`:${PathHolders.MODULE_DOCUMENT_ID}`,
-												row.id,
-											),
+												row.id
+											)
 										)
 									}
 								>
@@ -201,8 +201,8 @@ function DocumentsOfVersionTable({
 										navigate(
 											RoutePaths.MODIFY_MODULE_DOCUMENT.replace(
 												`:${PathHolders.MODULE_DOCUMENT_ID}`,
-												row.id,
-											),
+												row.id
+											)
 										)
 									}
 								>
@@ -329,8 +329,8 @@ const ModuleVersionDetailPage = () => {
 										navigate(
 											RoutePaths.MODIFY_MODULE_VERSION.replace(
 												`:${PathHolders.MODULE_VERSION_ID}`,
-												versionId || '',
-											),
+												versionId || ''
+											)
 										)
 									}
 								>
@@ -350,10 +350,7 @@ const ModuleVersionDetailPage = () => {
 
 					<Box>
 						<Typography variant="body2">{t('description')}:</Typography>
-						<TextEditor
-							value={moduleVersion.data?.description ?? ''}
-							readOnly
-						/>
+						<TextEditor data={moduleVersion.data?.description ?? ''} readOnly />
 					</Box>
 				</Stack>
 

@@ -20,13 +20,12 @@ export const mailTemplateApi = createApi({
 					type: type,
 				},
 			}),
-			providesTags(result, _error, args) {
-				const { userId, type } = args;
+			providesTags(result) {
 				return result
 					? [
 							{
 								type: 'MailTemplate',
-								id: `${userId}-${type}`,
+								id: result.id,
 							} as const,
 						]
 					: [];
@@ -40,10 +39,11 @@ export const mailTemplateApi = createApi({
 		}),
 		postMailTemplate: builder.mutation<MailTemplate, MailTemplateCreateRequest>(
 			{
-				query: ({ userId, content, type }) => ({
+				query: ({ userId, subject, content, type }) => ({
 					url: `/${EXTENSION_URL}/${userId}`,
 					method: 'POST',
 					body: {
+						subject: subject,
 						content: content,
 						type: type,
 					},
@@ -66,20 +66,21 @@ export const mailTemplateApi = createApi({
 			}
 		),
 		putMailTemplate: builder.mutation<void, MailTemplateUpdateRequest>({
-			query: ({ templateId, content, type }) => ({
+			query: ({ templateId, subject, content, type }) => ({
 				url: `/${EXTENSION_URL}/${templateId}`,
 				method: 'PUT',
 				body: {
+					subject: subject,
 					content: content,
 					type: type,
 				},
 			}),
 			invalidatesTags(_result, _error, args) {
-				const { userId, type } = args;
+				const { templateId } = args;
 				return [
 					{
 						type: 'MailTemplate',
-						id: `${userId}-${type}`,
+						id: templateId,
 					} as const,
 				];
 			},

@@ -12,7 +12,6 @@ import {
 
 import { useTranslation } from 'react-i18next';
 
-import 'react-quill/dist/quill.snow.css';
 // import DragAndDropForm from './DragAndDropForm';
 import TextEditor from './TextEditor';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -126,7 +125,7 @@ const CreateModifyVersionForm: React.FC<CreateModifyVersionFormProps> = ({
 							boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
 						}}
 					>
-						<TextEditor value={description} onChange={setDescription} />
+						<TextEditor data={description} onChange={setDescription} />
 					</Box>
 				</Stack>
 				<Stack width={500}>

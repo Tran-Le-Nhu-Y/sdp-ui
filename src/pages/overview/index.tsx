@@ -193,7 +193,7 @@ const ProductTable = ({ userId }: { userId: string }) => {
 											width: '100%',
 										}}
 									>
-										<TextEditor value={row.description ?? ''} readOnly />
+										<TextEditor data={row.description ?? ''} readOnly />
 									</Stack>
 								</Box>
 							</Stack>

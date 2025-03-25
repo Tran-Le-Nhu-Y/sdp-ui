@@ -149,7 +149,7 @@ function DocumentsOfVersionTable({
 					variant="contained"
 					onClick={() =>
 						navigate(
-							`${RoutePaths.CREATE_SOFTWARE_DOCUMENT.replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, versionId)}`,
+							`${RoutePaths.CREATE_SOFTWARE_DOCUMENT.replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, versionId)}`
 						)
 					}
 				>
@@ -200,8 +200,8 @@ function DocumentsOfVersionTable({
 										navigate(
 											RoutePaths.SOFTWARE_DOCUMENT.replace(
 												`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
-												row.id,
-											),
+												row.id
+											)
 										)
 									}
 								>
@@ -213,8 +213,8 @@ function DocumentsOfVersionTable({
 										navigate(
 											RoutePaths.MODIFY_SOFTWARE_DOCUMENT.replace(
 												`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
-												row.id,
-											),
+												row.id
+											)
 										)
 									}
 								>
@@ -251,7 +251,7 @@ function ModuleVersionInner({
 		moduleVersionQuery!,
 		{
 			skip: !moduleVersionQuery,
-		},
+		}
 	);
 	useEffect(() => {
 		if (moduleVersions.isError)
@@ -328,7 +328,7 @@ function ModuleVersionInner({
 					variant="contained"
 					onClick={() =>
 						navigate(
-							`${RoutePaths.CREATE_MODULE_VERSION.replace(`:${PathHolders.MODULE_ID}`, moduleId)}`,
+							`${RoutePaths.CREATE_MODULE_VERSION.replace(`:${PathHolders.MODULE_ID}`, moduleId)}`
 						)
 					}
 				>
@@ -381,8 +381,8 @@ function ModuleVersionInner({
 										navigate(
 											RoutePaths.MODULE_VERSION.replace(
 												`:${PathHolders.MODULE_ID}`,
-												moduleId,
-											).replace(`:${PathHolders.MODULE_VERSION_ID}`, row.id),
+												moduleId
+											).replace(`:${PathHolders.MODULE_VERSION_ID}`, row.id)
 										)
 									}
 								>
@@ -394,8 +394,8 @@ function ModuleVersionInner({
 										navigate(
 											RoutePaths.MODIFY_MODULE_VERSION.replace(
 												`:${PathHolders.MODULE_VERSION_ID}`,
-												row.id,
-											),
+												row.id
+											)
 										)
 									}
 								>
@@ -572,8 +572,8 @@ const SoftwareVersionDetailPage = () => {
 										navigate(
 											RoutePaths.MODIFY_SOFTWARE_VERSION.replace(
 												`:${PathHolders.SOFTWARE_VERSION_ID}`,
-												versionId || '',
-											),
+												versionId || ''
+											)
 										)
 									}
 								>
@@ -594,7 +594,7 @@ const SoftwareVersionDetailPage = () => {
 					<Box>
 						<Typography variant="body2">{t('description')}:</Typography>
 						<TextEditor
-							value={softwareVersion.data?.description ?? ''}
+							data={softwareVersion.data?.description ?? ''}
 							readOnly
 						/>
 					</Box>
@@ -670,8 +670,8 @@ const SoftwareVersionDetailPage = () => {
 								navigate(
 									RoutePaths.CREATE_MODULE.replace(
 										`:${PathHolders.SOFTWARE_VERSION_ID}`,
-										versionId!,
-									),
+										versionId!
+									)
 								)
 							}
 						>
@@ -721,8 +721,8 @@ const SoftwareVersionDetailPage = () => {
 													navigate(
 														RoutePaths.MODIFY_MODULE.replace(
 															`:${PathHolders.MODULE_ID}`,
-															row.id,
-														),
+															row.id
+														)
 													)
 												}
 											>
@@ -755,7 +755,7 @@ const SoftwareVersionDetailPage = () => {
 													width: '100%',
 												}}
 											>
-												<TextEditor value={row.description ?? ''} readOnly />
+												<TextEditor data={row.description ?? ''} readOnly />
 											</Stack>
 										</Box>
 										<ModuleVersionInner

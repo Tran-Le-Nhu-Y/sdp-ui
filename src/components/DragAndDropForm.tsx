@@ -12,7 +12,6 @@ import {
 	Stack,
 	Typography,
 } from '@mui/material';
-import 'react-quill/dist/quill.snow.css';
 import { getFileSize } from '../utils';
 
 const FILE_MAX_BYTES = 128 * 1000 * 1000; // 128MB

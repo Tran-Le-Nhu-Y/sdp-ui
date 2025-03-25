@@ -177,14 +177,15 @@ declare interface ModuleDocumentAttachmentUpdateRequest {
 }
 
 declare interface MailTemplateCreateRequest {
+	subject: string;
 	content: string;
 	type: MailTemplateType;
 	userId: string;
 }
 
 declare interface MailTemplateUpdateRequest {
+	subject: string;
 	content: string;
 	type: MailTemplateType;
 	templateId: string;
-	userId: string;
 }

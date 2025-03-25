@@ -9,7 +9,6 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-import 'react-quill/dist/quill.snow.css';
 import TextEditor from './TextEditor';
 import { isValidLength, TextLength } from '../utils';
 
@@ -35,7 +34,7 @@ const CreateOrModifyForm: React.FC<CreateOrModifyFormProps> = ({
 }) => {
 	const [name, setName] = useState(showModifyValues?.name ?? '');
 	const [description, setDescription] = useState(
-		showModifyValues?.description ?? '',
+		showModifyValues?.description ?? ''
 	);
 	const { t } = useTranslation();
 	const handleSubmit = () => {
@@ -72,7 +71,7 @@ const CreateOrModifyForm: React.FC<CreateOrModifyFormProps> = ({
 					boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
 				}}
 			>
-				<TextEditor value={description} onChange={setDescription} />
+				<TextEditor data={description} onChange={setDescription} />
 			</Box>
 
 			<Box mt={3} display="flex" justifyContent="center" gap={2}>

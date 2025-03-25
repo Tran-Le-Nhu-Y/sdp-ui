@@ -367,7 +367,7 @@ export default function SoftwarePage() {
 											width: '100%',
 										}}
 									>
-										<TextEditor value={row.description ?? ''} readOnly />
+										<TextEditor data={row.description ?? ''} readOnly />
 									</Stack>
 								</Box>
 								<Typography variant="h6" textAlign="center">

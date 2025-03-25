@@ -182,7 +182,7 @@ export default function TemplateCompleteDeploymentPage() {
 				{!isEditing ? (
 					<Box>
 						<TextEditor
-							value={mailTemplate.data?.content || ''}
+							data={mailTemplate.data?.content || ''}
 							readOnly={!isEditing}
 						/>
 					</Box>
@@ -190,7 +190,7 @@ export default function TemplateCompleteDeploymentPage() {
 					<Stack>
 						<Box>
 							<TextEditor
-								value={content || ''}
+								data={content || ''}
 								onChange={(newValue) => setContent(newValue)}
 							/>
 						</Box>

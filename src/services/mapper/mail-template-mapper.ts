@@ -1,6 +1,7 @@
 function toEntity(response: MailTemplateResponse): MailTemplate {
 	const type: MailTemplate = {
 		id: response.id,
+		subject: response.subject,
 		content: response.content,
 		type: response.type,
 		createdAt: new Date(response.createdAtMs).toLocaleString(),

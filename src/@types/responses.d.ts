@@ -150,6 +150,7 @@ declare interface ModuleDocumentResponse {
 
 declare interface MailTemplateResponse {
 	id: string;
+	subject: string;
 	content: string;
 	type: MailTemplateType;
 	createdAtMs: number;

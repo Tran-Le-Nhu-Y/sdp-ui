@@ -1,4 +1,5 @@
 {
+	"title": "Tiêu đề",
 	"max": "tối đa",
 	"min": "tối thiểu",
 	"required": "Không được để trống",
@@ -270,6 +271,7 @@
 	"phases": "Các giai đoạn",
 	"personnelPerforms": "Nhân sự thực hiện",
 	"searchPersonnel": "Tìm kiếm nhân sự",
+	"mailContent": "Nội dung mail",
 	"emailAddress": "Địa chỉ Email",
 	"unassignedPersonnel": "Nhân sự chưa được bố trí",
 	"assignedPersonnel": "Nhân sự đã được bố trí",

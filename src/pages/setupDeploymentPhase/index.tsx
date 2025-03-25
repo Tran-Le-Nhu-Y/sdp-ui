@@ -325,7 +325,11 @@ function DetailTab({
 					id="deployment-phase-description"
 					multiline
 					rows={4}
-					disabled={!enableEditDesc}
+					slotProps={{
+						input: {
+							readOnly: !enableEditDesc,
+						},
+					}}
 					helperText={`${t('max')} ${TextLength.VeryLong} ${t('character')}`}
 					value={descSnapshot}
 					onChange={(e) => {

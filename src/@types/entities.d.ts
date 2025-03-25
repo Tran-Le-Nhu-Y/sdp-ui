@@ -156,8 +156,10 @@ declare interface ModuleDocument {
 declare type MailTemplateType =
 	| 'SOFTWARE_EXPIRE_ALERT'
 	| 'SOFTWARE_DEPLOYED_SUCCESSFULLY';
+
 declare interface MailTemplate {
 	id: string;
+	subject: string;
 	content: string;
 	type: MailTemplateType;
 	createdAt: string;
