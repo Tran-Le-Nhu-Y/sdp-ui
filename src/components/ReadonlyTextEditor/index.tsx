@@ -46,16 +46,14 @@ import './style.css';
 
 const LICENSE_KEY = 'GPL';
 
-export default function TextEditor({
+export default function ReadonlyTextEditor({
 	data,
 	initialData,
 	placeHolder,
-	onChange,
 }: {
 	data?: string;
 	initialData?: string;
 	placeHolder?: string;
-	onChange?: (value: string) => void;
 }) {
 	const editorContainerRef = useRef(null);
 	const editorRef = useRef(null);
@@ -73,28 +71,7 @@ export default function TextEditor({
 		return {
 			editorConfig: {
 				toolbar: {
-					items: [
-						'heading',
-						'style',
-						'|',
-						'bold',
-						'italic',
-						'underline',
-						'|',
-						'emoji',
-						'link',
-						'insertTable',
-						'blockQuote',
-						'codeBlock',
-						'|',
-						'alignment',
-						'|',
-						'bulletedList',
-						'numberedList',
-						'todoList',
-						'outdent',
-						'indent',
-					],
+					items: [],
 					shouldNotGroupWhenFull: false,
 				},
 				plugins: [
@@ -289,10 +266,8 @@ export default function TextEditor({
 					<div ref={editorRef}>
 						{editorConfig && (
 							<CKEditor
+								disabled={true}
 								editor={ClassicEditor}
-								onChange={(_e, editor) => {
-									if (onChange) onChange(editor.data.get());
-								}}
 								data={data}
 								config={editorConfig}
 							/>

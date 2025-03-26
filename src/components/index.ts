@@ -19,6 +19,7 @@ import { AttachmentList, AttachmentListProps } from './AttachmentList';
 import Guard from './Guard';
 import { TabPanel, TabPanelProps } from './TabPanel';
 import Attachment from './Attachment';
+import ReadonlyTextEditor from './ReadonlyTextEditor';
 
 export {
 	HydrateFallback,
@@ -29,6 +30,7 @@ export {
 	CreateModifyVersionForm,
 	DragAndDropForm,
 	PaginationTable,
+	ReadonlyTextEditor,
 	TextEditor,
 	FilterDialog,
 	CollapsibleDataGrid,

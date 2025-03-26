@@ -23,7 +23,7 @@ import {
 } from '../../services';
 import { HideDuration, TextLength } from '../../utils';
 import { useNotifications, useSession } from '@toolpad/core';
-import { TextEditor } from '../../components';
+import { ReadonlyTextEditor, TextEditor } from '../../components';
 
 function UseGuideScrollDialog() {
 	const { t } = useTranslation();
@@ -199,14 +199,20 @@ export default function TemplateSoftwareExpirationPage() {
 					}
 				/>
 
-				<TextEditor
-					data={mail.content}
-					placeHolder={`${t('mailContent')} *`}
-					readOnly={!isEditing}
-					onChange={(newValue) =>
-						setMail((pre) => ({ ...pre, content: newValue }))
-					}
-				/>
+				{isEditing ? (
+					<TextEditor
+						data={mail.content}
+						placeHolder={`${t('mailContent')} *`}
+						onChange={(newValue) =>
+							setMail((pre) => ({ ...pre, content: newValue }))
+						}
+					/>
+				) : (
+					<ReadonlyTextEditor
+						data={mail.content}
+						placeHolder={`${t('mailContent')} *`}
+					/>
+				)}
 
 				{isEditing && (
 					<Stack direction="row" spacing={1} justifyContent={'center'}>

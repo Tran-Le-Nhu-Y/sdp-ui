@@ -15,7 +15,11 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { useTranslation } from 'react-i18next';
-import { PaginationTable, TextEditor, FilterDialog } from '../../components';
+import {
+	PaginationTable,
+	FilterDialog,
+	ReadonlyTextEditor,
+} from '../../components';
 import { Delete, Edit } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -350,7 +354,7 @@ const ModuleVersionDetailPage = () => {
 
 					<Box>
 						<Typography variant="body2">{t('description')}:</Typography>
-						<TextEditor data={moduleVersion.data?.description ?? ''} readOnly />
+						<ReadonlyTextEditor data={moduleVersion.data?.description ?? ''} />
 					</Box>
 				</Stack>
 

@@ -1,7 +1,14 @@
 import { useTranslation } from 'react-i18next';
-import { Box, Button, IconButton, LinearProgress, Stack } from '@mui/material';
+import {
+	Box,
+	Button,
+	IconButton,
+	LinearProgress,
+	Stack,
+	TextField,
+} from '@mui/material';
 import { useEffect, useState } from 'react';
-import { TextEditor } from '../../components';
+import { ReadonlyTextEditor, TextEditor } from '../../components';
 import { Edit } from '@mui/icons-material';
 import Dialog, { DialogProps } from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -15,7 +22,7 @@ import {
 	useGetMailTemplateByUserId,
 	useUpdateMailTemplate,
 } from '../../services';
-import { HideDuration } from '../../utils';
+import { HideDuration, TextLength } from '../../utils';
 import { useNotifications, useSession } from '@toolpad/core';
 
 function UseGuideScrollDialog() {
@@ -79,22 +86,18 @@ export default function TemplateCompleteDeploymentPage() {
 	const session = useSession();
 	const userId = session?.user?.id ?? '';
 	const notifications = useNotifications();
-	const [content, setContent] = useState<string | null>(null);
+	const [mail, setMail] = useState<{ content: string; subject: string }>({
+		content: '',
+		subject: '',
+	});
 	const [isEditing, setIsEditing] = useState(false);
 	const [createMailTemplateTrigger, mailTemplateCreating] =
 		useCreateMailTemplate();
 	const [updateMailTemplateTrigger, mailTemplateUpdating] =
 		useUpdateMailTemplate();
 
-	const handleEdit = () => {
-		setIsEditing(true);
-		if (!content) {
-			setContent('');
-		}
-	};
-
 	const handleSubmit = async () => {
-		if (!content?.trim()) {
+		if (!mail.subject.trim() || !mail.content.trim()) {
 			notifications.show(t('contentRequired'), {
 				severity: 'warning',
 				autoHideDuration: HideDuration.fast,
@@ -102,14 +105,15 @@ export default function TemplateCompleteDeploymentPage() {
 			return;
 		}
 
+		const { subject, content } = mail;
 		if (mailTemplate.data) {
 			try {
 				await updateMailTemplateTrigger({
+					subject: subject,
 					templateId: mailTemplate.data.id,
 					type: 'SOFTWARE_DEPLOYED_SUCCESSFULLY',
 					content: content,
-					userId,
-				});
+				}).unwrap();
 				notifications.show(t('updateMailCompleteDeploymentSuccess'), {
 					severity: 'success',
 					autoHideDuration: HideDuration.fast,
@@ -124,15 +128,15 @@ export default function TemplateCompleteDeploymentPage() {
 		} else {
 			try {
 				await createMailTemplateTrigger({
+					subject: subject,
 					content: content,
 					type: 'SOFTWARE_DEPLOYED_SUCCESSFULLY',
 					userId: userId,
-				});
+				}).unwrap();
 				notifications.show(t('createMailCompleteDeploymentSuccess'), {
 					severity: 'success',
 					autoHideDuration: HideDuration.fast,
 				});
-				await mailTemplate.refetch();
 			} catch (error) {
 				notifications.show(t('createMailCompleteDeploymentError'), {
 					severity: 'error',
@@ -151,10 +155,14 @@ export default function TemplateCompleteDeploymentPage() {
 	useEffect(() => {
 		if (mailTemplate.isError)
 			notifications.show(t('noMailTemplate'), {
-				severity: 'error',
+				severity: 'warning',
 				autoHideDuration: HideDuration.fast,
 			});
-		else if (mailTemplate.isSuccess) setContent(mailTemplate.data.content);
+		else if (mailTemplate.isSuccess)
+			setMail({
+				content: mailTemplate.data?.content ?? '',
+				subject: mailTemplate.data?.subject ?? '',
+			});
 	}, [
 		notifications,
 		mailTemplate.isError,
@@ -170,49 +178,75 @@ export default function TemplateCompleteDeploymentPage() {
 	)
 		return <LinearProgress />;
 	return (
-		<Stack spacing={2}>
+		<Box>
 			<Stack direction="row" alignItems="center" justifyContent="space-between">
 				<UseGuideScrollDialog />
-				<IconButton onClick={handleEdit} disabled={isEditing}>
-					<Edit color="info" />
-				</IconButton>
+				{!isEditing && (
+					<IconButton onClick={() => setIsEditing(true)}>
+						<Edit color="info" />
+					</IconButton>
+				)}
 			</Stack>
 
-			<Stack>
-				{!isEditing ? (
-					<Box>
-						<TextEditor
-							data={mailTemplate.data?.content || ''}
-							readOnly={!isEditing}
-						/>
-					</Box>
+			<Stack spacing={2}>
+				<TextField
+					sx={{ ':disabled': { color: 'black' } }}
+					required
+					label={t('title')}
+					size="small"
+					slotProps={{
+						input: {
+							readOnly: !isEditing,
+						},
+					}}
+					helperText={`${t('max')} ${TextLength.Long} ${t('character')}`}
+					value={mail.subject}
+					onChange={(e) =>
+						setMail((pre) => ({ ...pre, subject: e.target.value }))
+					}
+				/>
+
+				{isEditing ? (
+					<TextEditor
+						data={mail.content}
+						placeHolder={`${t('mailContent')} *`}
+						onChange={(newValue) =>
+							setMail((pre) => ({ ...pre, content: newValue }))
+						}
+					/>
 				) : (
-					<Stack>
-						<Box>
-							<TextEditor
-								data={content || ''}
-								onChange={(newValue) => setContent(newValue)}
-							/>
-						</Box>
-						<Box mt={3} display="flex" justifyContent="center" gap={2}>
-							<Button
-								variant="contained"
-								color="primary"
-								onClick={handleSubmit}
-							>
-								{t('submit')}
-							</Button>
-							<Button
-								variant="outlined"
-								color="primary"
-								onClick={() => setIsEditing(false)}
-							>
-								{t('cancel')}
-							</Button>
-						</Box>
+					<ReadonlyTextEditor
+						data={mail.content}
+						placeHolder={`${t('mailContent')} *`}
+					/>
+				)}
+
+				{isEditing && (
+					<Stack direction="row" spacing={1} justifyContent={'center'}>
+						<Button
+							variant="contained"
+							hidden={!isEditing}
+							color="primary"
+							onClick={handleSubmit}
+						>
+							{t('submit')}
+						</Button>
+						<Button
+							variant="outlined"
+							color="primary"
+							onClick={() => {
+								setMail({
+									content: mailTemplate.data?.content ?? '',
+									subject: mailTemplate.data?.subject ?? '',
+								});
+								setIsEditing(false);
+							}}
+						>
+							{t('cancel')}
+						</Button>
 					</Stack>
 				)}
 			</Stack>
-		</Stack>
+		</Box>
 	);
 }

@@ -20,7 +20,8 @@ export const mailTemplateApi = createApi({
 					type: type,
 				},
 			}),
-			providesTags(result) {
+			providesTags(result, _error, args) {
+				const { userId, type } = args;
 				return result
 					? [
 							{
@@ -28,7 +29,12 @@ export const mailTemplateApi = createApi({
 								id: result.id,
 							} as const,
 						]
-					: [];
+					: [
+							{
+								type: 'MailTemplate',
+								id: `${userId}-${type}`,
+							} as const,
+						];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;

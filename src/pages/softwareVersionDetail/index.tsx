@@ -19,8 +19,8 @@ import {
 	CollapsibleTable,
 	CollapsibleTableRow,
 	PaginationTable,
-	TextEditor,
 	FilterDialog,
+	ReadonlyTextEditor,
 } from '../../components';
 import { Delete, Edit } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
@@ -593,9 +593,8 @@ const SoftwareVersionDetailPage = () => {
 
 					<Box>
 						<Typography variant="body2">{t('description')}:</Typography>
-						<TextEditor
+						<ReadonlyTextEditor
 							data={softwareVersion.data?.description ?? ''}
-							readOnly
 						/>
 					</Box>
 				</Stack>
@@ -755,7 +754,7 @@ const SoftwareVersionDetailPage = () => {
 													width: '100%',
 												}}
 											>
-												<TextEditor data={row.description ?? ''} readOnly />
+												<ReadonlyTextEditor data={row.description ?? ''} />
 											</Stack>
 										</Box>
 										<ModuleVersionInner
