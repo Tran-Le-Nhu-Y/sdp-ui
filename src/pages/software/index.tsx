@@ -3,7 +3,7 @@ import {
 	CollapsibleTableRow,
 	FilterDialog,
 	PaginationTable,
-	TextEditor,
+	ReadonlyTextEditor,
 } from '../../components';
 import { useTranslation } from 'react-i18next';
 import {
@@ -350,26 +350,10 @@ export default function SoftwarePage() {
 						}
 						inner={
 							<Stack spacing={3}>
-								<Box
-									component="form"
-									sx={{
-										'& .MuiTextField-root': {
-											width: '100%',
-										},
-									}}
-									noValidate
-									autoComplete="off"
-								>
-									<Stack
-										mt={1}
-										mb={2}
-										sx={{
-											width: '100%',
-										}}
-									>
-										<TextEditor data={row.description ?? ''} readOnly />
-									</Stack>
-								</Box>
+								<ReadonlyTextEditor
+									data={row.description ?? undefined}
+									placeHolder={t('description')}
+								/>
 								<Typography variant="h6" textAlign="center">
 									{t('softwareVersionList')}
 								</Typography>

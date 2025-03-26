@@ -266,8 +266,10 @@ export default function ReadonlyTextEditor({
 					<div ref={editorRef}>
 						{editorConfig && (
 							<CKEditor
-								disabled={true}
 								editor={ClassicEditor}
+								onReady={(editor) => {
+									editor.enableReadOnlyMode('feature-id');
+								}}
 								data={data}
 								config={editorConfig}
 							/>

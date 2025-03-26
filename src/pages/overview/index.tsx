@@ -16,7 +16,7 @@ import {
 	CollapsibleTableRow,
 	FilterDialog,
 	PaginationTable,
-	TextEditor,
+	ReadonlyTextEditor,
 } from '../../components';
 import { useState } from 'react';
 import { t } from 'i18next';
@@ -174,30 +174,7 @@ const ProductTable = ({ userId }: { userId: string }) => {
 								<TableCell align="center">{row.updatedAt}</TableCell>
 							</>
 						}
-						inner={
-							<Stack spacing={3}>
-								<Box
-									component="form"
-									sx={{
-										'& .MuiTextField-root': {
-											width: '100%',
-										},
-									}}
-									noValidate
-									autoComplete="off"
-								>
-									<Stack
-										mt={1}
-										mb={2}
-										sx={{
-											width: '100%',
-										}}
-									>
-										<TextEditor data={row.description ?? ''} readOnly />
-									</Stack>
-								</Box>
-							</Stack>
-						}
+						inner={<ReadonlyTextEditor data={row.description ?? ''} />}
 					/>
 				)}
 			/>
