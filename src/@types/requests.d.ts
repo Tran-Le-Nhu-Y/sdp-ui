@@ -189,3 +189,9 @@ declare interface MailTemplateUpdateRequest {
 	type: MailTemplateType;
 	templateId: string;
 }
+
+declare interface NotificationHistoryRequest {
+	numOrder: number;
+	notificationId: number;
+	userId: string;
+}

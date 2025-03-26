@@ -6,6 +6,28 @@ import {
 export { keycloakApi, useGetUser, useGetAllUsersByRole };
 
 import {
+	subscribeNotification,
+	unsubscribeNotification,
+	sendNotification,
+	NotificationDestination,
+} from './broker';
+export { subscribeNotification, unsubscribeNotification, sendNotification };
+export type { NotificationDestination };
+
+import {
+	useGetAllHistoriesQuery as useGetAllNotificationHistories,
+	usePutHistoryMutation as useUpdateNotificationHistory,
+	useDeleteHistoryMutation as useDeleteNotificationHistory,
+	useDeleteAllHistoriesMutation as useDeleteAllNotificationHistories,
+} from './notification';
+export {
+	useGetAllNotificationHistories,
+	useUpdateNotificationHistory,
+	useDeleteNotificationHistory,
+	useDeleteAllNotificationHistories,
+};
+
+import {
 	fileApi,
 	useGetMetadataQuery as useGetFileMetadata,
 	usePostMutation as useCreateFile,

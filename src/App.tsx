@@ -26,6 +26,7 @@ import {
 	Navigation,
 	PageContainer,
 	Session,
+	useSession,
 } from '@toolpad/core';
 import { checkRoles, PathHolders } from './utils';
 import { useEffect, useMemo, useState } from 'react';
@@ -47,6 +48,10 @@ import {
 import CloudCircleIcon from '@mui/icons-material/CloudCircle';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import {
+	subscribeNotification,
+	useGetAllNotificationHistories,
+} from './services';
 
 function CustomAppTitle() {
 	return (
@@ -63,10 +68,25 @@ function CustomAppTitle() {
 
 function CustomToolbarActions() {
 	const { t } = useTranslation('standard');
+	const userId = useSession()?.user?.id;
 	const [anchorEl, setAnchorEl] = useState<Element>();
 	const open = Boolean(anchorEl);
 	const totalNewNotifications = 10;
-	const pageSize = 3;
+
+	const [historiesQuery, setHistoriesQuery] =
+		useState<GetAllNotificationHistoriesQuery>({
+			userId: userId!,
+			pageNumber: 0,
+			pageSize: 6,
+		});
+	const notificationsQuery = useGetAllNotificationHistories(historiesQuery, {
+		skip: !userId,
+	});
+
+	useEffect(() => {
+		if (!userId) return;
+		subscribeNotification(userId, (newNotificationId) => {});
+	}, [userId]);
 
 	const data = [
 		{

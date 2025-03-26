@@ -165,3 +165,21 @@ declare interface MailTemplate {
 	createdAt: string;
 	updatedAt: string?;
 }
+
+declare interface SdpNotification {
+	id: number;
+	title: string;
+	description: string?;
+	createdAt: string;
+}
+
+declare interface NotificationHistory {
+	numOrder: number;
+	notification: {
+		id: number;
+		title: string;
+		description: string?;
+	};
+	createdAt: string;
+	isRead: boolean;
+}

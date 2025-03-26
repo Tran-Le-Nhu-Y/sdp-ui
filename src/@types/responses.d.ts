@@ -164,3 +164,23 @@ declare interface UserRepresentation {
 	lastName: string?;
 	email: string?;
 }
+
+declare interface NotificationResponse {
+	id: number;
+	title: string;
+	description: string?;
+	createdAtMillis: number;
+}
+
+declare interface NotificationHistoryResponse {
+	numOrder: number;
+	userId: string;
+	notification: {
+		id: number;
+		title: string;
+		description: string?;
+	};
+	createdAtMillis: number;
+	updatedAtMillis: number?;
+	isRead: boolean;
+}

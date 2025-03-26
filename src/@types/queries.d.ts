@@ -93,3 +93,9 @@ declare interface GetAllDeploymentPhaseTypeQuery {
 	pageNumber?: number?;
 	pageSize?: number?;
 }
+
+declare interface GetAllNotificationHistoriesQuery {
+	userId: string;
+	pageNumber?: number?;
+	pageSize?: number?;
+}
