@@ -99,3 +99,8 @@ declare interface GetAllNotificationHistoriesQuery {
 	pageNumber?: number?;
 	pageSize?: number?;
 }
+
+declare interface GetCountNotificationHistoriesQuery {
+	userId: string;
+	isRead: boolean;
+}

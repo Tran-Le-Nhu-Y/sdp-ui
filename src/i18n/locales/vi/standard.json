@@ -189,7 +189,12 @@
 	"inProgress": "Đang thực hiện",
 	"done": "Hoàn thành",
 	"moreDetail": "Xem chi tiết",
+	"seeMore": "Xem thêm",
 	"readMarkup": "Đánh dấu đã đọc",
+	"unreadMarkup": "Đánh dấu chưa đọc",
+	"numOfUnreadNotification": "Số lượng thông báo chưa đọc",
+
+	"noNewNotification": "Không có thông báo mới",
 
 	"documentLabel": "Nhãn tài liệu",
 	"addDocumentLabel": "Thêm nhãn tài liệu",
@@ -302,6 +307,10 @@
 	"processTypeNameRequired": "Tên dạng giai đoạn không được để trống",
 
 	"progressUpdateHistory": "Lịch sử cập nhật tiến độ",
+
+	"newNotification": "Thông báo mới",
+	"updateNotificationHistoryError": "Cập nhật thông báo đã xảy ra lỗi.",
+	"deleteNotificationHistoryError": "Xóa thông báo đã xảy ra lỗi.",
 
 	"deploymentProcessInfor": "Thông tin quá trình triển khai",
 	"addDeploymentProcess": "Thêm quá trình triển khai",

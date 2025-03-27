@@ -1,11 +1,22 @@
-function toEntity(response: NotificationHistoryResponse): NotificationHistory {
+function toHistoryEntity(
+	response: NotificationHistoryResponse
+): NotificationHistory {
 	const notification = response.notification;
 	return {
 		numOrder: response.numOrder,
 		notification: notification,
-		createdAt: new Date(response.createdAtMillis).toLocaleDateString(),
+		createdAtMs: response.createdAtMillis,
 		isRead: response.isRead,
 	};
 }
 
-export { toEntity };
+function toEntity(response: NotificationResponse): SdpNotification {
+	return {
+		id: response.id,
+		title: response.title,
+		description: response.description,
+		createdAt: new Date(response.createdAtMillis).toLocaleDateString(),
+	};
+}
+
+export { toEntity, toHistoryEntity };

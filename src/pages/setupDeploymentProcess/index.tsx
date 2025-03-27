@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TabPanel } from '../../components';
+import { CustomDataGrid, TabPanel } from '../../components';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
 	HideDuration,
@@ -44,7 +44,6 @@ import {
 } from '../../services';
 import { useNotifications, useSession } from '@toolpad/core';
 import {
-	DataGrid,
 	GridActionsCellItem,
 	GridColDef,
 	GridToolbarColumnsButton,
@@ -178,48 +177,46 @@ function AddPhaseDialog({
 								setCreateProps((pre) => ({ ...pre, description: value }));
 						}}
 					/>
-					<div style={{ display: 'flex', flexDirection: 'column' }}>
-						<DataGrid
-							checkboxSelection
-							disableMultipleRowSelection
-							onRowSelectionModelChange={(model) => {
-								if (model.length > 0)
-									setCreateProps((pre) => ({
-										...pre,
-										typeId: model[0].toString(),
-									}));
-								else
-									setCreateProps((pre) => ({
-										...pre,
-										typeId: undefined,
-									}));
-							}}
-							rows={phaseTypeQuery.data?.content}
-							rowCount={phaseTypeQuery.data?.totalElements}
-							paginationMode="server"
-							paginationModel={{
-								page: phaseTypeQueryReq.pageNumber ?? 0,
-								pageSize: phaseTypeQueryReq.pageSize ?? 5,
-							}}
-							onPaginationModelChange={(model) => {
-								setPhaseTypeQueryReq((pre) => ({
+					<CustomDataGrid
+						checkboxSelection
+						disableMultipleRowSelection
+						onRowSelectionModelChange={(model) => {
+							if (model.length > 0)
+								setCreateProps((pre) => ({
 									...pre,
-									pageNumber: model.page,
-									pageSize: model.pageSize,
+									typeId: model[0].toString(),
 								}));
-							}}
-							columns={phaseTypeCols}
-							pageSizeOptions={[5, 10, 15]}
-							initialState={{
-								pagination: {
-									paginationModel: {
-										page: 0,
-										pageSize: 5,
-									},
+							else
+								setCreateProps((pre) => ({
+									...pre,
+									typeId: undefined,
+								}));
+						}}
+						rows={phaseTypeQuery.data?.content}
+						rowCount={phaseTypeQuery.data?.totalElements}
+						paginationMode="server"
+						paginationModel={{
+							page: phaseTypeQueryReq.pageNumber ?? 0,
+							pageSize: phaseTypeQueryReq.pageSize ?? 5,
+						}}
+						onPaginationModelChange={(model) => {
+							setPhaseTypeQueryReq((pre) => ({
+								...pre,
+								pageNumber: model.page,
+								pageSize: model.pageSize,
+							}));
+						}}
+						columns={phaseTypeCols}
+						pageSizeOptions={[5, 10, 15]}
+						initialState={{
+							pagination: {
+								paginationModel: {
+									page: 0,
+									pageSize: 5,
 								},
-							}}
-						/>
-					</div>
+							},
+						}}
+					/>
 					<DatePicker
 						label={t('plannedStartDate')}
 						maxDate={
@@ -400,34 +397,32 @@ function PhaseTab({ processId }: { processId: number }) {
 
 				{isPhaseDeleting && <LinearProgress />}
 
-				<div style={{ display: 'flex', flexDirection: 'column' }}>
-					<DataGrid
-						slots={{
-							toolbar: () => (
-								<GridToolbarContainer>
-									<GridToolbarFilterButton />
-									<GridToolbarDensitySelector />
-									<GridToolbarColumnsButton />
-									<GridToolbarQuickFilter />
-								</GridToolbarContainer>
-							),
-						}}
-						rows={phaseQuery.data}
-						columns={cols}
-						pageSizeOptions={[5, 10, 15]}
-						initialState={{
-							pagination: {
-								paginationModel: {
-									page: 0,
-									pageSize: 5,
-								},
+				<CustomDataGrid
+					slots={{
+						toolbar: () => (
+							<GridToolbarContainer>
+								<GridToolbarFilterButton />
+								<GridToolbarDensitySelector />
+								<GridToolbarColumnsButton />
+								<GridToolbarQuickFilter />
+							</GridToolbarContainer>
+						),
+					}}
+					rows={phaseQuery.data}
+					columns={cols}
+					pageSizeOptions={[5, 10, 15]}
+					initialState={{
+						pagination: {
+							paginationModel: {
+								page: 0,
+								pageSize: 5,
 							},
-							sorting: {
-								sortModel: [{ field: 'numOrder', sort: 'asc' }],
-							},
-						}}
-					/>
-				</div>
+						},
+						sorting: {
+							sortModel: [{ field: 'numOrder', sort: 'asc' }],
+						},
+					}}
+				/>
 			</Stack>
 		</>
 	);
@@ -464,35 +459,33 @@ function ModuleTab({ processId }: { processId: number }) {
 	);
 
 	return (
-		<div style={{ display: 'flex', flexDirection: 'column' }}>
-			<DataGrid
-				slots={{
-					toolbar: () => (
-						<GridToolbarContainer>
-							<GridToolbarFilterButton />
-							<GridToolbarDensitySelector />
-							<GridToolbarColumnsButton />
-							<GridToolbarQuickFilter />
-						</GridToolbarContainer>
-					),
-				}}
-				rows={modulesQuery.data}
-				columns={cols}
-				pageSizeOptions={[5, 10, 15]}
-				getRowId={(row) => row.version.id}
-				initialState={{
-					pagination: {
-						paginationModel: {
-							page: 0,
-							pageSize: 5,
-						},
+		<CustomDataGrid
+			slots={{
+				toolbar: () => (
+					<GridToolbarContainer>
+						<GridToolbarFilterButton />
+						<GridToolbarDensitySelector />
+						<GridToolbarColumnsButton />
+						<GridToolbarQuickFilter />
+					</GridToolbarContainer>
+				),
+			}}
+			rows={modulesQuery.data}
+			columns={cols}
+			pageSizeOptions={[5, 10, 15]}
+			getRowId={(row) => row.version.id}
+			initialState={{
+				pagination: {
+					paginationModel: {
+						page: 0,
+						pageSize: 5,
 					},
-					sorting: {
-						sortModel: [{ field: 'moduleName', sort: 'asc' }],
-					},
-				}}
-			/>
-		</div>
+				},
+				sorting: {
+					sortModel: [{ field: 'moduleName', sort: 'asc' }],
+				},
+			}}
+		/>
 	);
 }
 
@@ -661,59 +654,55 @@ function PersonnelTab({ processId }: { processId: number }) {
 			>
 				<Stack direction={'column'} spacing={1}>
 					<Typography variant="h6">{t('unassignedPersonnel')}</Typography>
-					<div style={{ display: 'flex', flexDirection: 'column' }}>
-						<DataGrid
-							slots={{
-								toolbar: () => (
-									<GridToolbarContainer>
-										<GridToolbarFilterButton />
-										<GridToolbarDensitySelector />
-										<GridToolbarColumnsButton />
-										<GridToolbarQuickFilter />
-									</GridToolbarContainer>
-								),
-							}}
-							rows={unselectedUsers}
-							columns={unselectedCols}
-							pageSizeOptions={[5, 10, 15]}
-							initialState={{
-								pagination: {
-									paginationModel: {
-										page: 0,
-										pageSize: 5,
-									},
+					<CustomDataGrid
+						slots={{
+							toolbar: () => (
+								<GridToolbarContainer>
+									<GridToolbarFilterButton />
+									<GridToolbarDensitySelector />
+									<GridToolbarColumnsButton />
+									<GridToolbarQuickFilter />
+								</GridToolbarContainer>
+							),
+						}}
+						rows={unselectedUsers}
+						columns={unselectedCols}
+						pageSizeOptions={[5, 10, 15]}
+						initialState={{
+							pagination: {
+								paginationModel: {
+									page: 0,
+									pageSize: 5,
 								},
-							}}
-						/>
-					</div>
+							},
+						}}
+					/>
 				</Stack>
 				<Stack direction={'column'} spacing={1}>
 					<Typography variant="h6">{t('assignedPersonnel')}</Typography>
-					<div style={{ display: 'flex', flexDirection: 'column' }}>
-						<DataGrid
-							slots={{
-								toolbar: () => (
-									<GridToolbarContainer>
-										<GridToolbarFilterButton />
-										<GridToolbarDensitySelector />
-										<GridToolbarColumnsButton />
-										<GridToolbarQuickFilter />
-									</GridToolbarContainer>
-								),
-							}}
-							rows={selectedUsers}
-							columns={selectedCols}
-							pageSizeOptions={[5, 10, 15]}
-							initialState={{
-								pagination: {
-									paginationModel: {
-										page: 0,
-										pageSize: 5,
-									},
+					<CustomDataGrid
+						slots={{
+							toolbar: () => (
+								<GridToolbarContainer>
+									<GridToolbarFilterButton />
+									<GridToolbarDensitySelector />
+									<GridToolbarColumnsButton />
+									<GridToolbarQuickFilter />
+								</GridToolbarContainer>
+							),
+						}}
+						rows={selectedUsers}
+						columns={selectedCols}
+						pageSizeOptions={[5, 10, 15]}
+						initialState={{
+							pagination: {
+								paginationModel: {
+									page: 0,
+									pageSize: 5,
 								},
-							}}
-						/>
-					</div>
+							},
+						}}
+					/>
 				</Stack>
 			</Stack>
 		</>

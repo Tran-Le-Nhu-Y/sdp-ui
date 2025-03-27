@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Attachment, TabPanel } from '../../components';
+import { Attachment, CustomDataGrid, TabPanel } from '../../components';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
 	convertToAPIDateFormat,
@@ -37,7 +37,6 @@ import {
 } from '../../services';
 import { useDialogs, useNotifications, useSession } from '@toolpad/core';
 import {
-	DataGrid,
 	GridActionsCellItem,
 	GridColDef,
 	GridToolbarColumnsButton,
@@ -508,59 +507,55 @@ function PersonnelTab({ phaseId }: { phaseId: string }) {
 			>
 				<Stack direction={'column'} spacing={1}>
 					<Typography variant="h6">{t('unassignedPersonnel')}</Typography>
-					<div style={{ display: 'flex', flexDirection: 'column' }}>
-						<DataGrid
-							slots={{
-								toolbar: () => (
-									<GridToolbarContainer>
-										<GridToolbarFilterButton />
-										<GridToolbarDensitySelector />
-										<GridToolbarColumnsButton />
-										<GridToolbarQuickFilter />
-									</GridToolbarContainer>
-								),
-							}}
-							rows={unselectedUsers}
-							columns={unselectedCols}
-							pageSizeOptions={[5, 10, 15]}
-							initialState={{
-								pagination: {
-									paginationModel: {
-										page: 0,
-										pageSize: 5,
-									},
+					<CustomDataGrid
+						slots={{
+							toolbar: () => (
+								<GridToolbarContainer>
+									<GridToolbarFilterButton />
+									<GridToolbarDensitySelector />
+									<GridToolbarColumnsButton />
+									<GridToolbarQuickFilter />
+								</GridToolbarContainer>
+							),
+						}}
+						rows={unselectedUsers}
+						columns={unselectedCols}
+						pageSizeOptions={[5, 10, 15]}
+						initialState={{
+							pagination: {
+								paginationModel: {
+									page: 0,
+									pageSize: 5,
 								},
-							}}
-						/>
-					</div>
+							},
+						}}
+					/>
 				</Stack>
 				<Stack direction={'column'} spacing={1}>
 					<Typography variant="h6">{t('assignedPersonnel')}</Typography>
-					<div style={{ display: 'flex', flexDirection: 'column' }}>
-						<DataGrid
-							slots={{
-								toolbar: () => (
-									<GridToolbarContainer>
-										<GridToolbarFilterButton />
-										<GridToolbarDensitySelector />
-										<GridToolbarColumnsButton />
-										<GridToolbarQuickFilter />
-									</GridToolbarContainer>
-								),
-							}}
-							rows={selectedUsers}
-							columns={selectedCols}
-							pageSizeOptions={[5, 10, 15]}
-							initialState={{
-								pagination: {
-									paginationModel: {
-										page: 0,
-										pageSize: 5,
-									},
+					<CustomDataGrid
+						slots={{
+							toolbar: () => (
+								<GridToolbarContainer>
+									<GridToolbarFilterButton />
+									<GridToolbarDensitySelector />
+									<GridToolbarColumnsButton />
+									<GridToolbarQuickFilter />
+								</GridToolbarContainer>
+							),
+						}}
+						rows={selectedUsers}
+						columns={selectedCols}
+						pageSizeOptions={[5, 10, 15]}
+						initialState={{
+							pagination: {
+								paginationModel: {
+									page: 0,
+									pageSize: 5,
 								},
-							}}
-						/>
-					</div>
+							},
+						}}
+					/>
 				</Stack>
 			</Stack>
 		</>

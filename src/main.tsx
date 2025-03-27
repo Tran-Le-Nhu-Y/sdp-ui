@@ -38,15 +38,16 @@ import {
 	DeploymentProcessDetailPage,
 	SetupDeploymentProcessPage,
 	SetupDeploymentPhasePage,
-} from './pages/index.tsx';
+	NotificationPage,
+} from './pages';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
-import { RoutePaths } from './utils/index.ts';
+import { RoutePaths } from './utils';
 
 const router = createBrowserRouter(
 	createRoutesFromElements(
 		<Route path="/" element={<App />} errorElement={<ErrorPage />}>
-			<Route path={RoutePaths.NOTIFICATION} element={<OverviewPage />} />
+			<Route path={RoutePaths.NOTIFICATION} element={<NotificationPage />} />
 			<Route path={RoutePaths.OVERVIEW} element={<OverviewPage />} />
 
 			<Route path={RoutePaths.CUSTOMER} element={<CustomerManagementPage />} />

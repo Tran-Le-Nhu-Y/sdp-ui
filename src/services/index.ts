@@ -15,12 +15,18 @@ export { subscribeNotification, unsubscribeNotification, sendNotification };
 export type { NotificationDestination };
 
 import {
+	notificationApi,
+	useGetNewestNotificationMutation as useGetNewestNotification,
+	useCountHistoriesQuery as useCountNotificationHistories,
 	useGetAllHistoriesQuery as useGetAllNotificationHistories,
 	usePutHistoryMutation as useUpdateNotificationHistory,
 	useDeleteHistoryMutation as useDeleteNotificationHistory,
 	useDeleteAllHistoriesMutation as useDeleteAllNotificationHistories,
 } from './notification';
 export {
+	notificationApi,
+	useGetNewestNotification,
+	useCountNotificationHistories,
 	useGetAllNotificationHistories,
 	useUpdateNotificationHistory,
 	useDeleteNotificationHistory,

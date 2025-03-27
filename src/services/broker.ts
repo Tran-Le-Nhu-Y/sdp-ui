@@ -37,10 +37,10 @@ export function subscribeNotification(
 
 	client.onConnect = function () {
 		client.subscribe(
-			'/topic/sdp-notification-topic-user',
+			`/exchange/sdp-notification-topic-user/${userId}`,
 			(message) => callback(Number(message.body)),
 			{
-				'x-queue-name': `${userId}`,
+				'x-queue-name': `client-user-${userId}`,
 			}
 		);
 	};

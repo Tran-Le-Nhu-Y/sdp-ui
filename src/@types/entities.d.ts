@@ -180,6 +180,6 @@ declare interface NotificationHistory {
 		title: string;
 		description: string?;
 	};
-	createdAt: string;
+	createdAtMs: number;
 	isRead: boolean;
 }

@@ -28,40 +28,45 @@ import {
 	Session,
 	useSession,
 } from '@toolpad/core';
-import { checkRoles, PathHolders } from './utils';
+import { checkRoles, PathHolders, RoutePaths } from './utils';
 import { useEffect, useMemo, useState } from 'react';
 import keycloak from './services/keycloak';
 import { HydrateFallback } from './components';
 import {
 	Badge,
+	Button,
+	Chip,
 	Divider,
 	IconButton,
+	LinearProgress,
 	List,
 	ListItem,
 	ListItemText,
-	Pagination,
 	Popover,
 	Stack,
 	Tooltip,
 	Typography,
 } from '@mui/material';
-import CloudCircleIcon from '@mui/icons-material/CloudCircle';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import {
 	subscribeNotification,
-	useGetAllNotificationHistories,
+	useCountNotificationHistories,
+	useGetNewestNotification,
 } from './services';
+import { useAppDispatch, useAppSelector } from './hooks/useRedux';
+import { decreaseUnread, getNotificationState, increaseUnread } from './redux';
+import DeveloperBoardIcon from '@mui/icons-material/DeveloperBoard';
 
 function CustomAppTitle() {
 	return (
 		<Stack direction="row" alignItems="center" spacing={2}>
-			<CloudCircleIcon fontSize="large" color="primary" />
+			<DeveloperBoardIcon fontSize="large" color="primary" />
+			{/* <CloudCircleIcon fontSize="large" color="primary" /> */}
 			<Typography variant="h6">SDP</Typography>
 			{/* <Chip size="small" label="BETA" color="info" /> */}
-			<Tooltip title="Connected to production">
+			{/* <Tooltip title="Connected to production">
 				<CheckCircleIcon color="success" fontSize="small" />
-			</Tooltip>
+			</Tooltip> */}
 		</Stack>
 	);
 }
@@ -71,56 +76,57 @@ function CustomToolbarActions() {
 	const userId = useSession()?.user?.id;
 	const [anchorEl, setAnchorEl] = useState<Element>();
 	const open = Boolean(anchorEl);
-	const totalNewNotifications = 10;
 
-	const [historiesQuery, setHistoriesQuery] =
-		useState<GetAllNotificationHistoriesQuery>({
-			userId: userId!,
-			pageNumber: 0,
-			pageSize: 6,
-		});
-	const notificationsQuery = useGetAllNotificationHistories(historiesQuery, {
-		skip: !userId,
-	});
+	const dispatch = useAppDispatch();
+	const { unread: unreadNotifs } = useAppSelector(getNotificationState);
+	const [showIndicator, setShowIndicator] = useState(false);
+	const [notifications, setNotifications] = useState<SdpNotification[]>([]);
 
+	const [newestNotifTrigger, { isLoading: isNotifLoading }] =
+		useGetNewestNotification();
 	useEffect(() => {
 		if (!userId) return;
-		subscribeNotification(userId, (newNotificationId) => {});
-	}, [userId]);
-
-	const data = [
-		{
-			isRead: false,
-			title:
-				'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dolorum nesciunt qui, ipsa odit, a excepturi cum, ullam error reiciendis obcaecati voluptatem! Explicabo voluptatum atque nulla odit similique in dicta eaque!',
-			description:
-				'Lorem ipsum, dolor sit amet consectetur adipisicing elit. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dolorum nesciunt qui, ipsa odit, a excepturi cum, ullam error reiciendis obcaecati voluptatem! Explicabo voluptatum atque nulla odit similique in dicta eaque!',
-		},
-		{
-			isRead: true,
-			title: 'reiciendis obcaecati voluptatem!que in dicta eaque!',
-			description: 'Lore nulla odit similique in dicta eaque!',
-		},
-	];
+		subscribeNotification(userId, (newNotificationId) => {
+			newestNotifTrigger(newNotificationId)
+				.unwrap()
+				.then((newNotification) => {
+					dispatch(increaseUnread(1));
+					setShowIndicator(true);
+					setNotifications((pre) => {
+						const newList = [newNotification, ...pre];
+						if (newList.length > 5) newList.pop();
+						return newList;
+					});
+				})
+				.catch((error) => {
+					console.warn(error);
+				});
+		});
+	}, [dispatch, newestNotifTrigger, userId]);
 
 	return (
 		<>
-			<IconButton
-				size="large"
-				aria-label="show new notifications"
-				color="primary"
-				onClick={(e) => {
-					setAnchorEl(e.currentTarget);
-				}}
-			>
-				{totalNewNotifications !== undefined ? (
-					<Badge badgeContent={totalNewNotifications} color="error">
+			<Tooltip arrow title={t('newNotification')}>
+				<IconButton
+					size="large"
+					aria-label="show new notifications"
+					color="primary"
+					onClick={(e) => {
+						setAnchorEl(e.currentTarget);
+						setShowIndicator(false);
+						dispatch(decreaseUnread(unreadNotifs));
+					}}
+				>
+					<Badge
+						badgeContent={unreadNotifs}
+						max={99}
+						invisible={!showIndicator}
+						color="error"
+					>
 						<NotificationsIcon />
 					</Badge>
-				) : (
-					<NotificationsIcon />
-				)}
-			</IconButton>
+				</IconButton>
+			</Tooltip>
 			<Popover
 				id={open ? 'notifications-popover' : undefined}
 				open={open}
@@ -135,56 +141,61 @@ function CustomToolbarActions() {
 					horizontal: 'right',
 				}}
 			>
-				<Stack padding={1.5} alignItems="center" gap={1}>
-					<Typography variant="h5">{t('notification')}</Typography>
-					<List
-						sx={{
-							maxWidth: 400,
-							bgcolor: 'background.paper',
-						}}
-					>
-						{data.map(({ title, description }, idx) => (
-							<>
-								<ListItem key={idx} alignItems="flex-start">
-									<ListItemText
-										primary={
-											<Typography
-												component="h6"
-												variant="body2"
-												sx={{
-													color: 'text.primary',
-													fontWeight: 600,
-												}}
-											>
-												{title}
-											</Typography>
-										}
-										secondary={
-											<Typography
-												component="p"
-												variant="caption"
-												sx={{
-													color: 'text.primary',
-													display: 'inline',
-												}}
-											>
-												{description}
-											</Typography>
-										}
-									/>
-								</ListItem>
-								{idx < data.length - 1 && (
-									<Divider key={`${idx}-divider`} component="li" />
-								)}
-							</>
-						))}
-					</List>
-					<Pagination
-						count={10}
-						variant="outlined"
-						shape="rounded"
-						onChange={(_e, page) => {}}
-					/>
+				<Stack>
+					<Stack width={300} padding={1.5} gap={1}>
+						<Typography variant="h5">{t('notification')}</Typography>
+						{isNotifLoading && <LinearProgress />}
+						{notifications.length == 0 && (
+							<Typography alignSelf={'center'} component="h6" variant="caption">
+								{t('noNewNotification')}
+							</Typography>
+						)}
+						<List
+							sx={{
+								maxWidth: 400,
+								bgcolor: 'background.paper',
+							}}
+						>
+							{notifications.map(({ id, title, description }, idx) => (
+								<>
+									<ListItem key={id} alignItems="flex-start">
+										<ListItemText
+											primary={
+												<Typography
+													component="h6"
+													variant="body2"
+													sx={{
+														color: 'text.primary',
+														fontWeight: 600,
+													}}
+												>
+													{title}
+												</Typography>
+											}
+											secondary={
+												<Typography
+													component="p"
+													variant="caption"
+													sx={{
+														color: 'text.primary',
+														display: 'inline',
+													}}
+												>
+													{description}
+												</Typography>
+											}
+										/>
+									</ListItem>
+									{idx < notifications.length - 1 && (
+										<Divider key={`${id}-divider`} component="li" />
+									)}
+								</>
+							))}
+						</List>
+					</Stack>
+					<Button href={RoutePaths.NOTIFICATION} sx={{ alignSelf: 'flex-end' }}>
+						{t('seeMore')}
+					</Button>
 				</Stack>
 			</Popover>
 		</>
@@ -212,8 +223,15 @@ const login = async () => {
 };
 
 function App() {
-	const { t } = useTranslation();
+	const { t } = useTranslation('standard');
 	const [session, setSession] = useState<Session>();
+	const { data: totalHistories } = useCountNotificationHistories(
+		{
+			userId: session?.user?.id ?? '',
+			isRead: false,
+		},
+		{ skip: !session }
+	);
 
 	useEffect(() => {
 		if (!session)
@@ -296,6 +314,15 @@ function App() {
 					segment: 'notification',
 					title: t('notification'),
 					icon: <NotificationsActiveIcon />,
+					action: totalHistories && totalHistories > 0 && (
+						<Tooltip arrow title={t('numOfUnreadNotification')}>
+							<Chip
+								label={totalHistories <= 99 ? totalHistories : '99+'}
+								color="primary"
+								size="small"
+							/>
+						</Tooltip>
+					),
 				},
 			];
 		else if (checkRoles({ requiredRoles: ['deployment_person'] }))
@@ -311,10 +338,19 @@ function App() {
 					segment: 'notification',
 					title: t('notification'),
 					icon: <NotificationsActiveIcon />,
+					action: totalHistories && totalHistories > 0 && (
+						<Tooltip arrow title={t('numOfUnreadNotification')}>
+							<Chip
+								label={totalHistories <= 99 ? totalHistories : '99+'}
+								color="primary"
+								size="small"
+							/>
+						</Tooltip>
+					),
 				},
 			];
 		else return [];
-	}, [t]);
+	}, [t, totalHistories]);
 
 	const authentication: Authentication = useMemo(() => {
 		return {

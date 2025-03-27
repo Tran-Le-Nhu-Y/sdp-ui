@@ -6,8 +6,9 @@ import {
 	Stack,
 	Typography,
 } from '@mui/material';
-import { DataGrid, DataGridProps } from '@mui/x-data-grid';
+import { DataGridProps } from '@mui/x-data-grid';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import CustomDataGrid from './CustomDataGrid';
 
 interface CollapsibleDataGridProps extends Omit<AccordionProps, 'children'> {
 	label: string;
@@ -34,7 +35,7 @@ function CollapsibleDataGrid(props: CollapsibleDataGridProps) {
 				</Stack>
 			</AccordionSummary>
 			<AccordionDetails>
-				<DataGrid
+				<CustomDataGrid
 					// autoPageSize
 					paginationMode="server"
 					keepNonExistentRowsSelected

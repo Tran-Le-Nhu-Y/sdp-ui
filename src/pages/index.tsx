@@ -25,10 +25,12 @@ import ModifyModuleDocumentPage from './modifyModuleDocument';
 import ModuleDocumentDetailPage from './moduleDocumentDetail';
 import DeploymentPhaseTypePage from './deploymentPhaseType';
 import DeploymentProcessDetailPage from './deploymentProcessDetail';
-import SetupDeploymentProcessPage from './setupDeploymentProcessDetail';
+import SetupDeploymentProcessPage from './setupDeploymentProcess';
 import SetupDeploymentPhasePage from './setupDeploymentPhase';
+import NotificationPage from './notification';
 
 export {
+	NotificationPage,
 	OverviewPage,
 	CustomerManagementPage,
 	SoftwarePage,
