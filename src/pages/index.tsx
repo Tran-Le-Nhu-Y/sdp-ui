@@ -28,6 +28,8 @@ import DeploymentProcessDetailPage from './deploymentProcessDetail';
 import SetupDeploymentProcessPage from './setupDeploymentProcess';
 import SetupDeploymentPhasePage from './setupDeploymentPhase';
 import NotificationPage from './notification';
+import ExpiredSoftwareLicensesPage from './expiredSoftwareLicenses';
+import SoftwareLicenseDetailPage from './softwareLicense';
 
 export {
 	NotificationPage,
@@ -60,4 +62,6 @@ export {
 	TemplateCompleteDeploymentPage,
 	SetupDeploymentProcessPage,
 	SetupDeploymentPhasePage,
+	ExpiredSoftwareLicensesPage,
+	SoftwareLicenseDetailPage,
 };

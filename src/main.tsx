@@ -39,6 +39,8 @@ import {
 	SetupDeploymentProcessPage,
 	SetupDeploymentPhasePage,
 	NotificationPage,
+	ExpiredSoftwareLicensesPage,
+	SoftwareLicenseDetailPage,
 } from './pages';
 import { Provider } from 'react-redux';
 import { store } from './redux/store.ts';
@@ -151,6 +153,15 @@ const router = createBrowserRouter(
 			<Route
 				path={RoutePaths.TEMPLATE_COMPLETE_DEPLOYMENT}
 				element={<TemplateCompleteDeploymentPage />}
+			/>
+
+			<Route
+				path={RoutePaths.EXPIRED_SOFTWARE_LICENSES}
+				element={<ExpiredSoftwareLicensesPage />}
+			/>
+			<Route
+				path={RoutePaths.SOFTWARE_LICENSE_DETAIL}
+				element={<SoftwareLicenseDetailPage />}
 			/>
 		</Route>
 	)
