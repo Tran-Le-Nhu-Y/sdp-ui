@@ -87,6 +87,11 @@
 	"customerNameRequired": "Tên khách hàng không được để trống",
 	"customerError": "Lỗi trong quá trình tạo hay cập nhật thông tin khách hàng",
 
+	"softwareLicense": "Giấy phép phần mềm",
+	"potentiallyExpiredLicense": "Giấy phép sắp hết hạn",
+	"softwareLicenseName": "Tên giấy phép",
+	"softwareLicenseId": "Mã giấy phép",
+
 	"softwareName": "Tên phần mềm",
 	"software": "Phần mềm",
 	"addSoftware": "Thêm phần mềm",
@@ -307,6 +312,10 @@
 	"processTypeNameRequired": "Tên dạng giai đoạn không được để trống",
 
 	"progressUpdateHistory": "Lịch sử cập nhật tiến độ",
+	"licenseStartTime": "Thời điểm có hiệu lực",
+	"licenseEndTime": "Thời điểm hết hiệu lực",
+	"days": "ngày",
+	"expiredAlertIntervalDays": "Thông báo hết hạn trước",
 
 	"newNotification": "Thông báo mới",
 	"updateNotificationHistoryError": "Cập nhật thông báo đã xảy ra lỗi.",
