@@ -15,7 +15,7 @@ function toEntity(response: NotificationResponse): SdpNotification {
 		id: response.id,
 		title: response.title,
 		description: response.description,
-		createdAt: new Date(response.createdAtMillis).toLocaleDateString(),
+		createdAt: new Date(response.createdAtMillis).toLocaleString(),
 	};
 }
 

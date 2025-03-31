@@ -183,3 +183,37 @@ declare interface NotificationHistory {
 	createdAtMs: number;
 	isRead: boolean;
 }
+
+declare interface SoftwareLicense {
+	id: string;
+	startTime: string;
+	endTime: string;
+	expireAlertIntervalDay: number;
+	createdAt: string;
+	updatedAt: string?;
+}
+
+declare interface SoftwareLicenseDetail {
+	id: string;
+	description: string?;
+	startTimeMs: number;
+	endTimeMs: number;
+	expireAlertIntervalDay: number;
+	isExpireAlertDone: boolean;
+	createdAt: string;
+	updatedAt: string?;
+	process: {
+		id: number;
+		softwareVersion: {
+			id: string;
+			name: string;
+		};
+		customer: {
+			id: string;
+			name: string;
+			email: string;
+		};
+		creator: UserMetadata;
+	};
+	creator: UserMetadata;
+}

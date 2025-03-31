@@ -13,6 +13,7 @@ import {
 	fileApi,
 	keycloakApi,
 	notificationApi,
+	softwareLicenseApi,
 } from '../services';
 import { moduleApi } from '../services/module';
 import { moduleVersionApi } from '../services/module-version';
@@ -36,6 +37,7 @@ export const store = configureStore({
 		[keycloakApi.reducerPath]: keycloakApi.reducer,
 		[notificationApi.reducerPath]: notificationApi.reducer,
 		[notificationSlice.reducerPath]: notificationSlice.reducer,
+		[softwareLicenseApi.reducerPath]: softwareLicenseApi.reducer,
 	},
 	// Adding the api middleware enables caching, invalidation, polling,
 	// and other useful features of `rtk-query`.
@@ -55,7 +57,8 @@ export const store = configureStore({
 			mailTemplateApi.middleware,
 			fileApi.middleware,
 			keycloakApi.middleware,
-			notificationApi.middleware
+			notificationApi.middleware,
+			softwareLicenseApi.middleware
 		);
 	},
 });

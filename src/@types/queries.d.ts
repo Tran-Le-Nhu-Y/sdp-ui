@@ -104,3 +104,14 @@ declare interface GetCountNotificationHistoriesQuery {
 	userId: string;
 	isRead: boolean;
 }
+
+declare interface GetAllProcessSoftwareLicensesQuery {
+	processId: number;
+	pageNumber?: number?;
+	pageSize?: number?;
+}
+
+declare interface GetAllExpiredSoftwareLicensesQuery {
+	pageNumber?: number?;
+	pageSize?: number?;
+}

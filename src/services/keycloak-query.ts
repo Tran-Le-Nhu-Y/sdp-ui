@@ -1,8 +1,7 @@
-import { axiosBaseQuery } from '../utils';
+import { axiosBaseQuery, axiosQueryHandler } from '../utils';
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { userInst } from './instance';
 import { getUserMetadata } from './api/keycloak-api';
-import { AxiosError } from 'axios';
 
 export const keycloakApi = createApi({
 	reducerPath: 'keycloakApi',
@@ -30,19 +29,7 @@ export const keycloakApi = createApi({
 		getById: builder.query<UserMetadata, string>({
 			async queryFn(arg) {
 				const userId = arg;
-				try {
-					const user = await getUserMetadata(userId);
-					return { data: user };
-				} catch (error) {
-					const axiosError = error as AxiosError;
-					return {
-						error: {
-							status: axiosError.response?.status ?? 500,
-							statusText: axiosError.message,
-							data: axiosError.response?.data,
-						},
-					};
-				}
+				return axiosQueryHandler(() => getUserMetadata(userId));
 			},
 			providesTags(result) {
 				return result

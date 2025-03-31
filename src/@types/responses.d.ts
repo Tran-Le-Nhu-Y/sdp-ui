@@ -138,6 +138,7 @@ declare interface SoftwareDocumentResponse {
 	type: { name: string };
 	version: { name: string };
 }
+
 declare interface ModuleDocumentResponse {
 	id: string;
 	name: string;
@@ -183,4 +184,35 @@ declare interface NotificationHistoryResponse {
 	createdAtMillis: number;
 	updatedAtMillis: number?;
 	isRead: boolean;
+}
+
+declare interface SoftwareLicenseResponse {
+	id: string;
+	description: string?;
+	startTimeMs: number;
+	endTimeMs: number;
+	expireAlertIntervalDay: number;
+	createdAtMs: number;
+	updatedAtMs: number?;
+}
+
+declare interface SoftwareLicenseDetailResponse {
+	id: string;
+	description: string?;
+	startTimeMs: number;
+	endTimeMs: number;
+	expireAlertIntervalDay: number;
+	isExpireAlertDone: boolean;
+	createdAtMs: number;
+	updatedAtMs: number?;
+	process: {
+		id: number;
+		softwareVersionId: string;
+		softwareVersionName: string;
+		customerId: string;
+		customerName: string;
+		customerEmail: string;
+		creatorId: string;
+	};
+	licenseCreatorId: string;
 }
