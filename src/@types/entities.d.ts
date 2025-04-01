@@ -202,18 +202,6 @@ declare interface SoftwareLicenseDetail {
 	isExpireAlertDone: boolean;
 	createdAt: string;
 	updatedAt: string?;
-	process: {
-		id: number;
-		softwareVersion: {
-			id: string;
-			name: string;
-		};
-		customer: {
-			id: string;
-			name: string;
-			email: string;
-		};
-		creator: UserMetadata;
-	};
+	processId: number;
 	creator: UserMetadata;
 }

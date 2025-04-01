@@ -100,11 +100,10 @@ export const softwareLicenseApi = createApi({
 						`/${EXTENSION_URL}/${licenseId}/detail`
 					);
 					const license: SoftwareLicenseDetailResponse = response.data;
-					const [licenseCreator, processCreator] = await Promise.all([
-						getUserMetadata(license.licenseCreatorId),
-						getUserMetadata(license.process.creatorId),
-					]);
-					return toDetailEntity(license, licenseCreator, processCreator);
+					const licenseCreator = await getUserMetadata(
+						license.licenseCreatorId
+					);
+					return toDetailEntity(license, licenseCreator);
 				};
 				return axiosQueryHandler(func);
 			},

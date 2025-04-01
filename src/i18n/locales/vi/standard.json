@@ -87,10 +87,11 @@
 	"customerNameRequired": "Tên khách hàng không được để trống",
 	"customerError": "Lỗi trong quá trình tạo hay cập nhật thông tin khách hàng",
 
+	"licenseFor": "Giấy phép thuộc quá trình triển khai",
 	"softwareLicense": "Giấy phép phần mềm",
 	"potentiallyExpiredLicense": "Giấy phép sắp hết hạn",
-	"softwareLicenseName": "Tên giấy phép",
 	"softwareLicenseId": "Mã giấy phép",
+	"processId": "Quá trình triển khai",
 
 	"softwareName": "Tên phần mềm",
 	"software": "Phần mềm",
@@ -297,8 +298,9 @@
 
 	"processing": "Đang xử lý...",
 	"loading": "Đang tải...",
+	"navigateTo": "Chuyển hướng đến",
 
-	"process": "Giai đoạn",
+	"process": "Quá trình",
 	"addProcessType": "Thêm dạng giai đoạn",
 	"addProcessTypeInfor": "Thêm thông tin dạng giai đoạn",
 	"processTypeName": "Tên dạng giai đoạn",
@@ -316,6 +318,11 @@
 	"licenseEndTime": "Thời điểm hết hiệu lực",
 	"days": "ngày",
 	"expiredAlertIntervalDays": "Thông báo hết hạn trước",
+	"isExpiredLicenseAlertDone": "Đã gửi mail thông báo hết hạn",
+	"licenseDetailInfor": "Thông tin chi tiết giấy phép",
+	"creator": "Người tạo",
+	"alreadySent": "Đã gửi",
+	"notSent": "Chưa gửi",
 
 	"newNotification": "Thông báo mới",
 	"updateNotificationHistoryError": "Cập nhật thông báo đã xảy ra lỗi.",
