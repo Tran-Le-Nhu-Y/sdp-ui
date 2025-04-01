@@ -9,7 +9,14 @@ const EXTENSION_URL = 'v1/software/deployment-process/phase';
 export const deploymentPhaseApi = createApi({
 	reducerPath: 'deploymentPhaseApi',
 	baseQuery: axiosBaseQuery(sdpInstance),
-	tagTypes: ['ProcessPhases', 'DeploymentPhase', 'Member', 'Attachment'],
+	tagTypes: [
+		'ProcessPhases',
+		'DeploymentPhase',
+		'Member',
+		'MemberId',
+		'Attachment',
+		'ActualDates',
+	],
 	endpoints: (builder) => ({
 		getAllPhasesByProcessId: builder.query<
 			Array<DeploymentPhase>,
@@ -58,6 +65,31 @@ export const deploymentPhaseApi = createApi({
 				url: `/${EXTENSION_URL}/${phaseId}/member`,
 				method: 'GET',
 			}),
+			providesTags(result, _err, arg) {
+				const processId = arg;
+				return result
+					? [
+							{
+								type: 'MemberId',
+								id: processId,
+							} as const,
+						]
+					: [];
+			},
+		}),
+		getMembers: builder.query<Array<string>, string>({
+			async queryFn(arg) {
+				const phaseId = arg;
+				const func = async () => {
+					const atmIds: string[] = (
+						await sdpInstance.get(`/${EXTENSION_URL}/${phaseId}/member`)
+					).data;
+					const atmMetadataResponses: FileMetadataResponse[] =
+						await Promise.all(atmIds.map(getFileMetadata));
+					return atmMetadataResponses.map(toFileMetadata);
+				};
+				return axiosQueryHandler(func);
+			},
 			providesTags(result, _err, arg) {
 				const processId = arg;
 				return result
@@ -173,6 +205,31 @@ export const deploymentPhaseApi = createApi({
 				return baseQueryReturnValue.status;
 			},
 		}),
+		putActual: builder.mutation<void, DeploymentPhaseUpdateActualDatesRequest>({
+			query: ({
+				phaseId,
+				description,
+				actualStartDate,
+				actualEndDate,
+				updatedByUserId,
+			}) => ({
+				url: `/${EXTENSION_URL}/${phaseId}/actual`,
+				method: 'PUT',
+				body: {
+					description: description,
+					actualStartDate: actualStartDate,
+					actualEndDate: actualEndDate,
+					updatedByUserId: updatedByUserId,
+				},
+			}),
+			invalidatesTags(_result, _error, arg) {
+				const { phaseId } = arg;
+				return [{ id: phaseId, type: 'ActualDates' } as const];
+			},
+			transformErrorResponse(baseQueryReturnValue) {
+				return baseQueryReturnValue.status;
+			},
+		}),
 		deletePhase: builder.mutation<void, string>({
 			query: (softwareId: string) => ({
 				url: `/${EXTENSION_URL}/${softwareId}`,
@@ -200,5 +257,6 @@ export const {
 	usePutPhaseMutation,
 	usePutAttachmentMutation,
 	usePutMemberMutation,
+	usePutActualMutation,
 	useDeletePhaseMutation,
 } = deploymentPhaseApi;

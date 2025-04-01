@@ -15,7 +15,7 @@ function toEntity(response: DeploymentPhaseResponse): DeploymentPhase {
 		actualStartDate: response.actualStartDate,
 		actualEndDate: response.actualEndDate,
 		isDone: response.isDone,
-		lastUpdatedByUserId: response.userLastUpdatedId,
+		lastUpdatedByUserId: response.userLastUpdatedId ?? '',
 	};
 	return phase;
 }

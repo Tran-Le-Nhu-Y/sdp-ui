@@ -124,6 +124,14 @@ declare interface DeploymentPhaseAttachmentUpdateRequest {
 	operator: FileOperator;
 }
 
+declare interface DeploymentPhaseUpdateActualDatesRequest {
+	phaseId: string;
+	description?: string?;
+	actualStartDate?: string?;
+	actualEndDate?: string?;
+	updatedByUserId: string;
+}
+
 declare interface DocumentTypeCreateRequest {
 	name: string;
 	description?: string?;

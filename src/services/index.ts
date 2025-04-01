@@ -172,6 +172,7 @@ import {
 	usePutMemberMutation as useUpdateDeploymentPhaseMember,
 	useDeletePhaseMutation as useDeleteDeploymentPhase,
 	usePutAttachmentMutation as useUpdateDeploymentPhaseAttachment,
+	usePutActualMutation as useUpdateDeploymentPhaseActualDates,
 } from './deployment-phase';
 export {
 	deploymentPhaseApi,
@@ -184,6 +185,7 @@ export {
 	useDeleteDeploymentPhase,
 	useGetAllPhaseAttachments,
 	useUpdateDeploymentPhaseAttachment,
+	useUpdateDeploymentPhaseActualDates,
 };
 
 import {

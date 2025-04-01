@@ -13,19 +13,41 @@ import {
 	StepContent,
 	Stepper,
 	StepButton,
+	LinearProgress,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogContentText,
+	DialogTitle,
+	TextField,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useId, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PaginationTable } from '../../components';
+import { CustomDataGrid, PaginationTable } from '../../components';
 import { useParams } from 'react-router-dom';
 import {
 	getDeploymentProcessStatusTransKey,
 	HideDuration,
 	PathHolders,
 } from '../../utils';
-import { useGetDeploymentProcess } from '../../services';
-import { useNotifications } from '@toolpad/core';
-import { t } from 'i18next';
+import {
+	useGetAllModulesInProcess,
+	useGetAllUsersByRole,
+	useGetDeploymentPhaseMemberIds,
+	useGetDeploymentProcess,
+	useGetDeploymentProcessMemberIds,
+	useUpdateDeploymentPhaseActualDates,
+} from '../../services';
+import { useNotifications, useSession } from '@toolpad/core';
+import {
+	GridColDef,
+	GridToolbarColumnsButton,
+	GridToolbarContainer,
+	GridToolbarDensitySelector,
+	GridToolbarFilterButton,
+	GridToolbarQuickFilter,
+} from '@mui/x-data-grid';
+import { useGetAllPhasesByProcessIdQuery } from '../../services/deployment-phase';
 
 const deploymentData = {
 	customer: 'Oliver Hansen',
@@ -92,90 +114,293 @@ function a11yProps(index: number) {
 	};
 }
 
-const steps = [
-	{
-		label: 'Select campaign settings',
-		description: `For each ad campaign that you create, you can control how much
-              you're willing to spend on clicks and conversions, which networks
-              and geographical locations you want your ads to show on, and more.`,
-	},
-	{
-		label: 'Create an ad group',
-		description:
-			'An ad group contains one or more ads which target a shared set of keywords.',
-	},
-	{
-		label: 'Create an ad',
-		description: `Try out different ad text to see what brings in the most customers,
-              and learn how to enhance your ads using features like ad extensions.
-              If you run into any problems with your ads, find out how to tell if
-              they're running and how to resolve approval issues.`,
-	},
-];
-
-function VerticalLinearStepper() {
+function VerticalLinearStepper({ phases }: { phases: DeploymentPhase[] }) {
+	//const { t } = useTranslation('standard');
+	const notifications = useNotifications();
+	const userId = useSession()?.user?.id ?? '';
 	const [activeStep, setActiveStep] = React.useState(0);
+	const [updatedPhases, setUpdatedPhases] = useState(phases);
+	const [updateActualDateTrigger, { isLoading: isUpdatingActualDate }] =
+		useUpdateDeploymentPhaseActualDates();
+	const [openDialog, setOpenDialog] = useState(false);
+	const [showCopyrightButton, setShowCopyrightButton] = useState(false);
+	const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
+	const [, setUploadedFile] = useState<File | null>(null);
 
-	const handleNext = () => {
-		setActiveStep((prevActiveStep) => prevActiveStep + 1);
+	const userQuery = useGetAllUsersByRole('deployment_person');
+	const memberIdQuery = useGetDeploymentPhaseMemberIds(selectedPhaseId ?? '');
+
+	useEffect(() => {
+		setUpdatedPhases(phases);
+	}, [phases]);
+
+	useEffect(() => {
+		setShowCopyrightButton(
+			activeStep === updatedPhases.length && updatedPhases.length > 0,
+		);
+	}, [activeStep, updatedPhases]);
+
+	const updateActualHandler = useCallback(
+		async (
+			request: DeploymentPhaseUpdateActualDatesRequest,
+			successText: string,
+			errorText: string,
+		) => {
+			try {
+				await updateActualDateTrigger(request).unwrap();
+
+				notifications.show(successText, {
+					severity: 'success',
+					autoHideDuration: HideDuration.fast,
+				});
+			} catch (error) {
+				console.error(error);
+				notifications.show(errorText, {
+					severity: 'error',
+					autoHideDuration: HideDuration.fast,
+				});
+			}
+		},
+		[notifications, updateActualDateTrigger],
+	);
+
+	// const [attachments, setAttachments] = useState<Record<number, File | null>>(
+	// 	{},
+	// );
+
+	// const handleFileUpload = (
+	// 	event: React.ChangeEvent<HTMLInputElement>,
+	// 	phaseId: number,
+	// ) => {
+	// 	if (event.target.files && event.target.files.length > 0) {
+	// 		setAttachments((prev) => ({
+	// 			...prev,
+	// 			[phaseId]: event.target.files[0],
+	// 		}));
+	// 	}
+	// };
+
+	const handleStart = async (phaseId: string) => {
+		const currentTime = new Date().toISOString();
+		if (!userId) {
+			notifications.show('Lỗi: Không tìm thấy userId!', { severity: 'error' });
+			return;
+		}
+		console.log('Payload gửi đi:', {
+			phaseId,
+			description: 'Bắt đầu thực hiện',
+			actualEndDate: currentTime,
+			updatedByUserId: userId,
+		});
+		setUpdatedPhases((prevPhases) =>
+			prevPhases.map((phase) =>
+				phase.id === phaseId
+					? { ...phase, actualStartDate: currentTime }
+					: phase,
+			),
+		);
+		await updateActualHandler(
+			{
+				phaseId: phaseId,
+				description: 'Bắt đầu thực hiện',
+				actualStartDate: currentTime,
+				actualEndDate: null,
+				updatedByUserId: userId,
+			},
+			'Cập nhật ngày bắt đầu thực tế thành công!',
+			'Lỗi khi cập nhật ngày bắt đầu thực tế!',
+		);
 	};
 
-	const handleBack = () => {
-		setActiveStep((prevActiveStep) => prevActiveStep - 1);
+	const handleComplete = async () => {
+		if (!selectedPhaseId) return;
+		const currentTime = new Date().toISOString();
+		if (!userId) {
+			notifications.show('Lỗi: Không tìm thấy userId!', { severity: 'error' });
+			return;
+		}
+
+		const currentPhase = phases.find((phase) => phase.id === selectedPhaseId);
+		const actualStartDate = currentPhase?.actualStartDate ?? null;
+		setUpdatedPhases((prevPhases) =>
+			prevPhases.map((phase) =>
+				phase.id === selectedPhaseId
+					? { ...phase, actualEndDate: currentTime }
+					: phase,
+			),
+		);
+
+		await updateActualHandler(
+			{
+				phaseId: selectedPhaseId,
+				description: 'Hoàn thành giai đoạn',
+				actualStartDate: actualStartDate,
+				actualEndDate: currentTime,
+				updatedByUserId: userId,
+			},
+			'Cập nhật ngày kết thúc thực tế thành công!',
+			'Lỗi khi cập nhật ngày kết thúc thực tế!',
+		);
+		setOpenDialog(false);
+		setSelectedPhaseId(null);
 	};
+
+	const handleConfirm = (phaseId: string) => {
+		setSelectedPhaseId(phaseId);
+		setOpenDialog(true);
+	};
+	const handleCancelComplete = () => {
+		setOpenDialog(false);
+		setSelectedPhaseId(null);
+	};
+	const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+		if (event.target.files && event.target.files.length > 0) {
+			setUploadedFile(event.target.files[0]);
+		}
+	};
+
+	const handleCreateCopyright = () => {
+		// Handle the creation of copyright logic here
+		console.log('Creating copyright...');
+	};
+
+	// const handleNext = () => {
+	// 	setActiveStep((prevActiveStep) => prevActiveStep + 1);
+	// };
+
+	// const handleBack = () => {
+	// 	setActiveStep((prevActiveStep) => prevActiveStep - 1);
+	// };
 
 	const handleReset = () => {
 		setActiveStep(0);
+		setUpdatedPhases(phases);
 	};
 
 	return (
-		<Box sx={{ maxWidth: 400 }}>
+		<Box
+			sx={{
+				width: '100%',
+				alignItems: 'center',
+				justifyContent: 'center',
+				textAlign: 'justify',
+				display: 'flex',
+			}}
+		>
+			{isUpdatingActualDate && <LinearProgress />}
 			<Stepper nonLinear activeStep={activeStep} orientation="vertical">
-				{steps.map((step, index) => (
-					<Step key={step.label}>
+				{updatedPhases.map((phase, index) => (
+					<Step key={phase.id} completed={activeStep > index}>
 						<StepButton
-							optional={
-								index === steps.length - 1 ? (
-									<Typography variant="caption">Last step</Typography>
-								) : null
-							}
 							color="inherit"
 							onClick={() => {
+								setSelectedPhaseId(phase.id);
 								setActiveStep(index);
 							}}
 						>
-							{step.label}
+							{phase.type.name}
 						</StepButton>
 						<StepContent>
-							<Typography>{step.description}</Typography>
+							<Stack direction={'column'} spacing={2} mb={2}>
+								<Typography>{phase.description}</Typography>
+								{/* {selectedPhaseId === phase.id && (
+									<>
+										{userDetails.isLoading && (
+											<Typography>Đang tải...</Typography>
+										)}
+										{userDetails.isError && (
+											<Typography>Lỗi tải dữ liệu.</Typography>
+										)}
+										{userDetails.data && (
+											<Typography>
+												<strong>Nhân sự thực hiện:</strong>{' '}
+												{userDetails.data
+													.map((user) => `${user.name} (${user.email})`)
+													.join(', ')}
+											</Typography>
+										)}
+									</>
+								)} */}
+								<Typography>
+									<strong>Nhân sự thực hiện:</strong> {userQuery.data?.length}{' '}
+									{userQuery.data?.length === 1 ? 'người' : 'người'}
+									{memberIdQuery.isLoading && (
+										<Typography>Đang tải...</Typography>
+									)}
+								</Typography>
+								<Typography>
+									<strong>Ngày bắt đầu dự kiến:</strong>{' '}
+									{phase.plannedStartDate}
+								</Typography>
+								<Typography>
+									<strong>Ngày kết thúc dự kiến:</strong> {phase.plannedEndDate}
+								</Typography>
+								<Typography>
+									<strong>Ngày bắt đầu thực tế:</strong>{' '}
+									{phase.actualStartDate || 'Chưa bắt đầu'}
+								</Typography>
+								<Typography>
+									<strong>Ngày kết thúc thực tế:</strong>{' '}
+									{phase.actualEndDate || 'Chưa hoàn thành'}
+								</Typography>
+							</Stack>
 
 							<Box sx={{ mb: 2 }}>
 								<Button
 									variant="contained"
-									onClick={handleNext}
+									onClick={() => handleStart(phase.id)}
 									sx={{ mt: 1, mr: 1 }}
+									// disabled={!!phase.actualStartDate}
 								>
-									{index === steps.length - 1 ? t('finish') : t('complete')}
+									Bắt đầu thực hiện
 								</Button>
 								<Button
-									disabled={index === 0}
-									onClick={handleBack}
+									variant="contained"
+									onClick={() => handleConfirm(phase.id)}
 									sx={{ mt: 1, mr: 1 }}
+									// disabled={!phase.actualStartDate || !!phase.actualEndDate}
 								>
-									{t('return')}
+									Hoàn thành
 								</Button>
 							</Box>
 						</StepContent>
 					</Step>
 				))}
 			</Stepper>
-			{activeStep === steps.length && (
+			{activeStep === updatedPhases.length && (
 				<Paper square elevation={0} sx={{ p: 3 }}>
 					<Typography>All steps completed - you&apos;re finished</Typography>
 					<Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
 						Reset
 					</Button>
 				</Paper>
+			)}
+			<Dialog open={openDialog} onClose={handleCancelComplete}>
+				<DialogTitle>Xác nhận hoàn thành giai đoạn</DialogTitle>
+				<DialogContent>
+					<DialogContentText>
+						Bạn có chắc chắn muốn hoàn thành giai đoạn này?
+					</DialogContentText>
+					<TextField
+						type="file"
+						fullWidth
+						margin="normal"
+						onChange={handleFileUpload}
+					/>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleCancelComplete} color="primary">
+						Hủy
+					</Button>
+					<Button onClick={handleComplete} color="primary" autoFocus>
+						Xác nhận
+					</Button>
+				</DialogActions>
+			</Dialog>
+			{showCopyrightButton && (
+				<Button onClick={handleCreateCopyright} sx={{ mt: 2 }}>
+					Tạo bản quyền
+				</Button>
 			)}
 		</Box>
 	);
@@ -185,12 +410,12 @@ const DeploymentProcessDetailPage = () => {
 	const { t } = useTranslation();
 	const [value, setValue] = React.useState(0);
 	const notifications = useNotifications();
+	const processId = useParams()[PathHolders.DEPLOYMENT_PROCESS_ID];
+	const numericProcessId = processId ? Number(processId) : undefined;
 
 	const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
 		setValue(newValue);
 	};
-
-	const processId = useParams()[PathHolders.DEPLOYMENT_PROCESS_ID];
 
 	const deploymentProcess = useGetDeploymentProcess(processId!, {
 		skip: !processId,
@@ -202,6 +427,30 @@ const DeploymentProcessDetailPage = () => {
 				autoHideDuration: HideDuration.fast,
 			});
 	}, [notifications, deploymentProcess.isError, t]);
+
+	const phasesQuery = useGetAllPhasesByProcessIdQuery(
+		{ processId: numericProcessId || 0 },
+		{
+			skip: !numericProcessId,
+		},
+	);
+	useEffect(() => {
+		if (phasesQuery.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+	}, [notifications, phasesQuery.isError, t]);
+
+	const phases = useMemo(() => {
+		return phasesQuery.data?.map((phase) => ({
+			...phase,
+			plannedStartDate: phase.plannedStartDate,
+			plannedEndDate: phase.plannedEndDate,
+			actualStartDate: phase.actualStartDate,
+			actualEndDate: phase.actualEndDate,
+		}));
+	}, [phasesQuery.data]);
 
 	const [, setModuleQuery] = useState<GetAllModuleQuery>({
 		softwareVersionId: '',
@@ -226,8 +475,8 @@ const DeploymentProcessDetailPage = () => {
 						{deploymentProcess.data?.status &&
 							t(
 								getDeploymentProcessStatusTransKey(
-									deploymentProcess.data?.status
-								)
+									deploymentProcess.data?.status,
+								),
 							)}
 					</Typography>
 				</Stack>
@@ -274,72 +523,13 @@ const DeploymentProcessDetailPage = () => {
 					</Tabs>
 				</Box>
 				<CustomTabPanel value={value} index={0}>
-					<VerticalLinearStepper />
+					<VerticalLinearStepper phases={phases ?? []} />
 				</CustomTabPanel>
 				<CustomTabPanel value={value} index={1}>
-					<PaginationTable
-						headers={
-							<>
-								<TableCell key={`moduleName`} align="center">
-									{t('moduleName')}
-								</TableCell>
-								<TableCell key={`version`} align="center">
-									{t('version')}
-								</TableCell>
-							</>
-						}
-						count={deploymentData.modules.length ?? 0}
-						rows={deploymentData.modules ?? []}
-						onPageChange={(newPage) =>
-							setModuleQuery((prev) => {
-								return { ...prev, ...newPage };
-							})
-						}
-						getCell={(row) => (
-							<TableRow key={row.id}>
-								<TableCell key={`moduleName`} align="center">
-									{row.name}
-								</TableCell>
-
-								<TableCell key={`version`} align="center">
-									{row.version}
-								</TableCell>
-							</TableRow>
-						)}
-					/>
+					<ModuleTab processId={Number(processId)} />
 				</CustomTabPanel>
 				<CustomTabPanel value={value} index={2}>
-					<PaginationTable
-						headers={
-							<>
-								<TableCell key={`deployer`} align="center">
-									{t('deployer')}
-								</TableCell>
-
-								<TableCell key={`email`} align="center">
-									{t('email')}
-								</TableCell>
-							</>
-						}
-						count={deploymentData.personnel.length ?? 0}
-						rows={deploymentData.personnel ?? []}
-						onPageChange={(newPage) =>
-							setModuleQuery((prev) => {
-								return { ...prev, ...newPage };
-							})
-						}
-						getCell={(row) => (
-							<TableRow key={row.id}>
-								<TableCell key={`deployer`} align="center">
-									{row.name}
-								</TableCell>
-
-								<TableCell key={`email`} align="center">
-									{row.email}
-								</TableCell>
-							</TableRow>
-						)}
-					/>
+					<PersonnelTab processId={Number(processId)} />
 				</CustomTabPanel>
 			</Box>
 
@@ -392,5 +582,202 @@ const DeploymentProcessDetailPage = () => {
 		</Container>
 	);
 };
+
+function ModuleTab({ processId }: { processId: number }) {
+	const { t } = useTranslation('standard');
+	const modulesQuery = useGetAllModulesInProcess(processId);
+
+	const cols: GridColDef[] = useMemo(
+		() => [
+			{
+				field: 'moduleName',
+				editable: false,
+				minWidth: 300,
+				headerName: t('moduleName'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.module.name;
+				},
+				flex: 1,
+			},
+			{
+				field: 'versionName',
+				editable: false,
+				minWidth: 200,
+				headerName: t('version'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.version.name;
+				},
+				flex: 1,
+			},
+		],
+		[t],
+	);
+
+	return (
+		<CustomDataGrid
+			slots={{
+				toolbar: () => (
+					<GridToolbarContainer sx={{ justifyContent: 'space-between' }}>
+						<GridToolbarFilterButton />
+						<GridToolbarDensitySelector />
+						<GridToolbarColumnsButton />
+						<GridToolbarQuickFilter />
+					</GridToolbarContainer>
+				),
+			}}
+			rows={modulesQuery.data}
+			columns={cols}
+			pageSizeOptions={[5, 10, 15]}
+			getRowId={(row) => row.version.id}
+			initialState={{
+				pagination: {
+					paginationModel: {
+						page: 0,
+						pageSize: 5,
+					},
+				},
+				sorting: {
+					sortModel: [{ field: 'moduleName', sort: 'asc' }],
+				},
+			}}
+		/>
+	);
+}
+
+function PersonnelTab({ processId }: { processId: number }) {
+	const { t } = useTranslation('standard');
+	const userQuery = useGetAllUsersByRole('deployment_person');
+	const memberIdQuery = useGetDeploymentProcessMemberIds(processId);
+
+	const findUsers = useCallback(
+		(isSelected: boolean) => {
+			const memberIds = memberIdQuery.data;
+			if (!memberIds) return [];
+
+			return (
+				userQuery?.data?.filter((user) => {
+					const selected = memberIds.includes(user.id);
+					return isSelected ? selected : !selected;
+				}) ?? []
+			);
+		},
+		[memberIdQuery?.data, userQuery?.data],
+	);
+
+	const unselectedUsers = useMemo(() => findUsers(false), [findUsers]);
+	const unselectedCols: GridColDef[] = useMemo(
+		() => [
+			{
+				field: 'fullName',
+				headerName: t('fullName'),
+				editable: false,
+				width: 200,
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return `${row.lastName || ''} ${row.firstName || ''}`;
+				},
+			},
+			{
+				field: 'email',
+				editable: false,
+				minWidth: 200,
+				headerName: t('emailAddress'),
+				type: 'string',
+			},
+		],
+		[t],
+	);
+
+	const selectedUsers = useMemo(() => findUsers(true), [findUsers]);
+	const selectedCols: GridColDef[] = useMemo(
+		() => [
+			{
+				field: 'fullName',
+				headerName: t('fullName'),
+				editable: false,
+				width: 200,
+				valueGetter: (_value, row) => {
+					return `${row.lastName || ''} ${row.firstName || ''}`;
+				},
+			},
+			{
+				field: 'email',
+				editable: false,
+				minWidth: 200,
+				headerName: t('emailAddress'),
+			},
+		],
+		[t],
+	);
+
+	if (userQuery.isLoading || memberIdQuery.isLoading) return <LinearProgress />;
+	return (
+		<>
+			<Stack
+				direction={{
+					xs: 'column',
+					sm: 'row',
+				}}
+				justifyContent={'space-around'}
+				spacing={2}
+			>
+				<Stack direction={'column'} spacing={1}>
+					<Typography variant="h6">{t('unassignedPersonnel')}</Typography>
+					<CustomDataGrid
+						slots={{
+							toolbar: () => (
+								<GridToolbarContainer>
+									<GridToolbarFilterButton />
+									<GridToolbarDensitySelector />
+									<GridToolbarColumnsButton />
+									<GridToolbarQuickFilter />
+								</GridToolbarContainer>
+							),
+						}}
+						rows={unselectedUsers}
+						columns={unselectedCols}
+						pageSizeOptions={[5, 10, 15]}
+						initialState={{
+							pagination: {
+								paginationModel: {
+									page: 0,
+									pageSize: 5,
+								},
+							},
+						}}
+					/>
+				</Stack>
+				<Stack direction={'column'} spacing={1}>
+					<Typography variant="h6">{t('assignedPersonnel')}</Typography>
+					<CustomDataGrid
+						slots={{
+							toolbar: () => (
+								<GridToolbarContainer>
+									<GridToolbarFilterButton />
+									<GridToolbarDensitySelector />
+									<GridToolbarColumnsButton />
+									<GridToolbarQuickFilter />
+								</GridToolbarContainer>
+							),
+						}}
+						rows={selectedUsers}
+						columns={selectedCols}
+						pageSizeOptions={[5, 10, 15]}
+						initialState={{
+							pagination: {
+								paginationModel: {
+									page: 0,
+									pageSize: 5,
+								},
+							},
+						}}
+					/>
+				</Stack>
+			</Stack>
+		</>
+	);
+}
 
 export default DeploymentProcessDetailPage;
