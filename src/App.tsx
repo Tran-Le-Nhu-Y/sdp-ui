@@ -56,6 +56,7 @@ import {
 import { useAppDispatch, useAppSelector } from './hooks/useRedux';
 import { decreaseUnread, getNotificationState, increaseUnread } from './redux';
 import DeveloperBoardIcon from '@mui/icons-material/DeveloperBoard';
+import KeyIcon from '@mui/icons-material/Key';
 
 function CustomAppTitle() {
 	return (
@@ -284,6 +285,11 @@ function App() {
 							icon: <LabelIcon />,
 							pattern: `phase-type{/:${PathHolders.DEPLOYMENT_PHASE_TYPE_ID}}*`,
 						},
+						{
+							segment: 'expired-licenses',
+							title: t('potentiallyExpiredLicense'),
+							icon: <KeyIcon />,
+						},
 					],
 				},
 				{
@@ -298,7 +304,7 @@ function App() {
 					children: [
 						{
 							segment: 'software-expiration',
-							title: t('softwareExpiration'),
+							title: t('potentiallyExpiredLicense'),
 							icon: <AssignmentLateIcon />,
 							pattern: `software-expiration{/:${PathHolders.TEMPLATE_SOFTWARE_EXPIRATION_ID}}*`,
 						},

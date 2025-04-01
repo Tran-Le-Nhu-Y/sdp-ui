@@ -29,6 +29,7 @@ export enum PathHolders {
 	DEPLOYMENT_PHASE_TYPE_ID = 'phaseTypeId',
 	TEMPLATE_SOFTWARE_EXPIRATION_ID = 'softwareExpirationId',
 	TEMPLATE_COMPLETE_DEPLOYMENT_ID = 'completeDeploymentId',
+	SOFTWARE_LICENSE_ID = 'softwareLicenseId',
 }
 
 export enum RoutePaths {
@@ -70,6 +71,9 @@ export enum RoutePaths {
 
 	TEMPLATE_SOFTWARE_EXPIRATION = '/mail-template/software-expiration',
 	TEMPLATE_COMPLETE_DEPLOYMENT = '/mail-template/complete-deployment',
+
+	EXPIRED_SOFTWARE_LICENSES = '/deployment/expired-licenses',
+	SOFTWARE_LICENSE_DETAIL = `/deployment/license/:${PathHolders.SOFTWARE_LICENSE_ID}`,
 }
 
 export enum HideDuration {
