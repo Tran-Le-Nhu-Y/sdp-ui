@@ -25,19 +25,14 @@ export const moduleVersionApi = createApi({
 				},
 			}),
 			providesTags(result) {
-				const pagingTag = {
-					type: 'PagingModuleVersion',
-					id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
-				} as const;
-
 				return result
 					? [
-							...result.content.map(
-								({ id }) => ({ type: 'ModuleVersion', id }) as const
-							),
-							pagingTag,
+							{
+								type: 'PagingModuleVersion',
+								id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
+							} as const,
 						]
-					: [pagingTag];
+					: [];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;

@@ -203,3 +203,18 @@ declare interface NotificationHistoryRequest {
 	notificationId: number;
 	userId: string;
 }
+
+declare interface SoftwareLicenseCreateRequest {
+	userId: string;
+	processId: number;
+	description?: string?;
+	startTimeMs: number;
+	endTimeMs: number;
+	expireAlertIntervalDay: number;
+}
+
+declare interface SoftwareLicenseUpdateRequest {
+	licenseId: string;
+	description?: string?;
+	expireAlertIntervalDay: number;
+}

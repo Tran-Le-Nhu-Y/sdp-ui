@@ -277,3 +277,24 @@ export {
 	useCreateMailTemplate,
 	useUpdateMailTemplate,
 };
+
+import {
+	softwareLicenseApi,
+	useGetAllExpiredQuery as useGetAllExpiredLicenses,
+	useGetAllByProcessIdQuery as useGetAllLicensesByProcessId,
+	useGetByIdQuery as useGetSoftwareLicenseById,
+	useGetDetailByIdQuery as useGetSoftwareLicenseDetailById,
+	usePostMutation as useCreateSoftwareLicense,
+	usePutMutation as useUpdateSoftwareLicense,
+	useDeleteMutation as useDeleteSoftwareLicense,
+} from './software-license';
+export {
+	softwareLicenseApi,
+	useGetAllExpiredLicenses,
+	useGetAllLicensesByProcessId,
+	useGetSoftwareLicenseById,
+	useGetSoftwareLicenseDetailById,
+	useCreateSoftwareLicense,
+	useUpdateSoftwareLicense,
+	useDeleteSoftwareLicense,
+};
