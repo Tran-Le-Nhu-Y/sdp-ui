@@ -136,6 +136,20 @@ declare interface DeploymentPhase {
 	lastUpdatedByUserId?: string?;
 }
 
+declare interface DeploymentPhaseUpdateHistory {
+	numOrder: number;
+	userPerformed: UserMetadata;
+	phase: {
+		id: string;
+		type: {
+			name: string;
+		};
+	};
+	description: string?;
+	isDone: boolean;
+	updatedAt: number;
+}
+
 declare interface SoftwareDocument {
 	id: string;
 	typeName: string;

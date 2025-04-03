@@ -107,6 +107,20 @@ declare interface DeploymentPhaseResponse {
 	userLastUpdatedId: string?;
 }
 
+declare interface DeploymentPhaseUpdateHistoryResponse {
+	id: {
+		numOrder: number;
+		userIdPerformed: string;
+		phaseId: string;
+	};
+	phaseType: {
+		name: string;
+	};
+	description: string?;
+	isDone: boolean;
+	updatedAt: number;
+}
+
 declare interface DeploymentPhaseTypeResponse {
 	id: string;
 	name: string;

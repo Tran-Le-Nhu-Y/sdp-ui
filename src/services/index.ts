@@ -164,8 +164,10 @@ export {
 import {
 	deploymentPhaseApi,
 	useGetAllPhasesByProcessIdQuery as useGetAllDeploymentPhasesByProcessId,
+	useGetUpdateHistoriesQuery as useGetDeploymentPhaseUpdateHistories,
 	useGetPhaseByIdQuery as useGetPhaseById,
 	useGetMemberIdsQuery as useGetDeploymentPhaseMemberIds,
+	useGetMembersQuery as useGetDeploymentPhaseMembers,
 	usePostPhaseMutation as useCreateDeploymentPhase,
 	useGetAllAttachmentsQuery as useGetAllPhaseAttachments,
 	usePutPhaseMutation as useUpdateDeploymentPhase,
@@ -177,8 +179,10 @@ import {
 export {
 	deploymentPhaseApi,
 	useGetAllDeploymentPhasesByProcessId,
+	useGetDeploymentPhaseUpdateHistories,
 	useGetPhaseById,
 	useGetDeploymentPhaseMemberIds,
+	useGetDeploymentPhaseMembers,
 	useCreateDeploymentPhase,
 	useUpdateDeploymentPhase,
 	useUpdateDeploymentPhaseMember,

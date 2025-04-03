@@ -20,4 +20,23 @@ function toEntity(response: DeploymentPhaseResponse): DeploymentPhase {
 	return phase;
 }
 
-export { toEntity };
+function toHistoryEntity(
+	response: DeploymentPhaseUpdateHistoryResponse,
+	userPerformed: UserMetadata,
+): DeploymentPhaseUpdateHistory {
+	return {
+		numOrder: response.id.numOrder,
+		userPerformed: userPerformed,
+		phase: {
+			id: response.id.phaseId,
+			type: {
+				name: response.phaseType.name,
+			},
+		},
+		description: response.description,
+		isDone: response.isDone,
+		updatedAt: response.updatedAt,
+	};
+}
+
+export { toEntity, toHistoryEntity };
