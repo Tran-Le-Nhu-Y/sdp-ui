@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Attachment, CustomDataGrid, TabPanel } from '../../components';
+import { AttachmentList, CustomDataGrid, TabPanel } from '../../components';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
 	convertToAPIDateFormat,
@@ -123,7 +123,7 @@ function DetailTab({
 						userId: userId,
 						file: file,
 					}).unwrap();
-				})
+				}),
 			);
 			await Promise.all(
 				attachmentIds.map(async (attachmentId) => {
@@ -132,7 +132,7 @@ function DetailTab({
 						attachmentId: attachmentId,
 						operator: 'ADD',
 					}).unwrap();
-				})
+				}),
 			);
 
 			notifications.show(t('uploadFileSuccess'), {
@@ -270,14 +270,11 @@ function DetailTab({
 					</Button>
 				</Tooltip>
 			</Stack>
-			<Stack spacing={1} direction={'row'}>
-				{attachments?.data?.map((file) => (
-					<Attachment
-						key={file.id}
-						metadata={file}
-						onRemoveClick={deleteAttachment}
-					/>
-				))}
+			<Stack width={'100%'} spacing={1} direction={'row'}>
+				<AttachmentList
+					attachments={attachments?.data ?? []}
+					onRemoveClick={deleteAttachment}
+				/>
 			</Stack>
 
 			<Stack direction={'column'}>
@@ -354,7 +351,7 @@ function PersonnelTab({ phaseId }: { phaseId: string }) {
 		async (
 			request: DeploymentPhaseMemberUpdateRequest,
 			successText: string,
-			errorText: string
+			errorText: string,
 		) => {
 			try {
 				await updateMemberTrigger(request).unwrap();
@@ -371,7 +368,7 @@ function PersonnelTab({ phaseId }: { phaseId: string }) {
 				});
 			}
 		},
-		[notifications, updateMemberTrigger]
+		[notifications, updateMemberTrigger],
 	);
 
 	const findUsers = useCallback(
@@ -386,7 +383,7 @@ function PersonnelTab({ phaseId }: { phaseId: string }) {
 				}) ?? []
 			);
 		},
-		[memberIdQuery?.data, userQuery?.data]
+		[memberIdQuery?.data, userQuery?.data],
 	);
 
 	const unselectedUsers = useMemo(() => findUsers(false), [findUsers]);
@@ -432,14 +429,14 @@ function PersonnelTab({ phaseId }: { phaseId: string }) {
 									operator: 'ADD',
 								},
 								t('addMemberSuccess'),
-								t('addMemberError')
+								t('addMemberError'),
 							);
 						}}
 					/>,
 				],
 			},
 		],
-		[phaseId, t, updateMemberHandler]
+		[phaseId, t, updateMemberHandler],
 	);
 
 	const selectedUsers = useMemo(() => findUsers(true), [findUsers]);
@@ -483,14 +480,14 @@ function PersonnelTab({ phaseId }: { phaseId: string }) {
 									operator: 'REMOVE',
 								},
 								t('removeMemberSuccess'),
-								t('removeMemberError')
+								t('removeMemberError'),
 							);
 						}}
 					/>,
 				],
 			},
 		],
-		[phaseId, t, updateMemberHandler]
+		[phaseId, t, updateMemberHandler],
 	);
 
 	if (userQuery.isLoading || memberIdQuery.isLoading) return <LinearProgress />;
@@ -652,7 +649,7 @@ const SetupDeploymentPhasePage = () => {
 						onClick={() => {
 							const path = RoutePaths.SETUP_DEPLOYMENT_PROCESS.replace(
 								`:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
-								`${processId}`
+								`${processId}`,
 							);
 							navigate(path);
 						}}

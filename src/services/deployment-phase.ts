@@ -63,7 +63,7 @@ export const deploymentPhaseApi = createApi({
 						pageSize,
 					} = arg;
 					const wrapper: PagingWrapper<DeploymentPhaseUpdateHistoryResponse> = (
-						await sdpInstance.get(`/${EXTENSION_URL}/${processId}/history`, {
+						await sdpInstance.get(`/${EXTENSION_URL}/${processId}/histories`, {
 							params: {
 								phaseTypeName: phaseTypeName,
 								description: description,
