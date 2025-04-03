@@ -49,23 +49,53 @@ export const deploymentPhaseApi = createApi({
 				return rawResult.map(toEntity);
 			},
 		}),
-		getUpdateHistories: builder.query<DeploymentPhaseUpdateHistory, number>({
-			query: (processId: number) => ({
-				url: `/${EXTENSION_URL}/${processId}/histories`,
-				method: 'GET',
-			}),
+		getUpdateHistories: builder.query<
+			PagingWrapper<DeploymentPhaseUpdateHistory>,
+			GetAllDeploymentPhaseUpdateHistoriesQuery
+		>({
+			async queryFn(arg) {
+				const func = async () => {
+					const {
+						processId,
+						phaseTypeName,
+						description,
+						pageNumber,
+						pageSize,
+					} = arg;
+					const wrapper: PagingWrapper<DeploymentPhaseUpdateHistoryResponse> = (
+						await sdpInstance.get(`/${EXTENSION_URL}/${processId}/history`, {
+							params: {
+								phaseTypeName: phaseTypeName,
+								description: description,
+								pageNumber: pageNumber,
+								pageSize: pageSize,
+							},
+						})
+					).data;
+
+					const content = await Promise.all(
+						wrapper.content.map(async (history) => {
+							const userIdPerformed = history.id.userIdPerformed;
+							const userMetadata = await getUserMetadata(userIdPerformed);
+							return toHistoryEntity(history, userMetadata);
+						}),
+					);
+					return { ...wrapper, content };
+				};
+				return axiosQueryHandler(func);
+			},
 			providesTags(result, _err, arg) {
-				const processId = arg;
+				const { processId, phaseTypeName, description, pageNumber, pageSize } =
+					arg;
 				return result
 					? [
 							{
 								type: 'UpdateHistories',
-								id: processId,
+								id: `${processId}-${phaseTypeName}-${description}-${pageNumber}-${pageSize}`,
 							} as const,
 						]
 					: [];
 			},
-			transformResponse: toHistoryEntity,
 		}),
 		getPhaseById: builder.query<DeploymentPhase, string>({
 			query: (phaseId: string) => ({
