@@ -12,6 +12,7 @@ export const deploymentProcessApi = createApi({
 		'DeploymentProcess',
 		'Member',
 		'Module',
+		'Customer',
 	],
 	endpoints: (builder) => ({
 		getAllProcesses: builder.query<
@@ -170,6 +171,45 @@ export const deploymentProcessApi = createApi({
 				];
 			},
 		}),
+		getSoftwareVersionByCustomerId: builder.query<
+			PagingWrapper<DeploymentProcessHasSoftwareVersionResponse>,
+			GetSoftwareVersionOfDeploymentProcessByCustomerQuery
+		>({
+			query: ({
+				customerId,
+				softwareName,
+				softwareVersionName,
+				pageNumber,
+				pageSize,
+			}) => ({
+				url: `/${EXTENSION_URL}/${customerId}/customer`,
+				method: 'GET',
+				params: {
+					softwareName: softwareName,
+					softwareVersionName: softwareVersionName,
+					pageNumber: pageNumber,
+					pageSize: pageSize,
+				},
+			}),
+
+			providesTags(result, _err, arg) {
+				const {
+					customerId,
+					softwareName,
+					softwareVersionName,
+					pageNumber,
+					pageSize,
+				} = arg;
+				return result
+					? [
+							{
+								type: 'Customer',
+								id: `${customerId}-${softwareName}-${softwareVersionName}-${pageNumber}-${pageSize}`,
+							} as const,
+						]
+					: [];
+			},
+		}),
 	}),
 });
 
@@ -180,6 +220,7 @@ export const {
 	useGetProcessQuery,
 	useGetMemberIdsQuery,
 	useGetAllModulesQuery,
+	useGetSoftwareVersionByCustomerIdQuery,
 	usePostProcessMutation,
 	usePutProcessMutation,
 	usePutMemberMutation,

@@ -16,6 +16,7 @@ import {
 	DialogActions,
 	DialogContent,
 	DialogTitle,
+	TextField,
 } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -30,11 +31,14 @@ import {
 	convertToAPIDateFormat,
 	getDeploymentProcessStatusTransKey,
 	HideDuration,
+	isValidLength,
 	parseToDayjs,
 	PathHolders,
+	TextLength,
 } from '../../utils';
 import {
 	useCreateFile,
+	useCreateSoftwareLicense,
 	useGetAllModulesInProcess,
 	useGetAllPhaseAttachments,
 	useGetAllUsersByRole,
@@ -56,6 +60,8 @@ import {
 } from '@mui/x-data-grid';
 import { useGetAllPhasesByProcessIdQuery } from '../../services/deployment-phase';
 import dayjs from 'dayjs';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+
 interface TabPanelProps {
 	children?: React.ReactNode;
 	index: number;
@@ -85,7 +91,13 @@ function a11yProps(index: number) {
 	};
 }
 
-function PhaseTab({ phases }: { phases: DeploymentPhase[] }) {
+function PhaseTab({
+	processId,
+	phases,
+}: {
+	processId: number;
+	phases: DeploymentPhase[];
+}) {
 	const { t } = useTranslation('standard');
 	const notifications = useNotifications();
 	const userId = useSession()?.user?.id ?? '';
@@ -94,8 +106,13 @@ function PhaseTab({ phases }: { phases: DeploymentPhase[] }) {
 	const [updateActualDateTrigger, { isLoading: isUpdatingActualDate }] =
 		useUpdateDeploymentPhaseActualDates();
 	const [openDialog, setOpenDialog] = useState(false);
-	const [showCopyrightButton, setShowCopyrightButton] = useState(false);
+	const showCopyrightButton = useMemo(
+		() => phases.every((phase) => phase.isDone),
+		[phases],
+	);
+	const [showLicenseDialog, setShowLicenseDialog] = useState(false);
 	const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
+	const [description, setDescripton] = useState<string | null>(null);
 
 	const membersQuery = useGetDeploymentPhaseMembers(selectedPhaseId!, {
 		skip: !selectedPhaseId,
@@ -132,14 +149,14 @@ function PhaseTab({ phases }: { phases: DeploymentPhase[] }) {
 	const handleStart = async (phaseId: string) => {
 		const currentTime = convertToAPIDateFormat(dayjs());
 		if (!userId) {
-			notifications.show('Lỗi: Không tìm thấy userId!', { severity: 'error' });
+			notifications.show(t('userIdNotFound'), { severity: 'error' });
 			return;
 		}
 
 		await updateActualHandler(
 			{
 				phaseId: phaseId,
-				description: 'Bắt đầu thực hiện',
+				description: description,
 				actualStartDate: currentTime,
 				actualEndDate: null,
 				updatedByUserId: userId,
@@ -199,11 +216,6 @@ function PhaseTab({ phases }: { phases: DeploymentPhase[] }) {
 			notifications.show(t('userIdNotFound'), { severity: 'error' });
 			return;
 		}
-		if (activeStep === phases.length - 1) {
-			setShowCopyrightButton(true);
-		} else {
-			setShowCopyrightButton(false);
-		}
 
 		setLoading(true);
 
@@ -215,7 +227,7 @@ function PhaseTab({ phases }: { phases: DeploymentPhase[] }) {
 		await updateActualHandler(
 			{
 				phaseId: selectedPhaseId,
-				description: 'Hoàn thành giai đoạn',
+				description: description,
 				actualStartDate: actualStartDate,
 				actualEndDate: currentTime,
 				updatedByUserId: userId,
@@ -223,6 +235,8 @@ function PhaseTab({ phases }: { phases: DeploymentPhase[] }) {
 			t('updateDeploymentPhaseActualEndDateSuccess'),
 			t('updateDeploymentPhaseActualEndDateError'),
 		);
+
+		phaseUpdateHistories.refetch();
 
 		const handleFileResult = await handleFileSubmit();
 		if (!handleFileResult) {
@@ -239,9 +253,60 @@ function PhaseTab({ phases }: { phases: DeploymentPhase[] }) {
 		setOpenDialog(false);
 	};
 
-	const handleCreateCopyright = () => {
-		// Handle the creation of copyright logic here
-		console.log('Creating copyright...');
+	const [createLicenseTrigger] = useCreateSoftwareLicense();
+	const [licenseCreating, setLicenseCreating] = useState<
+		Partial<Omit<SoftwareLicenseCreateRequest, 'userId' | 'processId'>>
+	>({});
+
+	const handleCreateLicense = async () => {
+		const validate = () => {
+			if (!licenseCreating.startTimeMs) {
+				notifications.show(t('licenseStartTimeRequire'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+			if (!licenseCreating.endTimeMs) {
+				notifications.show(t('licenseEndTimeRequire'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+			if (!licenseCreating.expireAlertIntervalDay) {
+				notifications.show(t('expireAlertIntervalDayRequire'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+
+			return true;
+		};
+		if (!validate()) return;
+
+		try {
+			await createLicenseTrigger({
+				userId: userId,
+				processId: processId,
+				description: licenseCreating.description,
+				startTimeMs: licenseCreating.startTimeMs!,
+				endTimeMs: licenseCreating.endTimeMs!,
+				expireAlertIntervalDay: licenseCreating.expireAlertIntervalDay!,
+			});
+			notifications.show(t('createLicenseSuccess'), {
+				severity: 'success',
+				autoHideDuration: HideDuration.fast,
+			});
+			setShowLicenseDialog(false);
+		} catch (error) {
+			notifications.show(t('createLicenseError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+			console.error(error);
+		}
 	};
 
 	const memberCols: GridColDef<UserMetadata>[] = useMemo(
@@ -447,49 +512,151 @@ function PhaseTab({ phases }: { phases: DeploymentPhase[] }) {
 										variant="contained"
 										onClick={() => handleComplete(phase.id)}
 										sx={{ mt: 1, mr: 1 }}
-										//disabled={!phase.actualStartDate || !!phase.actualEndDate}
+										// disabled={phase.isDone}
 									>
 										{t('complete')}
 									</Button>
 								</Box>
-								{showCopyrightButton && (
-									<Paper square elevation={3} sx={{ p: 1 }}>
-										<Box
-											sx={{
-												p: 2,
-												display: 'flex',
-												gap: 2,
-												alignItems: 'center',
-											}}
-										>
-											<Stack>
-												<Typography variant="h6">
-													{t('completedAllDeploymentPhase')}
-												</Typography>
-												<Typography variant="body1">
-													{t('canCreateLicense')}
-												</Typography>
-											</Stack>
-											<Button
-												variant="contained"
-												onClick={handleCreateCopyright}
-											>
-												{t('createLicense')}
-											</Button>
-										</Box>
-									</Paper>
-								)}
 							</Guard>
 						</StepContent>
 					</Step>
 				))}
 			</Stepper>
 
+			<Guard requiredRoles={['software_admin']}>
+				{showCopyrightButton && (
+					<Paper square elevation={3} sx={{ p: 1 }}>
+						<Box
+							sx={{
+								p: 2,
+								display: 'flex',
+								gap: 2,
+								alignItems: 'center',
+							}}
+						>
+							<Stack>
+								<Typography variant="h6">
+									{t('completedAllDeploymentPhase')}
+								</Typography>
+								<Typography variant="body1">{t('canCreateLicense')}</Typography>
+							</Stack>
+							<Button
+								variant="contained"
+								onClick={() => setShowLicenseDialog(true)}
+							>
+								{t('createLicense')}
+							</Button>
+						</Box>
+					</Paper>
+				)}
+				<Dialog
+					open={showLicenseDialog}
+					onClose={() => setShowLicenseDialog(false)}
+				>
+					<DialogTitle textAlign={'center'}>{t('createLicense')}</DialogTitle>
+					<DialogContent>
+						<Stack spacing={2} padding={2}>
+							<TextField
+								fullWidth
+								size="medium"
+								label={t('licenseDescription')}
+								helperText={t('hyperTextVeryLong')}
+								value={licenseCreating?.description}
+								onChange={(e) => {
+									const newValue = e.target.value;
+									if (isValidLength(newValue, TextLength.VeryLong))
+										setLicenseCreating((pre) => ({
+											...pre,
+											description: newValue,
+										}));
+								}}
+								placeholder={`${t('enter')} ${t('description').toLowerCase()}...`}
+								multiline
+								rows={4}
+							/>
+							<Stack direction={'row'} spacing={2}>
+								<DateTimePicker
+									disablePast
+									label={t('licenseStartTime')}
+									value={
+										licenseCreating.startTimeMs
+											? dayjs(licenseCreating.startTimeMs)
+											: undefined
+									}
+									onChange={(value) => {
+										if (!value) return;
+
+										setLicenseCreating((pre) => ({
+											...pre,
+											startTimeMs: value.valueOf(),
+										}));
+									}}
+								/>
+								<DateTimePicker
+									label={t('licenseEndTime')}
+									minDateTime={
+										licenseCreating.startTimeMs
+											? dayjs(licenseCreating.startTimeMs)
+											: undefined
+									}
+									value={
+										licenseCreating.endTimeMs
+											? dayjs(licenseCreating.endTimeMs)
+											: undefined
+									}
+									onChange={(value) => {
+										if (!value) return;
+										setLicenseCreating((pre) => ({
+											...pre,
+											endTimeMs: value.valueOf(),
+										}));
+									}}
+								/>
+							</Stack>
+							<TextField
+								required
+								id="num-order"
+								name="numOrder"
+								label={t('expiredAlertIntervalDays')}
+								fullWidth
+								type="number"
+								variant="standard"
+								value={licenseCreating?.expireAlertIntervalDay ?? 0}
+								onChange={(e) => {
+									const numOrder = Number(e.currentTarget.value);
+									if (
+										!Number.isSafeInteger(numOrder) ||
+										numOrder < 0 ||
+										numOrder > 100
+									)
+										return;
+
+									setLicenseCreating((pre) => ({
+										...pre,
+										expireAlertIntervalDay: numOrder,
+									}));
+								}}
+							/>
+						</Stack>
+					</DialogContent>
+					<DialogActions>
+						<Button onClick={() => setShowLicenseDialog(false)} color="primary">
+							{t('cancel')}
+						</Button>
+						<Button onClick={handleCreateLicense} color="primary">
+							{t('submit')}
+						</Button>
+					</DialogActions>
+				</Dialog>
+			</Guard>
+
 			<Typography variant="h6" gutterBottom>
 				{t('progressUpdateHistory')}
 			</Typography>
 			<CustomDataGrid
-				loading={phaseUpdateHistories.isLoading}
+				loading={
+					phaseUpdateHistories.isLoading || phaseUpdateHistories.isFetching
+				}
 				slots={{
 					toolbar: () => (
 						<GridToolbarContainer>
@@ -553,10 +720,29 @@ function PhaseTab({ phases }: { phases: DeploymentPhase[] }) {
 			<Dialog open={openDialog} onClose={handleCancelConfirm}>
 				<DialogTitle>{t('confirmDeploymentPhase')}</DialogTitle>
 				<DialogContent>
-					<Stack spacing={1}>
+					<Stack spacing={2}>
 						<Typography variant="body1">
 							{t('confirmCompleteDeploymentPhase')}
 						</Typography>
+						<Typography variant="subtitle1" mb={1}>
+							{t('description')}
+						</Typography>
+						<Box mb={1}>
+							<TextField
+								fullWidth
+								size="medium"
+								helperText={t('hyperTextVeryLong')}
+								value={description}
+								onChange={(e) => {
+									const newValue = e.target.value;
+									if (isValidLength(newValue, TextLength.VeryLong))
+										setDescripton(newValue);
+								}}
+								placeholder={`${t('enter')} ${t('description').toLowerCase()}...`}
+								multiline
+								rows={4}
+							/>
+						</Box>
 						<Typography variant="body1">{t('attachment')}:</Typography>
 						<DragAndDropForm onFilesChange={(files) => setAddedFiles(files)} />
 					</Stack>
@@ -578,119 +764,6 @@ function PhaseTab({ phases }: { phases: DeploymentPhase[] }) {
 		</Stack>
 	);
 }
-
-const DeploymentProcessDetailPage = () => {
-	const { t } = useTranslation();
-	const [value, setValue] = React.useState(0);
-	const notifications = useNotifications();
-	const processId = useParams()[PathHolders.DEPLOYMENT_PROCESS_ID];
-	const numericProcessId = processId ? Number(processId) : undefined;
-
-	const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-		setValue(newValue);
-	};
-
-	const deploymentProcess = useGetDeploymentProcess(processId!, {
-		skip: !processId,
-	});
-	useEffect(() => {
-		if (deploymentProcess.isError)
-			notifications.show(t('fetchError'), {
-				severity: 'error',
-				autoHideDuration: HideDuration.fast,
-			});
-	}, [notifications, deploymentProcess.isError, t]);
-
-	const phasesQuery = useGetAllPhasesByProcessIdQuery(
-		{ processId: numericProcessId || 0 },
-		{
-			skip: !numericProcessId,
-		},
-	);
-	useEffect(() => {
-		if (phasesQuery.isError)
-			notifications.show(t('fetchError'), {
-				severity: 'error',
-				autoHideDuration: HideDuration.fast,
-			});
-	}, [notifications, phasesQuery.isError, t]);
-
-	return (
-		<Container>
-			<Typography variant="h5" align="center" gutterBottom>
-				<strong>{t('deploymentProcessInfor')}</strong>
-			</Typography>
-			<Stack direction={'row'} justifyContent={'space-between'}>
-				<Stack>
-					<Typography>
-						<strong>{t('customer')}:</strong>{' '}
-						{deploymentProcess.data?.customer.name}
-					</Typography>
-					<Typography>
-						<strong>{t('status')}:</strong>{' '}
-						{deploymentProcess.data?.status &&
-							t(
-								getDeploymentProcessStatusTransKey(
-									deploymentProcess.data?.status,
-								),
-							)}
-					</Typography>
-				</Stack>
-				<Stack>
-					<Typography>
-						<strong>{t('software')}:</strong>{' '}
-						{deploymentProcess.data?.software.name}
-					</Typography>
-					<Typography>
-						<strong>{t('version')}:</strong>{' '}
-						{deploymentProcess.data?.software.version}
-					</Typography>
-				</Stack>
-				<Stack>
-					<Typography>
-						<strong>{t('dateCreated')}:</strong>{' '}
-						{deploymentProcess.data?.createdAt}
-					</Typography>
-					<Typography>
-						<strong>{t('lastUpdated')}:</strong>{' '}
-						{deploymentProcess.data?.updatedAt}
-					</Typography>
-				</Stack>
-			</Stack>
-
-			<Box sx={{ width: '100%' }}>
-				<Box
-					sx={{
-						borderBottom: 1,
-						borderColor: 'divider',
-						display: 'flex',
-						alignItems: 'center',
-						justifyContent: 'center',
-					}}
-				>
-					<Tabs
-						value={value}
-						onChange={handleChange}
-						aria-label="basic tabs example "
-					>
-						<Tab label={t('currentStep')} {...a11yProps(0)} />
-						<Tab label={t('moduleList')} {...a11yProps(1)} />
-						<Tab label={t('personnelList')} {...a11yProps(2)} />
-					</Tabs>
-				</Box>
-				<CustomTabPanel value={value} index={0}>
-					<PhaseTab phases={phasesQuery.data ?? []} />
-				</CustomTabPanel>
-				<CustomTabPanel value={value} index={1}>
-					<ModuleTab processId={Number(processId)} />
-				</CustomTabPanel>
-				<CustomTabPanel value={value} index={2}>
-					<PersonnelTab processId={Number(processId)} />
-				</CustomTabPanel>
-			</Box>
-		</Container>
-	);
-};
 
 function ModuleTab({ processId }: { processId: number }) {
 	const { t } = useTranslation('standard');
@@ -888,5 +961,646 @@ function PersonnelTab({ processId }: { processId: number }) {
 		</>
 	);
 }
+
+function LicenseTab({
+	processId,
+	phases,
+}: {
+	processId: number;
+	phases: DeploymentPhase[];
+}) {
+	const { t } = useTranslation('standard');
+	const notifications = useNotifications();
+	const userId = useSession()?.user?.id ?? '';
+	const [activeStep, setActiveStep] = React.useState(0);
+	const [loading, setLoading] = useState(false);
+	const [updateActualDateTrigger, { isLoading: isUpdatingActualDate }] =
+		useUpdateDeploymentPhaseActualDates();
+	const [openDialog, setOpenDialog] = useState(false);
+	const showCopyrightButton = useMemo(
+		() => phases.every((phase) => phase.isDone),
+		[phases],
+	);
+	const [showLicenseDialog, setShowLicenseDialog] = useState(false);
+	const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
+	const [description, setDescripton] = useState<string | null>(null);
+
+	const membersQuery = useGetDeploymentPhaseMembers(selectedPhaseId!, {
+		skip: !selectedPhaseId,
+	});
+
+	useEffect(() => {
+		setSelectedPhaseId(phases[activeStep]?.id);
+	}, [activeStep, phases]);
+
+	const updateActualHandler = useCallback(
+		async (
+			request: DeploymentPhaseUpdateActualDatesRequest,
+			successText: string,
+			errorText: string,
+		) => {
+			try {
+				await updateActualDateTrigger(request).unwrap();
+
+				notifications.show(successText, {
+					severity: 'success',
+					autoHideDuration: HideDuration.fast,
+				});
+			} catch (error) {
+				console.error(error);
+				notifications.show(errorText, {
+					severity: 'error',
+					autoHideDuration: HideDuration.fast,
+				});
+			}
+		},
+		[notifications, updateActualDateTrigger],
+	);
+
+	const handleStart = async (phaseId: string) => {
+		const currentTime = convertToAPIDateFormat(dayjs());
+		if (!userId) {
+			notifications.show(t('userIdNotFound'), { severity: 'error' });
+			return;
+		}
+
+		await updateActualHandler(
+			{
+				phaseId: phaseId,
+				description: description,
+				actualStartDate: currentTime,
+				actualEndDate: null,
+				updatedByUserId: userId,
+			},
+			t('updateDeploymentPhaseActualStartDateSuccess'),
+			t('updateDeploymentPhaseActualStartDateError'),
+		);
+	};
+
+	const handleComplete = (phaseId: string) => {
+		setSelectedPhaseId(phaseId);
+		setOpenDialog(true);
+	};
+
+	const attachments = useGetAllPhaseAttachments(selectedPhaseId!, {
+		skip: !selectedPhaseId,
+	});
+	const [addedFiles, setAddedFiles] = useState<File[]>([]);
+	const [updateAttachmentTrigger] = useUpdateDeploymentPhaseAttachment();
+	const [uploadFileTrigger] = useCreateFile();
+
+	const handleFileSubmit = async () => {
+		if (!selectedPhaseId) return false;
+
+		if (addedFiles.length > 0) {
+			try {
+				const fileIds = await Promise.all(
+					addedFiles.map((file) => {
+						return uploadFileTrigger({ userId, file }).unwrap();
+					}),
+				);
+				await Promise.all(
+					fileIds.map((fileId) =>
+						updateAttachmentTrigger({
+							phaseId: selectedPhaseId,
+							attachmentId: fileId,
+							operator: 'ADD',
+						}).unwrap(),
+					),
+				);
+			} catch (error) {
+				notifications.show(t('uploadedFileError'), {
+					severity: 'error',
+					autoHideDuration: HideDuration.fast,
+				});
+				console.log(error);
+				return false;
+			}
+		}
+
+		return true;
+	};
+
+	const handleConfirm = async () => {
+		if (!selectedPhaseId) return;
+		if (!userId) {
+			notifications.show(t('userIdNotFound'), { severity: 'error' });
+			return;
+		}
+
+		setLoading(true);
+
+		const currentTime = convertToAPIDateFormat(dayjs());
+
+		const currentPhase = phases.find((phase) => phase.id === selectedPhaseId);
+		const actualStartDate = currentPhase?.actualStartDate ?? null;
+
+		await updateActualHandler(
+			{
+				phaseId: selectedPhaseId,
+				description: description,
+				actualStartDate: actualStartDate,
+				actualEndDate: currentTime,
+				updatedByUserId: userId,
+			},
+			t('updateDeploymentPhaseActualEndDateSuccess'),
+			t('updateDeploymentPhaseActualEndDateError'),
+		);
+
+		phaseUpdateHistories.refetch();
+
+		const handleFileResult = await handleFileSubmit();
+		if (!handleFileResult) {
+			setAddedFiles([]);
+			setLoading(false);
+			return;
+		}
+
+		setLoading(false);
+		setOpenDialog(false);
+	};
+
+	const handleCancelConfirm = () => {
+		setOpenDialog(false);
+	};
+
+	const [createLicenseTrigger] = useCreateSoftwareLicense();
+	const [licenseCreating, setLicenseCreating] = useState<
+		Partial<Omit<SoftwareLicenseCreateRequest, 'userId' | 'processId'>>
+	>({});
+
+	const handleCreateLicense = async () => {
+		const validate = () => {
+			if (!licenseCreating.startTimeMs) {
+				notifications.show(t('licenseStartTimeRequire'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+			if (!licenseCreating.endTimeMs) {
+				notifications.show(t('licenseEndTimeRequire'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+			if (!licenseCreating.expireAlertIntervalDay) {
+				notifications.show(t('expireAlertIntervalDayRequire'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+
+			return true;
+		};
+		if (!validate()) return;
+
+		try {
+			await createLicenseTrigger({
+				userId: userId,
+				processId: processId,
+				description: licenseCreating.description,
+				startTimeMs: licenseCreating.startTimeMs!,
+				endTimeMs: licenseCreating.endTimeMs!,
+				expireAlertIntervalDay: licenseCreating.expireAlertIntervalDay!,
+			});
+			notifications.show(t('createLicenseSuccess'), {
+				severity: 'success',
+				autoHideDuration: HideDuration.fast,
+			});
+			setShowLicenseDialog(false);
+		} catch (error) {
+			notifications.show(t('createLicenseError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+			console.error(error);
+		}
+	};
+
+	const memberCols: GridColDef<UserMetadata>[] = useMemo(
+		() => [
+			{
+				field: 'fullName',
+				headerName: t('fullName'),
+				editable: false,
+				width: 200,
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return `${row.lastName || ''} ${row.firstName || ''}`;
+				},
+			},
+			{
+				field: 'email',
+				editable: false,
+				minWidth: 200,
+				headerName: t('emailAddress'),
+				type: 'string',
+			},
+		],
+		[t],
+	);
+
+	const [phaseUpdateHistoriesQuery, setPhaseUpdateHistoriesQuery] =
+		useState<GetAllDeploymentPhaseUpdateHistoriesQuery>({
+			processId: 1,
+			pageNumber: 0,
+			pageSize: 5,
+		});
+	const phaseUpdateHistories = useGetDeploymentPhaseUpdateHistories(
+		phaseUpdateHistoriesQuery,
+	);
+	const historyCols: GridColDef<DeploymentPhaseUpdateHistory>[] = useMemo(
+		() => [
+			{
+				field: 'phaseType',
+				editable: false,
+				sortable: false,
+				minWidth: 200,
+				headerName: t('phase'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.phase.type.name;
+				},
+			},
+			{
+				field: 'description',
+				headerName: t('description'),
+				editable: false,
+				sortable: false,
+
+				width: 250,
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.description ?? '';
+				},
+			},
+			{
+				field: 'updater',
+				headerName: t('updater'),
+				editable: false,
+				sortable: false,
+				filterable: false,
+				width: 200,
+				type: 'string',
+				valueGetter: (_value, row) => {
+					const user = row.userPerformed;
+					return `${user.lastName} ${user.firstName}`;
+				},
+			},
+			{
+				field: 'email',
+				editable: false,
+				sortable: false,
+				filterable: false,
+				minWidth: 200,
+				headerName: t('emailAddress'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					const user = row.userPerformed;
+					return user.email;
+				},
+			},
+			{
+				field: 'updatedAt',
+				editable: false,
+				sortable: false,
+				filterable: false,
+				minWidth: 200,
+				headerName: t('updatedDate'),
+				type: 'dateTime',
+				valueGetter: (_value, row) => {
+					return new Date(row.updatedAt);
+				},
+			},
+		],
+		[t],
+	);
+
+	return (
+		<Stack width={'100%'} spacing={2}>
+			{isUpdatingActualDate && <LinearProgress />}
+
+			<Guard requiredRoles={['software_admin']}>
+				{showCopyrightButton && (
+					<Paper square elevation={3} sx={{ p: 1 }}>
+						<Box
+							sx={{
+								p: 2,
+								display: 'flex',
+								gap: 2,
+								alignItems: 'center',
+							}}
+						>
+							<Stack>
+								<Typography variant="h6">
+									{t('completedAllDeploymentPhase')}
+								</Typography>
+								<Typography variant="body1">{t('canCreateLicense')}</Typography>
+							</Stack>
+							<Button
+								variant="contained"
+								onClick={() => setShowLicenseDialog(true)}
+							>
+								{t('createLicense')}
+							</Button>
+						</Box>
+					</Paper>
+				)}
+				<Dialog
+					open={showLicenseDialog}
+					onClose={() => setShowLicenseDialog(false)}
+				>
+					<DialogTitle textAlign={'center'}>{t('createLicense')}</DialogTitle>
+					<DialogContent>
+						<Stack spacing={2} padding={2}>
+							<TextField
+								fullWidth
+								size="medium"
+								label={t('licenseDescription')}
+								helperText={t('hyperTextVeryLong')}
+								value={licenseCreating?.description}
+								onChange={(e) => {
+									const newValue = e.target.value;
+									if (isValidLength(newValue, TextLength.VeryLong))
+										setLicenseCreating((pre) => ({
+											...pre,
+											description: newValue,
+										}));
+								}}
+								placeholder={`${t('enter')} ${t('description').toLowerCase()}...`}
+								multiline
+								rows={4}
+							/>
+							<Stack direction={'row'} spacing={2}>
+								<DateTimePicker
+									disablePast
+									label={t('licenseStartTime')}
+									value={
+										licenseCreating.startTimeMs
+											? dayjs(licenseCreating.startTimeMs)
+											: undefined
+									}
+									onChange={(value) => {
+										if (!value) return;
+
+										setLicenseCreating((pre) => ({
+											...pre,
+											startTimeMs: value.valueOf(),
+										}));
+									}}
+								/>
+								<DateTimePicker
+									label={t('licenseEndTime')}
+									minDateTime={
+										licenseCreating.startTimeMs
+											? dayjs(licenseCreating.startTimeMs)
+											: undefined
+									}
+									value={
+										licenseCreating.endTimeMs
+											? dayjs(licenseCreating.endTimeMs)
+											: undefined
+									}
+									onChange={(value) => {
+										if (!value) return;
+										setLicenseCreating((pre) => ({
+											...pre,
+											endTimeMs: value.valueOf(),
+										}));
+									}}
+								/>
+							</Stack>
+							<TextField
+								required
+								id="num-order"
+								name="numOrder"
+								label={t('expiredAlertIntervalDays')}
+								fullWidth
+								type="number"
+								variant="standard"
+								value={licenseCreating?.expireAlertIntervalDay ?? 0}
+								onChange={(e) => {
+									const numOrder = Number(e.currentTarget.value);
+									if (
+										!Number.isSafeInteger(numOrder) ||
+										numOrder < 0 ||
+										numOrder > 100
+									)
+										return;
+
+									setLicenseCreating((pre) => ({
+										...pre,
+										expireAlertIntervalDay: numOrder,
+									}));
+								}}
+							/>
+						</Stack>
+					</DialogContent>
+					<DialogActions>
+						<Button onClick={() => setShowLicenseDialog(false)} color="primary">
+							{t('cancel')}
+						</Button>
+						<Button onClick={handleCreateLicense} color="primary">
+							{t('submit')}
+						</Button>
+					</DialogActions>
+				</Dialog>
+			</Guard>
+
+			<Typography variant="h6" gutterBottom>
+				{t('progressUpdateHistory')}
+			</Typography>
+			<CustomDataGrid
+				loading={
+					phaseUpdateHistories.isLoading || phaseUpdateHistories.isFetching
+				}
+				slots={{
+					toolbar: () => (
+						<GridToolbarContainer>
+							<GridToolbarFilterButton />
+							<GridToolbarDensitySelector />
+							<GridToolbarColumnsButton />
+						</GridToolbarContainer>
+					),
+				}}
+				getRowId={(row) =>
+					`${row.numOrder}-${row.phase.id}-${row.userPerformed.id}`
+				}
+				rows={phaseUpdateHistories.data?.content ?? []}
+				columns={historyCols}
+				rowCount={phaseUpdateHistories.data?.totalElements ?? 0}
+				paginationMeta={{ hasNextPage: !phaseUpdateHistories.data?.last }}
+				paginationMode="server"
+				paginationModel={{
+					page: phaseUpdateHistoriesQuery.pageNumber ?? 0,
+					pageSize: phaseUpdateHistoriesQuery.pageSize ?? 5,
+				}}
+				onPaginationModelChange={(model) => {
+					setPhaseUpdateHistoriesQuery((prev) => ({
+						...prev,
+						pageNumber: model.page,
+						pageSize: model.pageSize,
+					}));
+				}}
+				pageSizeOptions={[5, 10, 15]}
+				filterMode="server"
+				onFilterModelChange={(model) => {
+					const value = model.items.reduce(
+						(acc, item) => {
+							if (item.field === 'description') {
+								return {
+									...acc,
+									description: item.value,
+								};
+							}
+							if (item.field === 'phaseType')
+								return {
+									...acc,
+									phaseTypeName: item.value,
+								};
+							return acc;
+						},
+						{ description: '', phaseTypeName: '' },
+					);
+					setPhaseUpdateHistoriesQuery((prev) => ({ ...prev, ...value }));
+				}}
+				initialState={{
+					pagination: {
+						paginationModel: {
+							page: 0,
+							pageSize: 5,
+						},
+					},
+				}}
+			/>
+		</Stack>
+	);
+}
+
+const DeploymentProcessDetailPage = () => {
+	const { t } = useTranslation();
+	const [value, setValue] = React.useState(0);
+	const notifications = useNotifications();
+	const processId = useParams()[PathHolders.DEPLOYMENT_PROCESS_ID];
+	const numericProcessId = processId ? Number(processId) : undefined;
+
+	const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+		setValue(newValue);
+	};
+
+	const deploymentProcess = useGetDeploymentProcess(processId!, {
+		skip: !processId,
+	});
+	useEffect(() => {
+		if (deploymentProcess.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+	}, [notifications, deploymentProcess.isError, t]);
+
+	const phasesQuery = useGetAllPhasesByProcessIdQuery(
+		{ processId: numericProcessId || 0 },
+		{
+			skip: !numericProcessId,
+		},
+	);
+	useEffect(() => {
+		if (phasesQuery.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+	}, [notifications, phasesQuery.isError, t]);
+
+	return (
+		<Container>
+			<Typography variant="h5" align="center" gutterBottom>
+				<strong>{t('deploymentProcessInfor')}</strong>
+			</Typography>
+			<Stack direction={'row'} justifyContent={'space-between'}>
+				<Stack>
+					<Typography>
+						<strong>{t('customer')}:</strong>{' '}
+						{deploymentProcess.data?.customer.name}
+					</Typography>
+					<Typography>
+						<strong>{t('status')}:</strong>{' '}
+						{deploymentProcess.data?.status &&
+							t(
+								getDeploymentProcessStatusTransKey(
+									deploymentProcess.data?.status,
+								),
+							)}
+					</Typography>
+				</Stack>
+				<Stack>
+					<Typography>
+						<strong>{t('software')}:</strong>{' '}
+						{deploymentProcess.data?.software.name}
+					</Typography>
+					<Typography>
+						<strong>{t('version')}:</strong>{' '}
+						{deploymentProcess.data?.software.version}
+					</Typography>
+				</Stack>
+				<Stack>
+					<Typography>
+						<strong>{t('dateCreated')}:</strong>{' '}
+						{deploymentProcess.data?.createdAt}
+					</Typography>
+					<Typography>
+						<strong>{t('lastUpdated')}:</strong>{' '}
+						{deploymentProcess.data?.updatedAt}
+					</Typography>
+				</Stack>
+			</Stack>
+
+			<Box sx={{ width: '100%' }}>
+				<Box
+					sx={{
+						borderBottom: 1,
+						borderColor: 'divider',
+						display: 'flex',
+						alignItems: 'center',
+						justifyContent: 'center',
+					}}
+				>
+					<Tabs
+						value={value}
+						onChange={handleChange}
+						aria-label="basic tabs example "
+					>
+						<Tab label={t('currentStep')} {...a11yProps(0)} />
+						<Tab label={t('moduleList')} {...a11yProps(1)} />
+						<Tab label={t('personnelList')} {...a11yProps(2)} />
+						<Tab label={t('licenseList')} {...a11yProps(3)} />
+					</Tabs>
+				</Box>
+				<CustomTabPanel value={value} index={0}>
+					<PhaseTab
+						processId={Number(processId)}
+						phases={phasesQuery.data ?? []}
+					/>
+				</CustomTabPanel>
+				<CustomTabPanel value={value} index={1}>
+					<ModuleTab processId={Number(processId)} />
+				</CustomTabPanel>
+				<CustomTabPanel value={value} index={2}>
+					<PersonnelTab processId={Number(processId)} />
+				</CustomTabPanel>
+				<CustomTabPanel value={value} index={3}>
+					<LicenseTab
+						processId={Number(processId)}
+						phases={phasesQuery.data ?? []}
+					/>
+				</CustomTabPanel>
+			</Box>
+		</Container>
+	);
+};
 
 export default DeploymentProcessDetailPage;

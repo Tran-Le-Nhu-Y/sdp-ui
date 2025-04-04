@@ -82,7 +82,6 @@ declare interface DeploymentProcessMemberUpdateRequest {
 }
 
 declare type MemberOperator = 'ADD' | 'REMOVE';
-
 declare interface DeploymentPhaseTypeCreateRequest {
 	userId: string;
 	name: string;

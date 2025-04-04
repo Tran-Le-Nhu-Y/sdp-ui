@@ -111,6 +111,17 @@ declare interface ModuleInDeploymentProcess {
 	};
 }
 
+declare interface SoftwareVersionOfDeploymentProcessAndCustomer {
+	processId: number;
+	customerId: string;
+	softwareVersion: {
+		versionId: string;
+		versionName: string;
+		softwareId: string;
+		softwareName: string;
+	};
+}
+
 declare interface DeploymentPhaseType {
 	id: string;
 	name: string;

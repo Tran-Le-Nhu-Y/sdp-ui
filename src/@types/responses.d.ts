@@ -90,6 +90,17 @@ declare interface DeploymentProcessMemberResponse {
 	email: string;
 }
 
+declare interface DeploymentProcessHasSoftwareVersionResponse {
+	processId: number;
+	customerId: string;
+	softwareVersion: {
+		versionId: string;
+		versionName: string;
+		softwareId: string;
+		softwareName: string;
+	};
+}
+
 declare interface DeploymentPhaseResponse {
 	id: string;
 	numOrder: number;
