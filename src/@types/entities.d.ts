@@ -211,6 +211,7 @@ declare interface NotificationHistory {
 
 declare interface SoftwareLicense {
 	id: string;
+	description?: string?;
 	startTime: string;
 	endTime: string;
 	expireAlertIntervalDay: number;

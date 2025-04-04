@@ -39,6 +39,7 @@ import {
 import {
 	useCreateFile,
 	useCreateSoftwareLicense,
+	useGetAllLicensesByProcessId,
 	useGetAllModulesInProcess,
 	useGetAllPhaseAttachments,
 	useGetAllUsersByRole,
@@ -972,157 +973,27 @@ function LicenseTab({
 	const { t } = useTranslation('standard');
 	const notifications = useNotifications();
 	const userId = useSession()?.user?.id ?? '';
-	const [activeStep, setActiveStep] = React.useState(0);
-	const [loading, setLoading] = useState(false);
-	const [updateActualDateTrigger, { isLoading: isUpdatingActualDate }] =
-		useUpdateDeploymentPhaseActualDates();
-	const [openDialog, setOpenDialog] = useState(false);
+	const [showLicenseDialog, setShowLicenseDialog] = useState(false);
 	const showCopyrightButton = useMemo(
 		() => phases.every((phase) => phase.isDone),
 		[phases],
 	);
-	const [showLicenseDialog, setShowLicenseDialog] = useState(false);
-	const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
-	const [description, setDescripton] = useState<string | null>(null);
-
-	const membersQuery = useGetDeploymentPhaseMembers(selectedPhaseId!, {
-		skip: !selectedPhaseId,
+	const [licenseQuery, setLicenseQuery] =
+		useState<GetAllProcessSoftwareLicensesQuery>({
+			processId: processId,
+			pageNumber: 0,
+			pageSize: 5,
+		});
+	const licenses = useGetAllLicensesByProcessId(licenseQuery!, {
+		skip: !licenseQuery,
 	});
-
 	useEffect(() => {
-		setSelectedPhaseId(phases[activeStep]?.id);
-	}, [activeStep, phases]);
-
-	const updateActualHandler = useCallback(
-		async (
-			request: DeploymentPhaseUpdateActualDatesRequest,
-			successText: string,
-			errorText: string,
-		) => {
-			try {
-				await updateActualDateTrigger(request).unwrap();
-
-				notifications.show(successText, {
-					severity: 'success',
-					autoHideDuration: HideDuration.fast,
-				});
-			} catch (error) {
-				console.error(error);
-				notifications.show(errorText, {
-					severity: 'error',
-					autoHideDuration: HideDuration.fast,
-				});
-			}
-		},
-		[notifications, updateActualDateTrigger],
-	);
-
-	const handleStart = async (phaseId: string) => {
-		const currentTime = convertToAPIDateFormat(dayjs());
-		if (!userId) {
-			notifications.show(t('userIdNotFound'), { severity: 'error' });
-			return;
-		}
-
-		await updateActualHandler(
-			{
-				phaseId: phaseId,
-				description: description,
-				actualStartDate: currentTime,
-				actualEndDate: null,
-				updatedByUserId: userId,
-			},
-			t('updateDeploymentPhaseActualStartDateSuccess'),
-			t('updateDeploymentPhaseActualStartDateError'),
-		);
-	};
-
-	const handleComplete = (phaseId: string) => {
-		setSelectedPhaseId(phaseId);
-		setOpenDialog(true);
-	};
-
-	const attachments = useGetAllPhaseAttachments(selectedPhaseId!, {
-		skip: !selectedPhaseId,
-	});
-	const [addedFiles, setAddedFiles] = useState<File[]>([]);
-	const [updateAttachmentTrigger] = useUpdateDeploymentPhaseAttachment();
-	const [uploadFileTrigger] = useCreateFile();
-
-	const handleFileSubmit = async () => {
-		if (!selectedPhaseId) return false;
-
-		if (addedFiles.length > 0) {
-			try {
-				const fileIds = await Promise.all(
-					addedFiles.map((file) => {
-						return uploadFileTrigger({ userId, file }).unwrap();
-					}),
-				);
-				await Promise.all(
-					fileIds.map((fileId) =>
-						updateAttachmentTrigger({
-							phaseId: selectedPhaseId,
-							attachmentId: fileId,
-							operator: 'ADD',
-						}).unwrap(),
-					),
-				);
-			} catch (error) {
-				notifications.show(t('uploadedFileError'), {
-					severity: 'error',
-					autoHideDuration: HideDuration.fast,
-				});
-				console.log(error);
-				return false;
-			}
-		}
-
-		return true;
-	};
-
-	const handleConfirm = async () => {
-		if (!selectedPhaseId) return;
-		if (!userId) {
-			notifications.show(t('userIdNotFound'), { severity: 'error' });
-			return;
-		}
-
-		setLoading(true);
-
-		const currentTime = convertToAPIDateFormat(dayjs());
-
-		const currentPhase = phases.find((phase) => phase.id === selectedPhaseId);
-		const actualStartDate = currentPhase?.actualStartDate ?? null;
-
-		await updateActualHandler(
-			{
-				phaseId: selectedPhaseId,
-				description: description,
-				actualStartDate: actualStartDate,
-				actualEndDate: currentTime,
-				updatedByUserId: userId,
-			},
-			t('updateDeploymentPhaseActualEndDateSuccess'),
-			t('updateDeploymentPhaseActualEndDateError'),
-		);
-
-		phaseUpdateHistories.refetch();
-
-		const handleFileResult = await handleFileSubmit();
-		if (!handleFileResult) {
-			setAddedFiles([]);
-			setLoading(false);
-			return;
-		}
-
-		setLoading(false);
-		setOpenDialog(false);
-	};
-
-	const handleCancelConfirm = () => {
-		setOpenDialog(false);
-	};
+		if (licenses.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+	}, [notifications, licenses.isError, t]);
 
 	const [createLicenseTrigger] = useCreateSoftwareLicense();
 	const [licenseCreating, setLicenseCreating] = useState<
@@ -1180,51 +1051,8 @@ function LicenseTab({
 		}
 	};
 
-	const memberCols: GridColDef<UserMetadata>[] = useMemo(
+	const licenseCols: GridColDef<SoftwareLicense>[] = useMemo(
 		() => [
-			{
-				field: 'fullName',
-				headerName: t('fullName'),
-				editable: false,
-				width: 200,
-				type: 'string',
-				valueGetter: (_value, row) => {
-					return `${row.lastName || ''} ${row.firstName || ''}`;
-				},
-			},
-			{
-				field: 'email',
-				editable: false,
-				minWidth: 200,
-				headerName: t('emailAddress'),
-				type: 'string',
-			},
-		],
-		[t],
-	);
-
-	const [phaseUpdateHistoriesQuery, setPhaseUpdateHistoriesQuery] =
-		useState<GetAllDeploymentPhaseUpdateHistoriesQuery>({
-			processId: 1,
-			pageNumber: 0,
-			pageSize: 5,
-		});
-	const phaseUpdateHistories = useGetDeploymentPhaseUpdateHistories(
-		phaseUpdateHistoriesQuery,
-	);
-	const historyCols: GridColDef<DeploymentPhaseUpdateHistory>[] = useMemo(
-		() => [
-			{
-				field: 'phaseType',
-				editable: false,
-				sortable: false,
-				minWidth: 200,
-				headerName: t('phase'),
-				type: 'string',
-				valueGetter: (_value, row) => {
-					return row.phase.type.name;
-				},
-			},
 			{
 				field: 'description',
 				headerName: t('description'),
@@ -1238,29 +1066,51 @@ function LicenseTab({
 				},
 			},
 			{
-				field: 'updater',
-				headerName: t('updater'),
+				field: 'startTime',
+				headerName: t('licenseStartTime'),
 				editable: false,
 				sortable: false,
 				filterable: false,
 				width: 200,
 				type: 'string',
 				valueGetter: (_value, row) => {
-					const user = row.userPerformed;
-					return `${user.lastName} ${user.firstName}`;
+					return row.startTime ?? '';
 				},
 			},
 			{
-				field: 'email',
+				field: 'endTime',
 				editable: false,
 				sortable: false,
 				filterable: false,
 				minWidth: 200,
-				headerName: t('emailAddress'),
+				headerName: t('licenseEndTime'),
 				type: 'string',
 				valueGetter: (_value, row) => {
-					const user = row.userPerformed;
-					return user.email;
+					return row.endTime ?? '';
+				},
+			},
+			{
+				field: 'expireAlertIntervalDay',
+				editable: false,
+				sortable: false,
+				filterable: false,
+				minWidth: 200,
+				headerName: t('expiredAlertIntervalDays'),
+				type: 'number',
+				valueGetter: (_value, row) => {
+					return `${row.expireAlertIntervalDay ?? ''} ${t('days')}`;
+				},
+			},
+			{
+				field: 'createdAt',
+				editable: false,
+				sortable: false,
+				filterable: false,
+				minWidth: 200,
+				headerName: t('dateCreated'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.createdAt ?? '';
 				},
 			},
 			{
@@ -1270,9 +1120,9 @@ function LicenseTab({
 				filterable: false,
 				minWidth: 200,
 				headerName: t('updatedDate'),
-				type: 'dateTime',
+				type: 'string',
 				valueGetter: (_value, row) => {
-					return new Date(row.updatedAt);
+					return row.updatedAt ?? '';
 				},
 			},
 		],
@@ -1281,8 +1131,6 @@ function LicenseTab({
 
 	return (
 		<Stack width={'100%'} spacing={2}>
-			{isUpdatingActualDate && <LinearProgress />}
-
 			<Guard requiredRoles={['software_admin']}>
 				{showCopyrightButton && (
 					<Paper square elevation={3} sx={{ p: 1 }}>
@@ -1410,13 +1258,8 @@ function LicenseTab({
 				</Dialog>
 			</Guard>
 
-			<Typography variant="h6" gutterBottom>
-				{t('progressUpdateHistory')}
-			</Typography>
 			<CustomDataGrid
-				loading={
-					phaseUpdateHistories.isLoading || phaseUpdateHistories.isFetching
-				}
+				loading={licenses.isLoading || licenses.isFetching}
 				slots={{
 					toolbar: () => (
 						<GridToolbarContainer>
@@ -1427,19 +1270,19 @@ function LicenseTab({
 					),
 				}}
 				getRowId={(row) =>
-					`${row.numOrder}-${row.phase.id}-${row.userPerformed.id}`
+					`${row.id}-${row.description}-${row.startTime}-${row.endTime}`
 				}
-				rows={phaseUpdateHistories.data?.content ?? []}
-				columns={historyCols}
-				rowCount={phaseUpdateHistories.data?.totalElements ?? 0}
-				paginationMeta={{ hasNextPage: !phaseUpdateHistories.data?.last }}
+				rows={licenses.data?.content ?? []}
+				columns={licenseCols}
+				rowCount={licenses.data?.totalElements ?? 0}
+				paginationMeta={{ hasNextPage: !licenses.data?.last }}
 				paginationMode="server"
 				paginationModel={{
-					page: phaseUpdateHistoriesQuery.pageNumber ?? 0,
-					pageSize: phaseUpdateHistoriesQuery.pageSize ?? 5,
+					page: licenseQuery.pageNumber ?? 0,
+					pageSize: licenseQuery.pageSize ?? 5,
 				}}
 				onPaginationModelChange={(model) => {
-					setPhaseUpdateHistoriesQuery((prev) => ({
+					setLicenseQuery((prev) => ({
 						...prev,
 						pageNumber: model.page,
 						pageSize: model.pageSize,
@@ -1465,7 +1308,7 @@ function LicenseTab({
 						},
 						{ description: '', phaseTypeName: '' },
 					);
-					setPhaseUpdateHistoriesQuery((prev) => ({ ...prev, ...value }));
+					setLicenseQuery((prev) => ({ ...prev, ...value }));
 				}}
 				initialState={{
 					pagination: {
