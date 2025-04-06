@@ -12,7 +12,7 @@ import { Outlet } from 'react-router';
 import WysiwygIcon from '@mui/icons-material/Wysiwyg';
 import Diversity1Icon from '@mui/icons-material/Diversity1';
 import DnsIcon from '@mui/icons-material/Dns';
-import DashboardIcon from '@mui/icons-material/Dashboard';
+// import DashboardIcon from '@mui/icons-material/Dashboard';
 import LabelIcon from '@mui/icons-material/Label';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import ContactMailIcon from '@mui/icons-material/ContactMail';
@@ -231,7 +231,7 @@ function App() {
 			userId: session?.user?.id ?? '',
 			isRead: false,
 		},
-		{ skip: !session }
+		{ skip: !session },
 	);
 
 	useEffect(() => {
@@ -246,17 +246,17 @@ function App() {
 	}, [session]);
 
 	const navigation: Navigation = useMemo(() => {
-		const globalNavs = [
-			{
-				segment: 'overview',
-				title: t('overview'),
-				icon: <DashboardIcon />,
-			},
-		];
+		// const globalNavs = [
+		// 	{
+		// 		segment: 'overview',
+		// 		title: t('overview'),
+		// 		icon: <DashboardIcon />,
+		// 	},
+		// ];
 
 		if (checkRoles({ requiredRoles: ['software_admin'] }))
 			return [
-				...globalNavs,
+				// ...globalNavs,
 				{
 					segment: 'customer',
 					title: t('customer'),
@@ -324,7 +324,7 @@ function App() {
 						<Tooltip arrow title={t('numOfUnreadNotification')}>
 							<Chip
 								label={totalHistories <= 99 ? totalHistories : '99+'}
-								color="primary"
+								color="error"
 								size="small"
 							/>
 						</Tooltip>
@@ -333,7 +333,7 @@ function App() {
 			];
 		else if (checkRoles({ requiredRoles: ['deployment_person'] }))
 			return [
-				...globalNavs,
+				// ...globalNavs,
 				{
 					segment: 'deployment/process',
 					title: t('deploymentProcess'),
@@ -348,7 +348,7 @@ function App() {
 						<Tooltip arrow title={t('numOfUnreadNotification')}>
 							<Chip
 								label={totalHistories <= 99 ? totalHistories : '99+'}
-								color="primary"
+								color="error"
 								size="small"
 							/>
 						</Tooltip>

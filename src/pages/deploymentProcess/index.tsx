@@ -58,7 +58,7 @@ export default function DeploymentProcessPage() {
 				cancelText: t('cancel'),
 				severity: 'error',
 				title: t('deleteDeploymentProcess'),
-			}
+			},
 		);
 		if (!confirmed) return;
 
@@ -81,8 +81,8 @@ export default function DeploymentProcessPage() {
 		navigate(
 			RoutePaths.SETUP_DEPLOYMENT_PROCESS.replace(
 				`:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
-				`${processId}`
-			)
+				`${processId}`,
+			),
 		);
 	};
 
@@ -90,8 +90,8 @@ export default function DeploymentProcessPage() {
 		navigate(
 			RoutePaths.DEPLOYMENT_PROCESS_DETAIL.replace(
 				`:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
-				`${processId}`
-			)
+				`${processId}`,
+			),
 		);
 	};
 
@@ -194,6 +194,12 @@ export default function DeploymentProcessPage() {
 
 						<TableCell>
 							<Stack direction="row">
+								<IconButton
+									size="small"
+									onClick={() => handleViewProcess(row.id)}
+								>
+									<RemoveRedEyeIcon color="info" />
+								</IconButton>
 								<Guard requiredRoles={['software_admin']}>
 									<IconButton
 										size="small"
@@ -206,14 +212,6 @@ export default function DeploymentProcessPage() {
 										onClick={() => handleDeleteProcess(row.id)}
 									>
 										<DeleteIcon color="error" />
-									</IconButton>
-								</Guard>
-								<Guard requiredRoles={['deployment_person']}>
-									<IconButton
-										size="small"
-										onClick={() => handleViewProcess(row.id)}
-									>
-										<RemoveRedEyeIcon color="info" />
 									</IconButton>
 								</Guard>
 							</Stack>

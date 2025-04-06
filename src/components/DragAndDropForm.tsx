@@ -41,7 +41,7 @@ export interface DragAndDropFormProps {
 export const DragAndDropForm: React.FC<DragAndDropFormProps> = ({
 	onFilesChange,
 }) => {
-	const { t } = useTranslation();
+	const { t } = useTranslation('standard');
 
 	const [files, setFiles] = useState<FileAttachment[]>([]);
 	const fileInputRef = useRef<HTMLInputElement>(null);
@@ -52,9 +52,9 @@ export const DragAndDropForm: React.FC<DragAndDropFormProps> = ({
 			const size = file.size;
 			return {
 				id: Date.now() + Math.random(),
-				status: size > 3000000 ? 'failed' : 'loading',
-				progress: size > 3000000 ? 0 : 0,
-				error: size > 3000000 ? 'File too large' : undefined,
+				status: size > FILE_MAX_BYTES ? 'failed' : 'loading',
+				progress: size > FILE_MAX_BYTES ? 0 : 0,
+				error: size > FILE_MAX_BYTES ? 'File too large' : undefined,
 				file: file,
 			};
 		});
@@ -198,9 +198,12 @@ export const DragAndDropForm: React.FC<DragAndDropFormProps> = ({
 				type="file"
 				ref={fileInputRef}
 				accept={SUPPORTED_FILE_TYPES.join(',')}
-				onChange={(e) =>
-					e.target.files && selectFileHandler(Array.from(e.target.files))
-				}
+				onChange={(e) => {
+					if (e.target.files) {
+						selectFileHandler(Array.from(e.target.files));
+						e.target.value = ''; // Clear the input value after selection
+					}
+				}}
 			/>
 		</Paper>
 	);

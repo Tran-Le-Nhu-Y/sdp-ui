@@ -15,12 +15,13 @@ export const AttachmentList = ({
 			sx={{
 				marginTop: 2,
 				display: 'flex',
-				flexDirection: 'column',
+				flexDirection: 'row',
 				gap: 1,
 				border: '1px solid #ccc',
 				borderRadius: 1,
 				maxHeight: 350,
-				overflowY: 'auto',
+				width: '100%',
+				overflowX: 'auto',
 			}}
 		>
 			{attachments.map((file) => (

@@ -1,15 +1,23 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { toEntity } from './mapper/deployment-phase';
+import { toEntity, toHistoryEntity } from './mapper/deployment-phase-mapper';
 import { axiosBaseQuery, axiosQueryHandler } from '../utils';
 import { sdpInstance } from './instance';
 import { getMetadata as getFileMetadata } from './api/file-api';
 import { toEntity as toFileMetadata } from './mapper/file-mapper';
+import { getUserMetadata } from './api/keycloak-api';
 
 const EXTENSION_URL = 'v1/software/deployment-process/phase';
 export const deploymentPhaseApi = createApi({
 	reducerPath: 'deploymentPhaseApi',
 	baseQuery: axiosBaseQuery(sdpInstance),
-	tagTypes: ['ProcessPhases', 'DeploymentPhase', 'Member', 'Attachment'],
+	tagTypes: [
+		'ProcessPhases',
+		'DeploymentPhase',
+		'Member',
+		'MemberId',
+		'Attachment',
+		'UpdateHistories',
+	],
 	endpoints: (builder) => ({
 		getAllPhasesByProcessId: builder.query<
 			Array<DeploymentPhase>,
@@ -27,11 +35,66 @@ export const deploymentPhaseApi = createApi({
 								type: 'ProcessPhases',
 								id: processId,
 							} as const,
+							...result.map(
+								(phase) =>
+									({
+										type: 'ProcessPhases',
+										id: phase.id,
+									}) as const,
+							),
 						]
 					: [];
 			},
 			transformResponse(rawResult: Array<DeploymentPhaseResponse>) {
 				return rawResult.map(toEntity);
+			},
+		}),
+		getUpdateHistories: builder.query<
+			PagingWrapper<DeploymentPhaseUpdateHistory>,
+			GetAllDeploymentPhaseUpdateHistoriesQuery
+		>({
+			async queryFn(arg) {
+				const func = async () => {
+					const {
+						processId,
+						phaseTypeName,
+						description,
+						pageNumber,
+						pageSize,
+					} = arg;
+					const wrapper: PagingWrapper<DeploymentPhaseUpdateHistoryResponse> = (
+						await sdpInstance.get(`/${EXTENSION_URL}/${processId}/histories`, {
+							params: {
+								phaseTypeName: phaseTypeName,
+								description: description,
+								pageNumber: pageNumber,
+								pageSize: pageSize,
+							},
+						})
+					).data;
+
+					const content = await Promise.all(
+						wrapper.content.map(async (history) => {
+							const userIdPerformed = history.id.userIdPerformed;
+							const userMetadata = await getUserMetadata(userIdPerformed);
+							return toHistoryEntity(history, userMetadata);
+						}),
+					);
+					return { ...wrapper, content };
+				};
+				return axiosQueryHandler(func);
+			},
+			providesTags(result, _err, arg) {
+				const { processId, phaseTypeName, description, pageNumber, pageSize } =
+					arg;
+				return result
+					? [
+							{
+								type: 'UpdateHistories',
+								id: `${processId}-${phaseTypeName}-${description}-${pageNumber}-${pageSize}`,
+							} as const,
+						]
+					: [];
 			},
 		}),
 		getPhaseById: builder.query<DeploymentPhase, string>({
@@ -58,6 +121,29 @@ export const deploymentPhaseApi = createApi({
 				url: `/${EXTENSION_URL}/${phaseId}/member`,
 				method: 'GET',
 			}),
+			providesTags(result, _err, arg) {
+				const processId = arg;
+				return result
+					? [
+							{
+								type: 'MemberId',
+								id: processId,
+							} as const,
+						]
+					: [];
+			},
+		}),
+		getMembers: builder.query<Array<UserMetadata>, string>({
+			async queryFn(arg) {
+				const phaseId = arg;
+				const func = async () => {
+					const memberIds: string[] = (
+						await sdpInstance.get(`/${EXTENSION_URL}/${phaseId}/member`)
+					).data;
+					return await Promise.all(memberIds.map(getUserMetadata));
+				};
+				return axiosQueryHandler(func);
+			},
 			providesTags(result, _err, arg) {
 				const processId = arg;
 				return result
@@ -104,8 +190,9 @@ export const deploymentPhaseApi = createApi({
 					operator: operator,
 				},
 			}),
-			invalidatesTags() {
-				return [{ type: 'Attachment' } as const];
+			invalidatesTags(_result, err, arg) {
+				const { phaseId } = arg;
+				return !err ? [{ type: 'Attachment', id: phaseId } as const] : [];
 			},
 		}),
 		postPhase: builder.mutation<string, DeploymentPhaseCreateRequest>({
@@ -173,6 +260,31 @@ export const deploymentPhaseApi = createApi({
 				return baseQueryReturnValue.status;
 			},
 		}),
+		putActual: builder.mutation<void, DeploymentPhaseUpdateActualDatesRequest>({
+			query: ({
+				phaseId,
+				description,
+				actualStartDate,
+				actualEndDate,
+				updatedByUserId,
+			}) => ({
+				url: `/${EXTENSION_URL}/${phaseId}/actual`,
+				method: 'PUT',
+				body: {
+					description: description,
+					actualStartDate: actualStartDate,
+					actualEndDate: actualEndDate,
+					updatedByUserId: updatedByUserId,
+				},
+			}),
+			invalidatesTags(_result, _error, arg) {
+				const { phaseId } = arg;
+				return [{ id: phaseId, type: 'ProcessPhases' } as const];
+			},
+			transformErrorResponse(baseQueryReturnValue) {
+				return baseQueryReturnValue.status;
+			},
+		}),
 		deletePhase: builder.mutation<void, string>({
 			query: (softwareId: string) => ({
 				url: `/${EXTENSION_URL}/${softwareId}`,
@@ -193,12 +305,15 @@ export const deploymentPhaseApi = createApi({
 // auto-generated based on the defined endpoints
 export const {
 	useGetAllPhasesByProcessIdQuery,
+	useGetUpdateHistoriesQuery,
 	useGetAllAttachmentsQuery,
 	useGetPhaseByIdQuery,
 	useGetMemberIdsQuery,
+	useGetMembersQuery,
 	usePostPhaseMutation,
 	usePutPhaseMutation,
 	usePutAttachmentMutation,
 	usePutMemberMutation,
+	usePutActualMutation,
 	useDeletePhaseMutation,
 } = deploymentPhaseApi;

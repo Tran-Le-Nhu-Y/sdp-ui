@@ -97,11 +97,11 @@ export const softwareLicenseApi = createApi({
 				const licenseId = arg;
 				const func = async () => {
 					const response = await sdpInstance.get(
-						`/${EXTENSION_URL}/${licenseId}/detail`
+						`/${EXTENSION_URL}/${licenseId}/detail`,
 					);
 					const license: SoftwareLicenseDetailResponse = response.data;
 					const licenseCreator = await getUserMetadata(
-						license.licenseCreatorId
+						license.licenseCreatorId,
 					);
 					return toDetailEntity(license, licenseCreator);
 				};

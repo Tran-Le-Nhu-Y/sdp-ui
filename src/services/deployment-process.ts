@@ -12,6 +12,7 @@ export const deploymentProcessApi = createApi({
 		'DeploymentProcess',
 		'Member',
 		'Module',
+		'Customer',
 	],
 	endpoints: (builder) => ({
 		getAllProcesses: builder.query<
@@ -36,22 +37,14 @@ export const deploymentProcessApi = createApi({
 				},
 			}),
 			providesTags(result) {
-				const pagingTag = {
-					type: 'PagingDeploymentProcess',
-					id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
-				} as const;
-
 				return result
 					? [
-							...result.content.map(
-								({ id }) => ({ type: 'DeploymentProcess', id }) as const
-							),
-							pagingTag,
+							{
+								type: 'PagingDeploymentProcess',
+								id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
+							} as const,
 						]
-					: [pagingTag];
-			},
-			transformErrorResponse(baseQueryReturnValue) {
-				return baseQueryReturnValue.status;
+					: [];
 			},
 			transformResponse(rawResult: PagingWrapper<DeploymentProcessResponse>) {
 				const content = rawResult.content.map(toEntity);
@@ -75,9 +68,6 @@ export const deploymentProcessApi = createApi({
 							} as const,
 						]
 					: [];
-			},
-			transformErrorResponse(baseQueryReturnValue) {
-				return baseQueryReturnValue.status;
 			},
 			transformResponse(rawResult: DeploymentProcessResponse) {
 				return toEntity(rawResult);
@@ -136,12 +126,7 @@ export const deploymentProcessApi = createApi({
 			invalidatesTags() {
 				return [{ type: 'PagingDeploymentProcess' } as const];
 			},
-			transformErrorResponse(baseQueryReturnValue) {
-				return baseQueryReturnValue.status;
-			},
-			transformResponse(rawResult: DeploymentProcessResponse) {
-				return toEntity(rawResult);
-			},
+			transformResponse: toEntity,
 		}),
 		putProcess: builder.mutation<void, DeploymentProcessUpdateRequest>({
 			query: ({ processId, status }) => ({
@@ -158,9 +143,6 @@ export const deploymentProcessApi = createApi({
 					{ type: 'DeploymentProcess', id: processId } as const,
 				];
 			},
-			transformErrorResponse(baseQueryReturnValue) {
-				return baseQueryReturnValue.status;
-			},
 		}),
 		putMember: builder.mutation<void, DeploymentProcessMemberUpdateRequest>({
 			query: ({ processId, memberId, operator }) => ({
@@ -175,9 +157,6 @@ export const deploymentProcessApi = createApi({
 				const { processId } = arg;
 				return [{ id: processId, type: 'Member' } as const];
 			},
-			transformErrorResponse(baseQueryReturnValue) {
-				return baseQueryReturnValue.status;
-			},
 		}),
 		deleteProcess: builder.mutation<void, number>({
 			query: (processId: number) => ({
@@ -191,8 +170,44 @@ export const deploymentProcessApi = createApi({
 					{ type: 'DeploymentProcess', id: processId } as const,
 				];
 			},
-			transformErrorResponse(baseQueryReturnValue) {
-				return baseQueryReturnValue.status;
+		}),
+		getSoftwareVersionByCustomerId: builder.query<
+			PagingWrapper<DeploymentProcessHasSoftwareVersionResponse>,
+			GetSoftwareVersionOfDeploymentProcessByCustomerQuery
+		>({
+			query: ({
+				customerId,
+				softwareName,
+				softwareVersionName,
+				pageNumber,
+				pageSize,
+			}) => ({
+				url: `/${EXTENSION_URL}/${customerId}/customer`,
+				method: 'GET',
+				params: {
+					softwareName: softwareName,
+					softwareVersionName: softwareVersionName,
+					pageNumber: pageNumber,
+					pageSize: pageSize,
+				},
+			}),
+
+			providesTags(result, _err, arg) {
+				const {
+					customerId,
+					softwareName,
+					softwareVersionName,
+					pageNumber,
+					pageSize,
+				} = arg;
+				return result
+					? [
+							{
+								type: 'Customer',
+								id: `${customerId}-${softwareName}-${softwareVersionName}-${pageNumber}-${pageSize}`,
+							} as const,
+						]
+					: [];
 			},
 		}),
 	}),
@@ -205,6 +220,7 @@ export const {
 	useGetProcessQuery,
 	useGetMemberIdsQuery,
 	useGetAllModulesQuery,
+	useGetSoftwareVersionByCustomerIdQuery,
 	usePostProcessMutation,
 	usePutProcessMutation,
 	usePutMemberMutation,

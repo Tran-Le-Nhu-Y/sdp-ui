@@ -82,7 +82,6 @@ declare interface DeploymentProcessMemberUpdateRequest {
 }
 
 declare type MemberOperator = 'ADD' | 'REMOVE';
-
 declare interface DeploymentPhaseTypeCreateRequest {
 	userId: string;
 	name: string;
@@ -122,6 +121,14 @@ declare interface DeploymentPhaseAttachmentUpdateRequest {
 	phaseId: string;
 	attachmentId: string;
 	operator: FileOperator;
+}
+
+declare interface DeploymentPhaseUpdateActualDatesRequest {
+	phaseId: string;
+	description?: string?;
+	actualStartDate?: string?;
+	actualEndDate?: string?;
+	updatedByUserId: string;
 }
 
 declare interface DocumentTypeCreateRequest {

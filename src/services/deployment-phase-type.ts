@@ -1,5 +1,5 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { toEntity } from './mapper/deployment-phase-type';
+import { toEntity } from './mapper/deployment-phase-type-mapper';
 import { axiosBaseQuery } from '../utils';
 import { sdpInstance } from './instance';
 
@@ -31,7 +31,7 @@ export const deploymentPhaseTypeApi = createApi({
 				return result
 					? [
 							...result.content.map(
-								({ id }) => ({ type: 'DeploymentPhaseType', id }) as const
+								({ id }) => ({ type: 'DeploymentPhaseType', id }) as const,
 							),
 							pagingTag,
 						]

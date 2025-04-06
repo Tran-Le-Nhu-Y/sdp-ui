@@ -1,7 +1,5 @@
 import {
 	Typography,
-	TableCell,
-	TableRow,
 	Container,
 	Paper,
 	Stack,
@@ -13,55 +11,63 @@ import {
 	StepContent,
 	Stepper,
 	StepButton,
+	LinearProgress,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogTitle,
+	TextField,
+	Tooltip,
 } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PaginationTable } from '../../components';
-import { useParams } from 'react-router-dom';
 import {
+	AttachmentList,
+	CustomDataGrid,
+	DragAndDropForm,
+	Guard,
+} from '../../components';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+	convertToAPIDateFormat,
 	getDeploymentProcessStatusTransKey,
 	HideDuration,
+	isValidLength,
+	parseToDayjs,
 	PathHolders,
+	RoutePaths,
+	TextLength,
 } from '../../utils';
-import { useGetDeploymentProcess } from '../../services';
-import { useNotifications } from '@toolpad/core';
-import { t } from 'i18next';
-
-const deploymentData = {
-	customer: 'Oliver Hansen',
-	software: 'Oliver Hansen',
-	version: '1.0',
-	status: 'Đang triển khai',
-	startDate: '00/00/0000',
-	endDate: '00/00/0000',
-	modules: Array.from({ length: 5 }, (_, i) => ({
-		id: i + 1,
-		name: `Module ${i + 1}`,
-		version: '1.0',
-	})),
-	personnel: Array.from({ length: 5 }, (_, i) => ({
-		id: i + 1,
-		name: `Nhân sự ${i + 1}`,
-		phone: '0123456789',
-		email: 'abc@gmail.com',
-	})),
-	phases: [
-		{
-			id: 1,
-			name: 'Nguyễn Văn A',
-			email: 'a@gmail.com',
-			step: 'Lập kế hoạch',
-			updatedAt: '04/03/2019',
-		},
-		{
-			id: 2,
-			name: 'Nguyễn Văn B',
-			email: 'Đang triển khai',
-			step: 'Lập kế hoạch',
-			updatedAt: '04/03/2019',
-		},
-	],
-};
+import {
+	useCreateFile,
+	useCreateSoftwareLicense,
+	useGetAllLicensesByProcessId,
+	useGetAllModulesInProcess,
+	useGetAllPhaseAttachments,
+	useGetAllUsersByRole,
+	useGetDeploymentPhaseMembers,
+	useGetDeploymentPhaseUpdateHistories,
+	useGetDeploymentProcess,
+	useGetDeploymentProcessMemberIds,
+	useUpdateDeploymentPhaseActualDates,
+	useUpdateDeploymentPhaseAttachment,
+	useUpdateSoftwareLicense,
+} from '../../services';
+import { useNotifications, useSession } from '@toolpad/core';
+import {
+	GridActionsCellItem,
+	GridColDef,
+	GridToolbarColumnsButton,
+	GridToolbarContainer,
+	GridToolbarDensitySelector,
+	GridToolbarFilterButton,
+	GridToolbarQuickFilter,
+} from '@mui/x-data-grid';
+import { useGetAllPhasesByProcessIdQuery } from '../../services/deployment-phase';
+import dayjs from 'dayjs';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import EditIcon from '@mui/icons-material/Edit';
 
 interface TabPanelProps {
 	children?: React.ReactNode;
@@ -92,92 +98,1359 @@ function a11yProps(index: number) {
 	};
 }
 
-const steps = [
-	{
-		label: 'Select campaign settings',
-		description: `For each ad campaign that you create, you can control how much
-              you're willing to spend on clicks and conversions, which networks
-              and geographical locations you want your ads to show on, and more.`,
-	},
-	{
-		label: 'Create an ad group',
-		description:
-			'An ad group contains one or more ads which target a shared set of keywords.',
-	},
-	{
-		label: 'Create an ad',
-		description: `Try out different ad text to see what brings in the most customers,
-              and learn how to enhance your ads using features like ad extensions.
-              If you run into any problems with your ads, find out how to tell if
-              they're running and how to resolve approval issues.`,
-	},
-];
-
-function VerticalLinearStepper() {
+function PhaseTab({
+	processId,
+	phases,
+}: {
+	processId: number;
+	phases: DeploymentPhase[];
+}) {
+	const { t } = useTranslation('standard');
+	const notifications = useNotifications();
+	const userId = useSession()?.user?.id ?? '';
 	const [activeStep, setActiveStep] = React.useState(0);
+	const [loading, setLoading] = useState(false);
+	const [updateActualDateTrigger, { isLoading: isUpdatingActualDate }] =
+		useUpdateDeploymentPhaseActualDates();
+	const [openDialog, setOpenDialog] = useState(false);
+	const showCopyrightButton = useMemo(
+		() => phases.every((phase) => phase.isDone),
+		[phases],
+	);
+	const [showLicenseDialog, setShowLicenseDialog] = useState(false);
+	const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
+	const [description, setDescripton] = useState<string | null>(null);
 
-	const handleNext = () => {
-		setActiveStep((prevActiveStep) => prevActiveStep + 1);
+	const membersQuery = useGetDeploymentPhaseMembers(selectedPhaseId!, {
+		skip: !selectedPhaseId,
+	});
+
+	useEffect(() => {
+		setSelectedPhaseId(phases[activeStep]?.id);
+	}, [activeStep, phases]);
+
+	const updateActualHandler = useCallback(
+		async (
+			request: DeploymentPhaseUpdateActualDatesRequest,
+			successText: string,
+			errorText: string,
+		) => {
+			try {
+				await updateActualDateTrigger(request).unwrap();
+
+				notifications.show(successText, {
+					severity: 'success',
+					autoHideDuration: HideDuration.fast,
+				});
+			} catch (error) {
+				console.error(error);
+				notifications.show(errorText, {
+					severity: 'error',
+					autoHideDuration: HideDuration.fast,
+				});
+			}
+		},
+		[notifications, updateActualDateTrigger],
+	);
+
+	const handleStart = async (phaseId: string) => {
+		const currentTime = convertToAPIDateFormat(dayjs());
+		if (!userId) {
+			notifications.show(t('userIdNotFound'), { severity: 'error' });
+			return;
+		}
+
+		await updateActualHandler(
+			{
+				phaseId: phaseId,
+				description: description,
+				actualStartDate: currentTime,
+				actualEndDate: null,
+				updatedByUserId: userId,
+			},
+			t('updateDeploymentPhaseActualStartDateSuccess'),
+			t('updateDeploymentPhaseActualStartDateError'),
+		);
 	};
 
-	const handleBack = () => {
-		setActiveStep((prevActiveStep) => prevActiveStep - 1);
+	const handleComplete = (phaseId: string) => {
+		setSelectedPhaseId(phaseId);
+		setOpenDialog(true);
 	};
 
-	const handleReset = () => {
-		setActiveStep(0);
+	const attachments = useGetAllPhaseAttachments(selectedPhaseId!, {
+		skip: !selectedPhaseId,
+	});
+	const [addedFiles, setAddedFiles] = useState<File[]>([]);
+	const [updateAttachmentTrigger] = useUpdateDeploymentPhaseAttachment();
+	const [uploadFileTrigger] = useCreateFile();
+
+	const handleFileSubmit = async () => {
+		if (!selectedPhaseId) return false;
+
+		if (addedFiles.length > 0) {
+			try {
+				const fileIds = await Promise.all(
+					addedFiles.map((file) => {
+						return uploadFileTrigger({ userId, file }).unwrap();
+					}),
+				);
+				await Promise.all(
+					fileIds.map((fileId) =>
+						updateAttachmentTrigger({
+							phaseId: selectedPhaseId,
+							attachmentId: fileId,
+							operator: 'ADD',
+						}).unwrap(),
+					),
+				);
+			} catch (error) {
+				notifications.show(t('uploadedFileError'), {
+					severity: 'error',
+					autoHideDuration: HideDuration.fast,
+				});
+				console.log(error);
+				return false;
+			}
+		}
+
+		return true;
 	};
+
+	const handleConfirm = async () => {
+		if (!selectedPhaseId) return;
+		if (!userId) {
+			notifications.show(t('userIdNotFound'), { severity: 'error' });
+			return;
+		}
+
+		setLoading(true);
+
+		const currentTime = convertToAPIDateFormat(dayjs());
+
+		const currentPhase = phases.find((phase) => phase.id === selectedPhaseId);
+		const actualStartDate = currentPhase?.actualStartDate ?? null;
+
+		await updateActualHandler(
+			{
+				phaseId: selectedPhaseId,
+				description: description,
+				actualStartDate: actualStartDate,
+				actualEndDate: currentTime,
+				updatedByUserId: userId,
+			},
+			t('updateDeploymentPhaseActualEndDateSuccess'),
+			t('updateDeploymentPhaseActualEndDateError'),
+		);
+
+		phaseUpdateHistories.refetch();
+
+		const handleFileResult = await handleFileSubmit();
+		if (!handleFileResult) {
+			setAddedFiles([]);
+			setLoading(false);
+			return;
+		}
+
+		setLoading(false);
+		setOpenDialog(false);
+	};
+
+	const handleCancelConfirm = () => {
+		setOpenDialog(false);
+	};
+
+	const [createLicenseTrigger] = useCreateSoftwareLicense();
+	const [licenseCreating, setLicenseCreating] = useState<
+		Partial<Omit<SoftwareLicenseCreateRequest, 'userId' | 'processId'>>
+	>({});
+
+	const handleCreateLicense = async () => {
+		const validate = () => {
+			if (!licenseCreating.startTimeMs) {
+				notifications.show(t('licenseStartTimeRequire'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+			if (!licenseCreating.endTimeMs) {
+				notifications.show(t('licenseEndTimeRequire'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+			if (!licenseCreating.expireAlertIntervalDay) {
+				notifications.show(t('expireAlertIntervalDayRequire'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+
+			return true;
+		};
+		if (!validate()) return;
+
+		try {
+			await createLicenseTrigger({
+				userId: userId,
+				processId: processId,
+				description: licenseCreating.description,
+				startTimeMs: licenseCreating.startTimeMs!,
+				endTimeMs: licenseCreating.endTimeMs!,
+				expireAlertIntervalDay: licenseCreating.expireAlertIntervalDay!,
+			});
+			notifications.show(t('createLicenseSuccess'), {
+				severity: 'success',
+				autoHideDuration: HideDuration.fast,
+			});
+			setShowLicenseDialog(false);
+		} catch (error) {
+			notifications.show(t('createLicenseError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+			console.error(error);
+		}
+	};
+
+	const memberCols: GridColDef<UserMetadata>[] = useMemo(
+		() => [
+			{
+				field: 'fullName',
+				headerName: t('fullName'),
+				editable: false,
+				width: 200,
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return `${row.lastName || ''} ${row.firstName || ''}`;
+				},
+			},
+			{
+				field: 'email',
+				editable: false,
+				minWidth: 200,
+				headerName: t('emailAddress'),
+				type: 'string',
+			},
+		],
+		[t],
+	);
+
+	const [phaseUpdateHistoriesQuery, setPhaseUpdateHistoriesQuery] =
+		useState<GetAllDeploymentPhaseUpdateHistoriesQuery>({
+			processId: 1,
+			pageNumber: 0,
+			pageSize: 5,
+		});
+	const phaseUpdateHistories = useGetDeploymentPhaseUpdateHistories(
+		phaseUpdateHistoriesQuery,
+	);
+	const historyCols: GridColDef<DeploymentPhaseUpdateHistory>[] = useMemo(
+		() => [
+			{
+				field: 'phaseType',
+				editable: false,
+				sortable: false,
+				minWidth: 200,
+				headerName: t('phase'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.phase.type.name;
+				},
+			},
+			{
+				field: 'description',
+				headerName: t('description'),
+				editable: false,
+				sortable: false,
+
+				width: 250,
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.description ?? '';
+				},
+			},
+			{
+				field: 'updater',
+				headerName: t('updater'),
+				editable: false,
+				sortable: false,
+				filterable: false,
+				width: 200,
+				type: 'string',
+				valueGetter: (_value, row) => {
+					const user = row.userPerformed;
+					return `${user.lastName} ${user.firstName}`;
+				},
+			},
+			{
+				field: 'email',
+				editable: false,
+				sortable: false,
+				filterable: false,
+				minWidth: 200,
+				headerName: t('emailAddress'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					const user = row.userPerformed;
+					return user.email;
+				},
+			},
+			{
+				field: 'updatedAt',
+				editable: false,
+				sortable: false,
+				filterable: false,
+				minWidth: 200,
+				headerName: t('updatedDate'),
+				type: 'dateTime',
+				valueGetter: (_value, row) => {
+					return new Date(row.updatedAt);
+				},
+			},
+		],
+		[t],
+	);
 
 	return (
-		<Box sx={{ maxWidth: 400 }}>
+		<Stack width={'100%'} spacing={2}>
+			{isUpdatingActualDate && <LinearProgress />}
 			<Stepper nonLinear activeStep={activeStep} orientation="vertical">
-				{steps.map((step, index) => (
-					<Step key={step.label}>
+				{phases.map((phase, index) => (
+					<Step key={phase.id} completed={phase.isDone}>
 						<StepButton
-							optional={
-								index === steps.length - 1 ? (
-									<Typography variant="caption">Last step</Typography>
-								) : null
-							}
 							color="inherit"
 							onClick={() => {
+								setSelectedPhaseId(phase.id);
 								setActiveStep(index);
 							}}
 						>
-							{step.label}
+							{phase.type.name}
 						</StepButton>
 						<StepContent>
-							<Typography>{step.description}</Typography>
+							<Stack direction={'column'} spacing={2} mb={2}>
+								<Typography>{phase.description}</Typography>
 
-							<Box sx={{ mb: 2 }}>
-								<Button
-									variant="contained"
-									onClick={handleNext}
-									sx={{ mt: 1, mr: 1 }}
-								>
-									{index === steps.length - 1 ? t('finish') : t('complete')}
-								</Button>
-								<Button
-									disabled={index === 0}
-									onClick={handleBack}
-									sx={{ mt: 1, mr: 1 }}
-								>
-									{t('return')}
-								</Button>
-							</Box>
+								<Stack>
+									<Typography>
+										<strong>{t('personnelPerforms')}:</strong>
+									</Typography>
+									<CustomDataGrid
+										loading={membersQuery.isLoading}
+										slots={{
+											toolbar: () => (
+												<GridToolbarContainer>
+													<GridToolbarFilterButton />
+													<GridToolbarDensitySelector />
+													<GridToolbarColumnsButton />
+													<GridToolbarQuickFilter />
+												</GridToolbarContainer>
+											),
+										}}
+										rows={membersQuery.data ?? []}
+										columns={memberCols}
+										pageSizeOptions={[5, 10, 15]}
+										initialState={{
+											pagination: {
+												paginationModel: {
+													page: 0,
+													pageSize: 5,
+												},
+											},
+										}}
+									/>
+								</Stack>
+								<Typography>
+									<strong>{t('plannedStartDate')}:</strong>{' '}
+									{parseToDayjs(phase.plannedStartDate)
+										.toDate()
+										.toLocaleDateString()}
+								</Typography>
+								<Typography>
+									<strong>{t('plannedEndDate')}:</strong>{' '}
+									{parseToDayjs(phase.plannedEndDate)
+										.toDate()
+										.toLocaleDateString()}
+								</Typography>
+								<Typography>
+									<strong>{t('actualStartDate')}:</strong>{' '}
+									{phase.actualStartDate
+										? parseToDayjs(phase.actualStartDate)
+												.toDate()
+												.toLocaleDateString()
+										: t('notStarted')}
+								</Typography>
+								<Typography>
+									<strong>{t('actualEndDate')}:</strong>{' '}
+									{phase.actualEndDate
+										? parseToDayjs(phase.actualEndDate)
+												.toDate()
+												.toLocaleDateString()
+										: t('notCompleted')}
+								</Typography>
+								<Stack spacing={1}>
+									<Typography>
+										<strong>{t('uploadedFiles')}:</strong>
+									</Typography>
+									{(attachments.data?.length ?? 0) > 0 ? (
+										<AttachmentList attachments={attachments.data ?? []} />
+									) : (
+										<Typography variant="h6" color="primary">
+											{t('noFileUpload')}
+										</Typography>
+									)}
+								</Stack>
+							</Stack>
+
+							<Guard requiredRoles={['deployment_person']}>
+								<Box sx={{ mb: 2 }}>
+									<Button
+										variant="contained"
+										onClick={() => handleStart(phase.id)}
+										sx={{ mt: 1, mr: 1 }}
+										disabled={!!phase.actualStartDate}
+									>
+										{t('start')}
+									</Button>
+									<Button
+										variant="contained"
+										onClick={() => handleComplete(phase.id)}
+										sx={{ mt: 1, mr: 1 }}
+										disabled={phase.isDone}
+									>
+										{t('complete')}
+									</Button>
+								</Box>
+							</Guard>
 						</StepContent>
 					</Step>
 				))}
 			</Stepper>
-			{activeStep === steps.length && (
-				<Paper square elevation={0} sx={{ p: 3 }}>
-					<Typography>All steps completed - you&apos;re finished</Typography>
-					<Button onClick={handleReset} sx={{ mt: 1, mr: 1 }}>
-						Reset
+
+			<Guard requiredRoles={['software_admin']}>
+				{showCopyrightButton && (
+					<Paper square elevation={3} sx={{ p: 1 }}>
+						<Box
+							sx={{
+								p: 2,
+								display: 'flex',
+								gap: 2,
+								alignItems: 'center',
+							}}
+						>
+							<Stack>
+								<Typography variant="h6">
+									{t('completedAllDeploymentPhase')}
+								</Typography>
+								<Typography variant="body1">{t('canCreateLicense')}</Typography>
+							</Stack>
+							<Button
+								variant="contained"
+								onClick={() => setShowLicenseDialog(true)}
+							>
+								{t('createLicense')}
+							</Button>
+						</Box>
+					</Paper>
+				)}
+				<Dialog
+					open={showLicenseDialog}
+					onClose={() => setShowLicenseDialog(false)}
+				>
+					<DialogTitle textAlign={'center'}>{t('createLicense')}</DialogTitle>
+					<DialogContent>
+						<Stack spacing={2} padding={2}>
+							<TextField
+								fullWidth
+								size="medium"
+								label={t('licenseDescription')}
+								helperText={t('hyperTextVeryLong')}
+								value={licenseCreating?.description}
+								onChange={(e) => {
+									const newValue = e.target.value;
+									if (isValidLength(newValue, TextLength.VeryLong))
+										setLicenseCreating((pre) => ({
+											...pre,
+											description: newValue,
+										}));
+								}}
+								placeholder={`${t('enter')} ${t('description').toLowerCase()}...`}
+								multiline
+								rows={4}
+							/>
+							<Stack direction={'row'} spacing={2}>
+								<DateTimePicker
+									disablePast
+									label={t('licenseStartTime')}
+									value={
+										licenseCreating.startTimeMs
+											? dayjs(licenseCreating.startTimeMs)
+											: undefined
+									}
+									onChange={(value) => {
+										if (!value) return;
+
+										setLicenseCreating((pre) => ({
+											...pre,
+											startTimeMs: value.valueOf(),
+										}));
+									}}
+								/>
+								<DateTimePicker
+									label={t('licenseEndTime')}
+									minDateTime={
+										licenseCreating.startTimeMs
+											? dayjs(licenseCreating.startTimeMs)
+											: undefined
+									}
+									value={
+										licenseCreating.endTimeMs
+											? dayjs(licenseCreating.endTimeMs)
+											: undefined
+									}
+									onChange={(value) => {
+										if (!value) return;
+										setLicenseCreating((pre) => ({
+											...pre,
+											endTimeMs: value.valueOf(),
+										}));
+									}}
+								/>
+							</Stack>
+							<TextField
+								required
+								id="num-order"
+								name="numOrder"
+								label={t('expiredAlertIntervalDays')}
+								fullWidth
+								type="number"
+								variant="standard"
+								value={licenseCreating?.expireAlertIntervalDay ?? 0}
+								onChange={(e) => {
+									const numOrder = Number(e.currentTarget.value);
+									if (
+										!Number.isSafeInteger(numOrder) ||
+										numOrder < 0 ||
+										numOrder > 100
+									)
+										return;
+
+									setLicenseCreating((pre) => ({
+										...pre,
+										expireAlertIntervalDay: numOrder,
+									}));
+								}}
+							/>
+						</Stack>
+					</DialogContent>
+					<DialogActions>
+						<Button onClick={() => setShowLicenseDialog(false)} color="primary">
+							{t('cancel')}
+						</Button>
+						<Button onClick={handleCreateLicense} color="primary">
+							{t('submit')}
+						</Button>
+					</DialogActions>
+				</Dialog>
+			</Guard>
+
+			<Typography variant="h6" gutterBottom>
+				{t('progressUpdateHistory')}
+			</Typography>
+			<CustomDataGrid
+				loading={
+					phaseUpdateHistories.isLoading || phaseUpdateHistories.isFetching
+				}
+				slots={{
+					toolbar: () => (
+						<GridToolbarContainer>
+							<GridToolbarFilterButton />
+							<GridToolbarDensitySelector />
+							<GridToolbarColumnsButton />
+						</GridToolbarContainer>
+					),
+				}}
+				getRowId={(row) =>
+					`${row.numOrder}-${row.phase.id}-${row.userPerformed.id}`
+				}
+				rows={phaseUpdateHistories.data?.content ?? []}
+				columns={historyCols}
+				rowCount={phaseUpdateHistories.data?.totalElements ?? 0}
+				paginationMeta={{ hasNextPage: !phaseUpdateHistories.data?.last }}
+				paginationMode="server"
+				paginationModel={{
+					page: phaseUpdateHistoriesQuery.pageNumber ?? 0,
+					pageSize: phaseUpdateHistoriesQuery.pageSize ?? 5,
+				}}
+				onPaginationModelChange={(model) => {
+					setPhaseUpdateHistoriesQuery((prev) => ({
+						...prev,
+						pageNumber: model.page,
+						pageSize: model.pageSize,
+					}));
+				}}
+				pageSizeOptions={[5, 10, 15]}
+				filterMode="server"
+				onFilterModelChange={(model) => {
+					const value = model.items.reduce(
+						(acc, item) => {
+							if (item.field === 'description') {
+								return {
+									...acc,
+									description: item.value,
+								};
+							}
+							if (item.field === 'phaseType')
+								return {
+									...acc,
+									phaseTypeName: item.value,
+								};
+							return acc;
+						},
+						{ description: '', phaseTypeName: '' },
+					);
+					setPhaseUpdateHistoriesQuery((prev) => ({ ...prev, ...value }));
+				}}
+				initialState={{
+					pagination: {
+						paginationModel: {
+							page: 0,
+							pageSize: 5,
+						},
+					},
+				}}
+			/>
+
+			<Dialog open={openDialog} onClose={handleCancelConfirm}>
+				<DialogTitle>{t('confirmDeploymentPhase')}</DialogTitle>
+				<DialogContent>
+					<Stack spacing={2}>
+						<Typography variant="body1">
+							{t('confirmCompleteDeploymentPhase')}
+						</Typography>
+						<Typography variant="subtitle1" mb={1}>
+							{t('description')}
+						</Typography>
+						<Box mb={1}>
+							<TextField
+								fullWidth
+								size="medium"
+								helperText={t('hyperTextVeryLong')}
+								value={description}
+								onChange={(e) => {
+									const newValue = e.target.value;
+									if (isValidLength(newValue, TextLength.VeryLong))
+										setDescripton(newValue);
+								}}
+								placeholder={`${t('enter')} ${t('description').toLowerCase()}...`}
+								multiline
+								rows={4}
+							/>
+						</Box>
+						<Typography variant="body1">{t('attachment')}:</Typography>
+						<DragAndDropForm onFilesChange={(files) => setAddedFiles(files)} />
+					</Stack>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleCancelConfirm} color="primary">
+						{t('cancel')}
 					</Button>
-				</Paper>
-			)}
-		</Box>
+					<Button
+						onClick={handleConfirm}
+						loading={loading}
+						color="primary"
+						autoFocus
+					>
+						{t('submit')}
+					</Button>
+				</DialogActions>
+			</Dialog>
+		</Stack>
+	);
+}
+
+function ModuleTab({ processId }: { processId: number }) {
+	const { t } = useTranslation('standard');
+	const modulesQuery = useGetAllModulesInProcess(processId);
+
+	const cols: GridColDef[] = useMemo(
+		() => [
+			{
+				field: 'moduleName',
+				editable: false,
+				minWidth: 300,
+				headerName: t('moduleName'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.module.name;
+				},
+				flex: 1,
+			},
+			{
+				field: 'versionName',
+				editable: false,
+				minWidth: 200,
+				headerName: t('version'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.version.name;
+				},
+				flex: 1,
+			},
+		],
+		[t],
+	);
+
+	return (
+		<CustomDataGrid
+			slots={{
+				toolbar: () => (
+					<GridToolbarContainer>
+						<GridToolbarFilterButton />
+						<GridToolbarDensitySelector />
+						<GridToolbarColumnsButton />
+						<GridToolbarQuickFilter />
+					</GridToolbarContainer>
+				),
+			}}
+			rows={modulesQuery.data}
+			columns={cols}
+			pageSizeOptions={[5, 10, 15]}
+			getRowId={(row) => row.version.id}
+			initialState={{
+				pagination: {
+					paginationModel: {
+						page: 0,
+						pageSize: 5,
+					},
+				},
+				sorting: {
+					sortModel: [{ field: 'moduleName', sort: 'asc' }],
+				},
+			}}
+		/>
+	);
+}
+
+function PersonnelTab({ processId }: { processId: number }) {
+	const { t } = useTranslation('standard');
+	const userQuery = useGetAllUsersByRole('deployment_person');
+	const memberIdQuery = useGetDeploymentProcessMemberIds(processId);
+
+	const findUsers = useCallback(
+		(isSelected: boolean) => {
+			const memberIds = memberIdQuery.data;
+			if (!memberIds) return [];
+
+			return (
+				userQuery?.data?.filter((user) => {
+					const selected = memberIds.includes(user.id);
+					return isSelected ? selected : !selected;
+				}) ?? []
+			);
+		},
+		[memberIdQuery?.data, userQuery?.data],
+	);
+
+	const unselectedUsers = useMemo(() => findUsers(false), [findUsers]);
+	const unselectedCols: GridColDef[] = useMemo(
+		() => [
+			{
+				field: 'fullName',
+				headerName: t('fullName'),
+				editable: false,
+				width: 200,
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return `${row.lastName || ''} ${row.firstName || ''}`;
+				},
+			},
+			{
+				field: 'email',
+				editable: false,
+				minWidth: 200,
+				headerName: t('emailAddress'),
+				type: 'string',
+			},
+		],
+		[t],
+	);
+
+	const selectedUsers = useMemo(() => findUsers(true), [findUsers]);
+	const selectedCols: GridColDef[] = useMemo(
+		() => [
+			{
+				field: 'fullName',
+				headerName: t('fullName'),
+				editable: false,
+				width: 200,
+				valueGetter: (_value, row) => {
+					return `${row.lastName || ''} ${row.firstName || ''}`;
+				},
+			},
+			{
+				field: 'email',
+				editable: false,
+				minWidth: 200,
+				headerName: t('emailAddress'),
+			},
+		],
+		[t],
+	);
+
+	if (userQuery.isLoading || memberIdQuery.isLoading) return <LinearProgress />;
+	return (
+		<>
+			<Stack
+				direction={{
+					xs: 'column',
+					sm: 'row',
+				}}
+				justifyContent={'space-around'}
+				spacing={2}
+			>
+				<Stack direction={'column'} spacing={1}>
+					<Typography variant="h6">{t('unassignedPersonnel')}</Typography>
+					<CustomDataGrid
+						slots={{
+							toolbar: () => (
+								<GridToolbarContainer>
+									<GridToolbarFilterButton />
+									<GridToolbarDensitySelector />
+									<GridToolbarColumnsButton />
+									<GridToolbarQuickFilter />
+								</GridToolbarContainer>
+							),
+						}}
+						rows={unselectedUsers}
+						columns={unselectedCols}
+						pageSizeOptions={[5, 10, 15]}
+						initialState={{
+							pagination: {
+								paginationModel: {
+									page: 0,
+									pageSize: 5,
+								},
+							},
+						}}
+					/>
+				</Stack>
+				<Stack direction={'column'} spacing={1}>
+					<Typography variant="h6">{t('assignedPersonnel')}</Typography>
+					<CustomDataGrid
+						slots={{
+							toolbar: () => (
+								<GridToolbarContainer>
+									<GridToolbarFilterButton />
+									<GridToolbarDensitySelector />
+									<GridToolbarColumnsButton />
+									<GridToolbarQuickFilter />
+								</GridToolbarContainer>
+							),
+						}}
+						rows={selectedUsers}
+						columns={selectedCols}
+						pageSizeOptions={[5, 10, 15]}
+						initialState={{
+							pagination: {
+								paginationModel: {
+									page: 0,
+									pageSize: 5,
+								},
+							},
+						}}
+					/>
+				</Stack>
+			</Stack>
+		</>
+	);
+}
+
+function LicenseTab({
+	processId,
+	phases,
+}: {
+	processId: number;
+	phases: DeploymentPhase[];
+}) {
+	const { t } = useTranslation('standard');
+	const navigate = useNavigate();
+	const notifications = useNotifications();
+	const userId = useSession()?.user?.id ?? '';
+	const [showCreateLicenseDialog, setShowCreateLicenseDialog] = useState(false);
+	const [showUpdateLicenseDialog, setShowUpdateLicenseDialog] = useState(false);
+	const showCopyrightButton = useMemo(
+		() => phases.every((phase) => phase.isDone),
+		[phases],
+	);
+	const [licenseQuery, setLicenseQuery] =
+		useState<GetAllProcessSoftwareLicensesQuery>({
+			processId: processId,
+			pageNumber: 0,
+			pageSize: 5,
+		});
+	const licenses = useGetAllLicensesByProcessId(licenseQuery!, {
+		skip: !licenseQuery,
+	});
+	useEffect(() => {
+		if (licenses.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+	}, [notifications, licenses.isError, t]);
+
+	const [createLicenseTrigger] = useCreateSoftwareLicense();
+	const [licenseCreating, setLicenseCreating] = useState<
+		Partial<Omit<SoftwareLicenseCreateRequest, 'userId' | 'processId'>>
+	>({});
+
+	const handleCreateLicense = async () => {
+		const validate = () => {
+			if (!licenseCreating.startTimeMs) {
+				notifications.show(t('licenseStartTimeRequire'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+			if (!licenseCreating.endTimeMs) {
+				notifications.show(t('licenseEndTimeRequire'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+			if (!licenseCreating.expireAlertIntervalDay) {
+				notifications.show(t('expireAlertIntervalDayRequire'), {
+					severity: 'warning',
+					autoHideDuration: HideDuration.fast,
+				});
+				return false;
+			}
+
+			return true;
+		};
+		if (!validate()) return;
+
+		try {
+			await createLicenseTrigger({
+				userId: userId,
+				processId: processId,
+				description: licenseCreating.description,
+				startTimeMs: licenseCreating.startTimeMs!,
+				endTimeMs: licenseCreating.endTimeMs!,
+				expireAlertIntervalDay: licenseCreating.expireAlertIntervalDay!,
+			});
+			notifications.show(t('createLicenseSuccess'), {
+				severity: 'success',
+				autoHideDuration: HideDuration.fast,
+			});
+			setShowCreateLicenseDialog(false);
+		} catch (error) {
+			notifications.show(t('createLicenseError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+			console.error(error);
+		}
+	};
+
+	const [licenseEditing, setLicenseEditing] =
+		useState<SoftwareLicenseUpdateRequest>();
+	const [updateLicenseTrigger, { isLoading: isUpdatingLicense }] =
+		useUpdateSoftwareLicense();
+
+	const handleEditLicense = (params: SoftwareLicense) => {
+		const license = params;
+		const licenseId = params.id;
+		setLicenseEditing({
+			licenseId: licenseId,
+			description: license.description,
+			expireAlertIntervalDay: license.expireAlertIntervalDay,
+		});
+
+		setShowUpdateLicenseDialog(true);
+	};
+
+	const updateLicenseHandler = useCallback(
+		async (
+			request: SoftwareLicenseUpdateRequest,
+			successText: string,
+			errorText: string,
+		) => {
+			try {
+				await updateLicenseTrigger(request).unwrap();
+
+				notifications.show(successText, {
+					severity: 'success',
+					autoHideDuration: HideDuration.fast,
+				});
+				setShowUpdateLicenseDialog(false);
+			} catch (error) {
+				console.error(error);
+				notifications.show(errorText, {
+					severity: 'error',
+					autoHideDuration: HideDuration.fast,
+				});
+			}
+		},
+		[notifications, updateLicenseTrigger],
+	);
+
+	const licenseCols: GridColDef<SoftwareLicense>[] = useMemo(
+		() => [
+			{
+				field: 'description',
+				headerName: t('description'),
+				editable: false,
+				sortable: false,
+				filterable: false,
+				width: 250,
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.description ?? '';
+				},
+			},
+			{
+				field: 'startTime',
+				headerName: t('licenseStartTime'),
+				editable: false,
+				sortable: false,
+				filterable: false,
+				width: 200,
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.startTime ?? '';
+				},
+			},
+			{
+				field: 'endTime',
+				editable: false,
+				sortable: false,
+				filterable: false,
+				minWidth: 200,
+				headerName: t('licenseEndTime'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.endTime ?? '';
+				},
+			},
+			{
+				field: 'expireAlertIntervalDay',
+				editable: false,
+				sortable: false,
+				filterable: false,
+				minWidth: 200,
+				headerName: t('expiredAlertIntervalDays'),
+				type: 'number',
+				valueGetter: (_value, row) => {
+					return `${row.expireAlertIntervalDay ?? ''} ${t('days')}`;
+				},
+			},
+			{
+				field: 'createdAt',
+				editable: false,
+				sortable: false,
+				filterable: false,
+				minWidth: 200,
+				headerName: t('dateCreated'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.createdAt ?? '';
+				},
+			},
+			{
+				field: 'updatedAt',
+				editable: false,
+				sortable: false,
+				filterable: false,
+				minWidth: 200,
+				headerName: t('updatedDate'),
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return row.updatedAt ?? '';
+				},
+			},
+			{
+				field: 'actions',
+				headerName: t('action'),
+				type: 'actions',
+				width: 40,
+				getActions: (params) => [
+					<GridActionsCellItem
+						icon={
+							<Tooltip title={t('seeDetail')}>
+								<RemoveRedEyeIcon color="info" />
+							</Tooltip>
+						}
+						color="success"
+						label={t('seeDetail')}
+						onClick={() => {
+							const licenseId = params.id.toString();
+							navigate(
+								RoutePaths.SOFTWARE_LICENSE_DETAIL.replace(
+									`:${PathHolders.SOFTWARE_LICENSE_ID}`,
+									licenseId,
+								),
+							);
+						}}
+					/>,
+					<GridActionsCellItem
+						icon={
+							<Tooltip title={t('edit')}>
+								<EditIcon color="info" />
+							</Tooltip>
+						}
+						color="success"
+						label={t('edit')}
+						onClick={() => {
+							handleEditLicense(params.row);
+						}}
+					/>,
+				],
+			},
+		],
+		[t, navigate],
+	);
+
+	return (
+		<Stack width={'100%'} spacing={2}>
+			<Guard requiredRoles={['software_admin']}>
+				{showCopyrightButton && (
+					<Stack direction={'row'} justifyContent={'flex-end'}>
+						<Button
+							variant="contained"
+							onClick={() => setShowCreateLicenseDialog(true)}
+						>
+							{t('createLicense')}
+						</Button>
+					</Stack>
+				)}
+				<Dialog
+					open={showCreateLicenseDialog}
+					onClose={() => setShowCreateLicenseDialog(false)}
+				>
+					<DialogTitle textAlign={'center'}>{t('createLicense')}</DialogTitle>
+					<DialogContent>
+						<Stack spacing={2} padding={2}>
+							<TextField
+								fullWidth
+								size="medium"
+								label={t('licenseDescription')}
+								helperText={t('hyperTextVeryLong')}
+								value={licenseCreating?.description}
+								onChange={(e) => {
+									const newValue = e.target.value;
+									if (isValidLength(newValue, TextLength.VeryLong))
+										setLicenseCreating((pre) => ({
+											...pre,
+											description: newValue,
+										}));
+								}}
+								placeholder={`${t('enter')} ${t('description').toLowerCase()}...`}
+								multiline
+								rows={4}
+							/>
+							<Stack direction={'row'} spacing={2}>
+								<DateTimePicker
+									disablePast
+									label={t('licenseStartTime')}
+									value={
+										licenseCreating.startTimeMs
+											? dayjs(licenseCreating.startTimeMs)
+											: undefined
+									}
+									onChange={(value) => {
+										if (!value) return;
+
+										setLicenseCreating((pre) => ({
+											...pre,
+											startTimeMs: value.valueOf(),
+										}));
+									}}
+								/>
+								<DateTimePicker
+									label={t('licenseEndTime')}
+									minDateTime={
+										licenseCreating.startTimeMs
+											? dayjs(licenseCreating.startTimeMs)
+											: undefined
+									}
+									value={
+										licenseCreating.endTimeMs
+											? dayjs(licenseCreating.endTimeMs)
+											: undefined
+									}
+									onChange={(value) => {
+										if (!value) return;
+										setLicenseCreating((pre) => ({
+											...pre,
+											endTimeMs: value.valueOf(),
+										}));
+									}}
+								/>
+							</Stack>
+							<TextField
+								required
+								id="num-order"
+								name="numOrder"
+								label={t('expiredAlertIntervalDays')}
+								fullWidth
+								type="number"
+								variant="standard"
+								value={licenseCreating?.expireAlertIntervalDay ?? 0}
+								onChange={(e) => {
+									const numOrder = Number(e.currentTarget.value);
+									if (
+										!Number.isSafeInteger(numOrder) ||
+										numOrder < 0 ||
+										numOrder > 100
+									)
+										return;
+
+									setLicenseCreating((pre) => ({
+										...pre,
+										expireAlertIntervalDay: numOrder,
+									}));
+								}}
+							/>
+						</Stack>
+					</DialogContent>
+					<DialogActions>
+						<Button
+							onClick={() => setShowCreateLicenseDialog(false)}
+							color="primary"
+						>
+							{t('cancel')}
+						</Button>
+						<Button onClick={handleCreateLicense} color="primary">
+							{t('submit')}
+						</Button>
+					</DialogActions>
+				</Dialog>
+				<Dialog
+					open={showUpdateLicenseDialog}
+					onClose={() => setShowUpdateLicenseDialog(false)}
+				>
+					<DialogTitle textAlign={'center'}>{t('updateLicense')}</DialogTitle>
+					<DialogContent>
+						<Stack width={'450px'} spacing={2} padding={3}>
+							<TextField
+								fullWidth
+								size="medium"
+								label={t('licenseDescription')}
+								helperText={t('hyperTextVeryLong')}
+								value={licenseEditing?.description}
+								onChange={(e) => {
+									const newValue = e.target.value;
+									if (isValidLength(newValue, TextLength.VeryLong))
+										setLicenseEditing((pre) => ({
+											...pre!,
+											description: newValue,
+										}));
+								}}
+								placeholder={`${t('enter')} ${t('description').toLowerCase()}...`}
+								multiline
+								rows={4}
+							/>
+
+							<TextField
+								required
+								id="num-order"
+								name="numOrder"
+								label={t('expiredAlertIntervalDays')}
+								fullWidth
+								type="number"
+								variant="standard"
+								value={licenseEditing?.expireAlertIntervalDay ?? 0}
+								onChange={(e) => {
+									const numOrder = Number(e.currentTarget.value);
+									if (
+										!Number.isSafeInteger(numOrder) ||
+										numOrder < 0 ||
+										numOrder > 100
+									)
+										return;
+
+									setLicenseEditing((pre) => ({
+										...pre!,
+										expireAlertIntervalDay: numOrder,
+									}));
+								}}
+							/>
+						</Stack>
+					</DialogContent>
+					<DialogActions>
+						<Button
+							onClick={() => setShowUpdateLicenseDialog(false)}
+							color="primary"
+						>
+							{t('cancel')}
+						</Button>
+						<Button
+							onClick={() => {
+								if (!licenseEditing) return;
+								updateLicenseHandler(
+									{
+										licenseId: licenseEditing.licenseId!,
+										description: licenseEditing.description!,
+										expireAlertIntervalDay:
+											licenseEditing.expireAlertIntervalDay!,
+									},
+									t('updateLicenseSuccess'),
+									t('updateLicenseError'),
+								);
+							}}
+							color="primary"
+						>
+							{t('submit')}
+						</Button>
+					</DialogActions>
+				</Dialog>
+			</Guard>
+			<CustomDataGrid
+				loading={licenses.isLoading || licenses.isFetching || isUpdatingLicense}
+				slots={{
+					toolbar: () => (
+						<GridToolbarContainer>
+							<GridToolbarDensitySelector />
+							<GridToolbarColumnsButton />
+						</GridToolbarContainer>
+					),
+				}}
+				getRowId={(row) => row.id}
+				rows={licenses.data?.content ?? []}
+				columns={licenseCols}
+				rowCount={licenses.data?.totalElements ?? 0}
+				paginationMeta={{ hasNextPage: !licenses.data?.last }}
+				paginationMode="server"
+				paginationModel={{
+					page: licenseQuery.pageNumber ?? 0,
+					pageSize: licenseQuery.pageSize ?? 5,
+				}}
+				onPaginationModelChange={(model) => {
+					setLicenseQuery((prev) => ({
+						...prev,
+						pageNumber: model.page,
+						pageSize: model.pageSize,
+					}));
+				}}
+				pageSizeOptions={[5, 10, 15]}
+				filterMode="server"
+				initialState={{
+					pagination: {
+						paginationModel: {
+							page: 0,
+							pageSize: 5,
+						},
+					},
+				}}
+			/>
+		</Stack>
 	);
 }
 
@@ -185,12 +1458,12 @@ const DeploymentProcessDetailPage = () => {
 	const { t } = useTranslation();
 	const [value, setValue] = React.useState(0);
 	const notifications = useNotifications();
+	const processId = useParams()[PathHolders.DEPLOYMENT_PROCESS_ID];
+	const numericProcessId = processId ? Number(processId) : undefined;
 
 	const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
 		setValue(newValue);
 	};
-
-	const processId = useParams()[PathHolders.DEPLOYMENT_PROCESS_ID];
 
 	const deploymentProcess = useGetDeploymentProcess(processId!, {
 		skip: !processId,
@@ -203,12 +1476,19 @@ const DeploymentProcessDetailPage = () => {
 			});
 	}, [notifications, deploymentProcess.isError, t]);
 
-	const [, setModuleQuery] = useState<GetAllModuleQuery>({
-		softwareVersionId: '',
-		moduleName: '',
-		pageNumber: 0,
-		pageSize: 6,
-	});
+	const phasesQuery = useGetAllPhasesByProcessIdQuery(
+		{ processId: numericProcessId || 0 },
+		{
+			skip: !numericProcessId,
+		},
+	);
+	useEffect(() => {
+		if (phasesQuery.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+	}, [notifications, phasesQuery.isError, t]);
 
 	return (
 		<Container>
@@ -226,8 +1506,8 @@ const DeploymentProcessDetailPage = () => {
 						{deploymentProcess.data?.status &&
 							t(
 								getDeploymentProcessStatusTransKey(
-									deploymentProcess.data?.status
-								)
+									deploymentProcess.data?.status,
+								),
 							)}
 					</Typography>
 				</Stack>
@@ -271,124 +1551,28 @@ const DeploymentProcessDetailPage = () => {
 						<Tab label={t('currentStep')} {...a11yProps(0)} />
 						<Tab label={t('moduleList')} {...a11yProps(1)} />
 						<Tab label={t('personnelList')} {...a11yProps(2)} />
+						<Tab label={t('licenseList')} {...a11yProps(3)} />
 					</Tabs>
 				</Box>
 				<CustomTabPanel value={value} index={0}>
-					<VerticalLinearStepper />
-				</CustomTabPanel>
-				<CustomTabPanel value={value} index={1}>
-					<PaginationTable
-						headers={
-							<>
-								<TableCell key={`moduleName`} align="center">
-									{t('moduleName')}
-								</TableCell>
-								<TableCell key={`version`} align="center">
-									{t('version')}
-								</TableCell>
-							</>
-						}
-						count={deploymentData.modules.length ?? 0}
-						rows={deploymentData.modules ?? []}
-						onPageChange={(newPage) =>
-							setModuleQuery((prev) => {
-								return { ...prev, ...newPage };
-							})
-						}
-						getCell={(row) => (
-							<TableRow key={row.id}>
-								<TableCell key={`moduleName`} align="center">
-									{row.name}
-								</TableCell>
-
-								<TableCell key={`version`} align="center">
-									{row.version}
-								</TableCell>
-							</TableRow>
-						)}
+					<PhaseTab
+						processId={Number(processId)}
+						phases={phasesQuery.data ?? []}
 					/>
 				</CustomTabPanel>
+				<CustomTabPanel value={value} index={1}>
+					<ModuleTab processId={Number(processId)} />
+				</CustomTabPanel>
 				<CustomTabPanel value={value} index={2}>
-					<PaginationTable
-						headers={
-							<>
-								<TableCell key={`deployer`} align="center">
-									{t('deployer')}
-								</TableCell>
-
-								<TableCell key={`email`} align="center">
-									{t('email')}
-								</TableCell>
-							</>
-						}
-						count={deploymentData.personnel.length ?? 0}
-						rows={deploymentData.personnel ?? []}
-						onPageChange={(newPage) =>
-							setModuleQuery((prev) => {
-								return { ...prev, ...newPage };
-							})
-						}
-						getCell={(row) => (
-							<TableRow key={row.id}>
-								<TableCell key={`deployer`} align="center">
-									{row.name}
-								</TableCell>
-
-								<TableCell key={`email`} align="center">
-									{row.email}
-								</TableCell>
-							</TableRow>
-						)}
+					<PersonnelTab processId={Number(processId)} />
+				</CustomTabPanel>
+				<CustomTabPanel value={value} index={3}>
+					<LicenseTab
+						processId={Number(processId)}
+						phases={phasesQuery.data ?? []}
 					/>
 				</CustomTabPanel>
 			</Box>
-
-			<Typography variant="h6" gutterBottom>
-				{t('progressUpdateHistory')}
-			</Typography>
-			<PaginationTable
-				headers={
-					<>
-						<TableCell key={`deployer`} align="center">
-							{t('deployer')}
-						</TableCell>
-
-						<TableCell key={`email`} align="center">
-							{t('email')}
-						</TableCell>
-						<TableCell key={`process`} align="center">
-							{t('process')}
-						</TableCell>
-						<TableCell key={`updatedDate`} align="center">
-							{t('updatedDate')}
-						</TableCell>
-					</>
-				}
-				count={deploymentData.phases.length ?? 0}
-				rows={deploymentData.phases ?? []}
-				onPageChange={(newPage) =>
-					setModuleQuery((prev) => {
-						return { ...prev, ...newPage };
-					})
-				}
-				getCell={(row) => (
-					<TableRow key={row.id}>
-						<TableCell key={`deployer`} align="center">
-							{row.name}
-						</TableCell>
-
-						<TableCell key={`email`} align="center">
-							{row.email}
-						</TableCell>
-						<TableCell key={`process`} align="center">
-							{row.step}
-						</TableCell>
-						<TableCell key={`updatedDate`} align="center">
-							{row.updatedAt}
-						</TableCell>
-					</TableRow>
-				)}
-			/>
 		</Container>
 	);
 };

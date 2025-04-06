@@ -1,5 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { FilterDialog, PaginationTable } from '../../components';
+import {
+	CollapsibleTable,
+	CollapsibleTableRow,
+	CustomDataGrid,
+	FilterDialog,
+} from '../../components';
 import {
 	Box,
 	Button,
@@ -11,23 +16,31 @@ import {
 	LinearProgress,
 	Stack,
 	TableCell,
-	TableRow,
 	TextField,
+	Typography,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
 	useCreateCustomer,
 	useDeleteCustomer,
 	useGetAllCustomers,
 	useGetCustomerById,
+	useGetSoftwareVersionOfDeploymentProcessByCustomer,
 	useUpdateCustomer,
 } from '../../services';
 import { useDialogs, useNotifications, useSession } from '@toolpad/core';
 import { HideDuration } from '../../utils';
 import React from 'react';
 import { t } from 'i18next';
+import {
+	GridToolbarContainer,
+	GridToolbarFilterButton,
+	GridToolbarDensitySelector,
+	GridToolbarColumnsButton,
+	GridColDef,
+} from '@mui/x-data-grid';
 
 function CreateCustomerFormDialog({ userId }: { userId: string }) {
 	const [open, setOpen] = React.useState(false);
@@ -235,6 +248,130 @@ function UpdateCustomerFormDialog({
 	);
 }
 
+function SoftwareInner({
+	softwareVersionOfProcessQuery,
+	setSoftwareVersionOfProcessQuery,
+}: {
+	softwareVersionOfProcessQuery: GetSoftwareVersionOfDeploymentProcessByCustomerQuery | null;
+	setSoftwareVersionOfProcessQuery: React.Dispatch<
+		React.SetStateAction<GetSoftwareVersionOfDeploymentProcessByCustomerQuery | null>
+	>;
+}) {
+	//const navigate = useNavigate();
+	const { t } = useTranslation('standard');
+	const notifications = useNotifications();
+
+	const softwareVersion = useGetSoftwareVersionOfDeploymentProcessByCustomer(
+		softwareVersionOfProcessQuery!,
+		{
+			skip: !softwareVersionOfProcessQuery,
+		},
+	);
+	useEffect(() => {
+		if (softwareVersion.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+	}, [notifications, softwareVersion.isError, t]);
+
+	const softwareVersionCols: GridColDef<SoftwareVersionOfDeploymentProcessAndCustomer>[] =
+		useMemo(
+			() => [
+				{
+					field: 'softwareName',
+					headerName: t('softwareName'),
+					editable: false,
+					width: 200,
+					type: 'string',
+					valueGetter: (_value, row) => {
+						return row.softwareVersion.softwareName;
+					},
+				},
+				{
+					field: 'versionName',
+					editable: false,
+					minWidth: 200,
+					headerName: t('versionName'),
+					type: 'string',
+					valueGetter: (_value, row) => {
+						return row.softwareVersion.versionName;
+					},
+				},
+			],
+			[t],
+		);
+
+	return (
+		<Stack spacing={1}>
+			<Typography variant="h6" textAlign="center">
+				{t('softwareUsed')}:
+			</Typography>
+			<CustomDataGrid
+				loading={softwareVersion.isLoading}
+				slots={{
+					toolbar: () => (
+						<GridToolbarContainer>
+							<GridToolbarFilterButton />
+							<GridToolbarDensitySelector />
+							<GridToolbarColumnsButton />
+						</GridToolbarContainer>
+					),
+				}}
+				getRowId={(row) =>
+					`${row.processId}-${row.customerId}-${row.softwareVersion.softwareId}-${row.softwareVersion.versionId}`
+				}
+				rows={softwareVersion.data?.content ?? []}
+				columns={softwareVersionCols}
+				rowCount={softwareVersion.data?.totalElements ?? 0}
+				paginationMeta={{ hasNextPage: !softwareVersion.data?.last }}
+				paginationMode="server"
+				paginationModel={{
+					page: softwareVersionOfProcessQuery?.pageNumber ?? 0,
+					pageSize: softwareVersionOfProcessQuery?.pageSize ?? 5,
+				}}
+				onPaginationModelChange={(model) => {
+					setSoftwareVersionOfProcessQuery((prev) => ({
+						...prev!,
+						pageNumber: model.page,
+						pageSize: model.pageSize,
+					}));
+				}}
+				pageSizeOptions={[5, 10, 15]}
+				filterMode="server"
+				onFilterModelChange={(model) => {
+					const value = model.items.reduce(
+						(acc, item) => {
+							if (item.field === 'softwareName') {
+								return {
+									...acc,
+									softwareName: item.value,
+								};
+							}
+							if (item.field === 'versionName')
+								return {
+									...acc,
+									versionName: item.value,
+								};
+							return acc;
+						},
+						{ softwareName: '', versionName: '' },
+					);
+					setSoftwareVersionOfProcessQuery((prev) => ({ ...prev!, ...value }));
+				}}
+				initialState={{
+					pagination: {
+						paginationModel: {
+							page: 0,
+							pageSize: 5,
+						},
+					},
+				}}
+			/>
+		</Stack>
+	);
+}
+
 export default function CustomerManagementPage() {
 	const { t } = useTranslation();
 	const session = useSession();
@@ -286,13 +423,15 @@ export default function CustomerManagementPage() {
 	};
 
 	const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
-		null
+		null,
 	);
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 	const handleEditClick = (customerId: string) => {
 		setSelectedCustomerId(customerId);
 		setIsEditDialogOpen(true);
 	};
+	const [softwareVersionOfProcessQuery, setSoftwareVersionOfProcessQuery] =
+		useState<GetSoftwareVersionOfDeploymentProcessByCustomerQuery | null>(null);
 
 	return (
 		<Box>
@@ -334,7 +473,7 @@ export default function CustomerManagementPage() {
 				<CreateCustomerFormDialog userId={userId} />
 			</Stack>
 			{(customers.isLoading || customers.isFetching) && <LinearProgress />}
-			<PaginationTable
+			<CollapsibleTable
 				headers={
 					<>
 						<TableCell key={`customerName`} align="center">
@@ -344,42 +483,73 @@ export default function CustomerManagementPage() {
 						<TableCell key={`email`} align="center">
 							{t('email')}
 						</TableCell>
-
+						<TableCell />
 						<TableCell />
 					</>
 				}
 				count={customers.data?.numberOfElements ?? 0}
 				rows={customers.data?.content ?? []}
+				pageNumber={customerQuery?.pageNumber}
+				pageSize={customerQuery?.pageSize}
 				onPageChange={(newPage) =>
 					setCustomerQuery((prev) => {
 						return { ...prev, ...newPage };
 					})
 				}
 				getCell={(row) => (
-					<TableRow key={row.id}>
-						<TableCell key={`customerName`} align="center">
-							{row.name}
-						</TableCell>
-
-						<TableCell key={`email`} align="center">
-							{row.email}
-						</TableCell>
-
-						<TableCell>
-							<Stack direction="row">
-								<IconButton
-									size="small"
-									onClick={() => handleEditClick(row.id)}
+					<CollapsibleTableRow
+						key={row.id}
+						cells={
+							<>
+								<TableCell
+									key={`customerName`}
+									align="justify"
+									component="th"
+									scope="row"
 								>
-									<EditIcon color="info" />
-								</IconButton>
+									{row.name}
+								</TableCell>
+								<TableCell key={`email`} align="center">
+									{row.email}
+								</TableCell>
 
-								<IconButton size="small" onClick={() => handleDelete(row.id)}>
-									<DeleteIcon color="error" />
-								</IconButton>
-							</Stack>
-						</TableCell>
-					</TableRow>
+								<TableCell align="center">
+									<Stack direction="row">
+										<IconButton
+											size="small"
+											onClick={() => handleEditClick(row.id)}
+										>
+											<EditIcon color="info" />
+										</IconButton>
+
+										<IconButton
+											size="small"
+											onClick={() => handleDelete(row.id)}
+										>
+											<DeleteIcon color="error" />
+										</IconButton>
+									</Stack>
+								</TableCell>
+							</>
+						}
+						inner={
+							<SoftwareInner
+								softwareVersionOfProcessQuery={softwareVersionOfProcessQuery}
+								setSoftwareVersionOfProcessQuery={
+									setSoftwareVersionOfProcessQuery
+								}
+							/>
+						}
+						onExpand={() => {
+							setSoftwareVersionOfProcessQuery({
+								customerId: row.id,
+								softwareName: '',
+								softwareVersionName: '',
+								pageNumber: 0,
+								pageSize: 5,
+							});
+						}}
+					/>
 				)}
 			/>
 			{isEditDialogOpen && selectedCustomerId && (

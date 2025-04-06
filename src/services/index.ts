@@ -144,6 +144,7 @@ import {
 	useGetMemberIdsQuery as useGetDeploymentProcessMemberIds,
 	useGetProcessQuery as useGetDeploymentProcess,
 	useGetAllModulesQuery as useGetAllModulesInProcess,
+	useGetSoftwareVersionByCustomerIdQuery as useGetSoftwareVersionOfDeploymentProcessByCustomer,
 	usePostProcessMutation as useCreateDeploymentProcess,
 	usePutProcessMutation as useUpdateDeploymentProcess,
 	usePutMemberMutation as useUpdateDeploymentProcessMember,
@@ -155,6 +156,7 @@ export {
 	useGetDeploymentProcess,
 	useGetDeploymentProcessMemberIds,
 	useGetAllModulesInProcess,
+	useGetSoftwareVersionOfDeploymentProcessByCustomer,
 	useCreateDeploymentProcess,
 	useUpdateDeploymentProcess,
 	useUpdateDeploymentProcessMember,
@@ -164,26 +166,32 @@ export {
 import {
 	deploymentPhaseApi,
 	useGetAllPhasesByProcessIdQuery as useGetAllDeploymentPhasesByProcessId,
+	useGetUpdateHistoriesQuery as useGetDeploymentPhaseUpdateHistories,
 	useGetPhaseByIdQuery as useGetPhaseById,
 	useGetMemberIdsQuery as useGetDeploymentPhaseMemberIds,
+	useGetMembersQuery as useGetDeploymentPhaseMembers,
 	usePostPhaseMutation as useCreateDeploymentPhase,
 	useGetAllAttachmentsQuery as useGetAllPhaseAttachments,
 	usePutPhaseMutation as useUpdateDeploymentPhase,
 	usePutMemberMutation as useUpdateDeploymentPhaseMember,
 	useDeletePhaseMutation as useDeleteDeploymentPhase,
 	usePutAttachmentMutation as useUpdateDeploymentPhaseAttachment,
+	usePutActualMutation as useUpdateDeploymentPhaseActualDates,
 } from './deployment-phase';
 export {
 	deploymentPhaseApi,
 	useGetAllDeploymentPhasesByProcessId,
+	useGetDeploymentPhaseUpdateHistories,
 	useGetPhaseById,
 	useGetDeploymentPhaseMemberIds,
+	useGetDeploymentPhaseMembers,
 	useCreateDeploymentPhase,
 	useUpdateDeploymentPhase,
 	useUpdateDeploymentPhaseMember,
 	useDeleteDeploymentPhase,
 	useGetAllPhaseAttachments,
 	useUpdateDeploymentPhaseAttachment,
+	useUpdateDeploymentPhaseActualDates,
 };
 
 import {

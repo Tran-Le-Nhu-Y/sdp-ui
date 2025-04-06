@@ -83,6 +83,21 @@ declare interface GetAllDeploymentPhaseQuery {
 	processId: number;
 }
 
+declare interface GetAllDeploymentPhaseUpdateHistoriesQuery {
+	processId: number;
+	phaseTypeName?: string?;
+	description?: string?;
+	pageNumber?: number?;
+	pageSize?: number?;
+}
+declare interface GetSoftwareVersionOfDeploymentProcessByCustomerQuery {
+	customerId: string;
+	softwareName: string;
+	softwareVersionName: string;
+	pageNumber?: number?;
+	pageSize?: number?;
+}
+
 declare interface GetAllMemberByDeploymentPhaseQuery {
 	phaseId: string;
 }

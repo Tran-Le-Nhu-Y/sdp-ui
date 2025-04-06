@@ -111,6 +111,17 @@ declare interface ModuleInDeploymentProcess {
 	};
 }
 
+declare interface SoftwareVersionOfDeploymentProcessAndCustomer {
+	processId: number;
+	customerId: string;
+	softwareVersion: {
+		versionId: string;
+		versionName: string;
+		softwareId: string;
+		softwareName: string;
+	};
+}
+
 declare interface DeploymentPhaseType {
 	id: string;
 	name: string;
@@ -134,6 +145,20 @@ declare interface DeploymentPhase {
 	actualEndDate: string?;
 	isDone: boolean;
 	lastUpdatedByUserId?: string?;
+}
+
+declare interface DeploymentPhaseUpdateHistory {
+	numOrder: number;
+	userPerformed: UserMetadata;
+	phase: {
+		id: string;
+		type: {
+			name: string;
+		};
+	};
+	description: string?;
+	isDone: boolean;
+	updatedAt: number;
 }
 
 declare interface SoftwareDocument {
@@ -186,6 +211,7 @@ declare interface NotificationHistory {
 
 declare interface SoftwareLicense {
 	id: string;
+	description?: string?;
 	startTime: string;
 	endTime: string;
 	expireAlertIntervalDay: number;
