@@ -17,6 +17,7 @@ import {
 	DialogContent,
 	DialogTitle,
 	TextField,
+	Tooltip,
 } from '@mui/material';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +27,7 @@ import {
 	DragAndDropForm,
 	Guard,
 } from '../../components';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
 	convertToAPIDateFormat,
 	getDeploymentProcessStatusTransKey,
@@ -34,6 +35,7 @@ import {
 	isValidLength,
 	parseToDayjs,
 	PathHolders,
+	RoutePaths,
 	TextLength,
 } from '../../utils';
 import {
@@ -49,9 +51,11 @@ import {
 	useGetDeploymentProcessMemberIds,
 	useUpdateDeploymentPhaseActualDates,
 	useUpdateDeploymentPhaseAttachment,
+	useUpdateSoftwareLicense,
 } from '../../services';
 import { useNotifications, useSession } from '@toolpad/core';
 import {
+	GridActionsCellItem,
 	GridColDef,
 	GridToolbarColumnsButton,
 	GridToolbarContainer,
@@ -62,6 +66,8 @@ import {
 import { useGetAllPhasesByProcessIdQuery } from '../../services/deployment-phase';
 import dayjs from 'dayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
+import EditIcon from '@mui/icons-material/Edit';
 
 interface TabPanelProps {
 	children?: React.ReactNode;
@@ -513,7 +519,7 @@ function PhaseTab({
 										variant="contained"
 										onClick={() => handleComplete(phase.id)}
 										sx={{ mt: 1, mr: 1 }}
-										// disabled={phase.isDone}
+										disabled={phase.isDone}
 									>
 										{t('complete')}
 									</Button>
@@ -971,9 +977,11 @@ function LicenseTab({
 	phases: DeploymentPhase[];
 }) {
 	const { t } = useTranslation('standard');
+	const navigate = useNavigate();
 	const notifications = useNotifications();
 	const userId = useSession()?.user?.id ?? '';
-	const [showLicenseDialog, setShowLicenseDialog] = useState(false);
+	const [showCreateLicenseDialog, setShowCreateLicenseDialog] = useState(false);
+	const [showUpdateLicenseDialog, setShowUpdateLicenseDialog] = useState(false);
 	const showCopyrightButton = useMemo(
 		() => phases.every((phase) => phase.isDone),
 		[phases],
@@ -1041,7 +1049,7 @@ function LicenseTab({
 				severity: 'success',
 				autoHideDuration: HideDuration.fast,
 			});
-			setShowLicenseDialog(false);
+			setShowCreateLicenseDialog(false);
 		} catch (error) {
 			notifications.show(t('createLicenseError'), {
 				severity: 'error',
@@ -1051,6 +1059,48 @@ function LicenseTab({
 		}
 	};
 
+	const [licenseEditing, setLicenseEditing] =
+		useState<SoftwareLicenseUpdateRequest>();
+	const [updateLicenseTrigger, { isLoading: isUpdatingLicense }] =
+		useUpdateSoftwareLicense();
+
+	const handleEditLicense = (params: SoftwareLicense) => {
+		const license = params;
+		const licenseId = params.id;
+		setLicenseEditing({
+			licenseId: licenseId,
+			description: license.description,
+			expireAlertIntervalDay: license.expireAlertIntervalDay,
+		});
+
+		setShowUpdateLicenseDialog(true);
+	};
+
+	const updateLicenseHandler = useCallback(
+		async (
+			request: SoftwareLicenseUpdateRequest,
+			successText: string,
+			errorText: string,
+		) => {
+			try {
+				await updateLicenseTrigger(request).unwrap();
+
+				notifications.show(successText, {
+					severity: 'success',
+					autoHideDuration: HideDuration.fast,
+				});
+				setShowUpdateLicenseDialog(false);
+			} catch (error) {
+				console.error(error);
+				notifications.show(errorText, {
+					severity: 'error',
+					autoHideDuration: HideDuration.fast,
+				});
+			}
+		},
+		[notifications, updateLicenseTrigger],
+	);
+
 	const licenseCols: GridColDef<SoftwareLicense>[] = useMemo(
 		() => [
 			{
@@ -1058,7 +1108,7 @@ function LicenseTab({
 				headerName: t('description'),
 				editable: false,
 				sortable: false,
-
+				filterable: false,
 				width: 250,
 				type: 'string',
 				valueGetter: (_value, row) => {
@@ -1125,41 +1175,64 @@ function LicenseTab({
 					return row.updatedAt ?? '';
 				},
 			},
+			{
+				field: 'actions',
+				headerName: t('action'),
+				type: 'actions',
+				width: 40,
+				getActions: (params) => [
+					<GridActionsCellItem
+						icon={
+							<Tooltip title={t('seeDetail')}>
+								<RemoveRedEyeIcon color="info" />
+							</Tooltip>
+						}
+						color="success"
+						label={t('seeDetail')}
+						onClick={() => {
+							const licenseId = params.id.toString();
+							navigate(
+								RoutePaths.SOFTWARE_LICENSE_DETAIL.replace(
+									`:${PathHolders.SOFTWARE_LICENSE_ID}`,
+									licenseId,
+								),
+							);
+						}}
+					/>,
+					<GridActionsCellItem
+						icon={
+							<Tooltip title={t('edit')}>
+								<EditIcon color="info" />
+							</Tooltip>
+						}
+						color="success"
+						label={t('edit')}
+						onClick={() => {
+							handleEditLicense(params.row);
+						}}
+					/>,
+				],
+			},
 		],
-		[t],
+		[t, navigate],
 	);
 
 	return (
 		<Stack width={'100%'} spacing={2}>
 			<Guard requiredRoles={['software_admin']}>
 				{showCopyrightButton && (
-					<Paper square elevation={3} sx={{ p: 1 }}>
-						<Box
-							sx={{
-								p: 2,
-								display: 'flex',
-								gap: 2,
-								alignItems: 'center',
-							}}
+					<Stack direction={'row'} justifyContent={'flex-end'}>
+						<Button
+							variant="contained"
+							onClick={() => setShowCreateLicenseDialog(true)}
 						>
-							<Stack>
-								<Typography variant="h6">
-									{t('completedAllDeploymentPhase')}
-								</Typography>
-								<Typography variant="body1">{t('canCreateLicense')}</Typography>
-							</Stack>
-							<Button
-								variant="contained"
-								onClick={() => setShowLicenseDialog(true)}
-							>
-								{t('createLicense')}
-							</Button>
-						</Box>
-					</Paper>
+							{t('createLicense')}
+						</Button>
+					</Stack>
 				)}
 				<Dialog
-					open={showLicenseDialog}
-					onClose={() => setShowLicenseDialog(false)}
+					open={showCreateLicenseDialog}
+					onClose={() => setShowCreateLicenseDialog(false)}
 				>
 					<DialogTitle textAlign={'center'}>{t('createLicense')}</DialogTitle>
 					<DialogContent>
@@ -1248,7 +1321,10 @@ function LicenseTab({
 						</Stack>
 					</DialogContent>
 					<DialogActions>
-						<Button onClick={() => setShowLicenseDialog(false)} color="primary">
+						<Button
+							onClick={() => setShowCreateLicenseDialog(false)}
+							color="primary"
+						>
 							{t('cancel')}
 						</Button>
 						<Button onClick={handleCreateLicense} color="primary">
@@ -1256,22 +1332,97 @@ function LicenseTab({
 						</Button>
 					</DialogActions>
 				</Dialog>
-			</Guard>
+				<Dialog
+					open={showUpdateLicenseDialog}
+					onClose={() => setShowUpdateLicenseDialog(false)}
+				>
+					<DialogTitle textAlign={'center'}>{t('updateLicense')}</DialogTitle>
+					<DialogContent>
+						<Stack width={'450px'} spacing={2} padding={3}>
+							<TextField
+								fullWidth
+								size="medium"
+								label={t('licenseDescription')}
+								helperText={t('hyperTextVeryLong')}
+								value={licenseEditing?.description}
+								onChange={(e) => {
+									const newValue = e.target.value;
+									if (isValidLength(newValue, TextLength.VeryLong))
+										setLicenseEditing((pre) => ({
+											...pre!,
+											description: newValue,
+										}));
+								}}
+								placeholder={`${t('enter')} ${t('description').toLowerCase()}...`}
+								multiline
+								rows={4}
+							/>
 
+							<TextField
+								required
+								id="num-order"
+								name="numOrder"
+								label={t('expiredAlertIntervalDays')}
+								fullWidth
+								type="number"
+								variant="standard"
+								value={licenseEditing?.expireAlertIntervalDay ?? 0}
+								onChange={(e) => {
+									const numOrder = Number(e.currentTarget.value);
+									if (
+										!Number.isSafeInteger(numOrder) ||
+										numOrder < 0 ||
+										numOrder > 100
+									)
+										return;
+
+									setLicenseEditing((pre) => ({
+										...pre!,
+										expireAlertIntervalDay: numOrder,
+									}));
+								}}
+							/>
+						</Stack>
+					</DialogContent>
+					<DialogActions>
+						<Button
+							onClick={() => setShowUpdateLicenseDialog(false)}
+							color="primary"
+						>
+							{t('cancel')}
+						</Button>
+						<Button
+							onClick={() => {
+								if (!licenseEditing) return;
+								updateLicenseHandler(
+									{
+										licenseId: licenseEditing.licenseId!,
+										description: licenseEditing.description!,
+										expireAlertIntervalDay:
+											licenseEditing.expireAlertIntervalDay!,
+									},
+									t('updateLicenseSuccess'),
+									t('updateLicenseError'),
+								);
+							}}
+							color="primary"
+						>
+							{t('submit')}
+						</Button>
+					</DialogActions>
+				</Dialog>
+			</Guard>
 			<CustomDataGrid
-				loading={licenses.isLoading || licenses.isFetching}
+				loading={licenses.isLoading || licenses.isFetching || isUpdatingLicense}
 				slots={{
 					toolbar: () => (
 						<GridToolbarContainer>
-							<GridToolbarFilterButton />
 							<GridToolbarDensitySelector />
 							<GridToolbarColumnsButton />
 						</GridToolbarContainer>
 					),
 				}}
-				getRowId={(row) =>
-					`${row.id}-${row.description}-${row.startTime}-${row.endTime}`
-				}
+				getRowId={(row) => row.id}
 				rows={licenses.data?.content ?? []}
 				columns={licenseCols}
 				rowCount={licenses.data?.totalElements ?? 0}
@@ -1290,26 +1441,6 @@ function LicenseTab({
 				}}
 				pageSizeOptions={[5, 10, 15]}
 				filterMode="server"
-				onFilterModelChange={(model) => {
-					const value = model.items.reduce(
-						(acc, item) => {
-							if (item.field === 'description') {
-								return {
-									...acc,
-									description: item.value,
-								};
-							}
-							if (item.field === 'phaseType')
-								return {
-									...acc,
-									phaseTypeName: item.value,
-								};
-							return acc;
-						},
-						{ description: '', phaseTypeName: '' },
-					);
-					setLicenseQuery((prev) => ({ ...prev, ...value }));
-				}}
 				initialState={{
 					pagination: {
 						paginationModel: {
