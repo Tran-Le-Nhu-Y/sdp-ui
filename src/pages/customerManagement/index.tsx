@@ -265,7 +265,7 @@ function SoftwareInner({
 		softwareVersionOfProcessQuery!,
 		{
 			skip: !softwareVersionOfProcessQuery,
-		},
+		}
 	);
 	useEffect(() => {
 		if (softwareVersion.isError)
@@ -282,6 +282,8 @@ function SoftwareInner({
 					field: 'softwareName',
 					headerName: t('softwareName'),
 					editable: false,
+					sortable: false,
+					filterable: false,
 					width: 200,
 					type: 'string',
 					valueGetter: (_value, row) => {
@@ -291,15 +293,29 @@ function SoftwareInner({
 				{
 					field: 'versionName',
 					editable: false,
+					sortable: false,
+					filterable: false,
 					minWidth: 200,
 					headerName: t('versionName'),
+					headerAlign: 'center',
+					align: 'center',
 					type: 'string',
 					valueGetter: (_value, row) => {
 						return row.softwareVersion.versionName;
 					},
 				},
+				{
+					field: 'processId',
+					editable: false,
+					sortable: false,
+					filterable: false,
+					minWidth: 200,
+					headerName: t('processId'),
+					headerAlign: 'center',
+					type: 'number',
+				},
 			],
-			[t],
+			[t]
 		);
 
 	return (
@@ -355,7 +371,7 @@ function SoftwareInner({
 								};
 							return acc;
 						},
-						{ softwareName: '', versionName: '' },
+						{ softwareName: '', versionName: '' }
 					);
 					setSoftwareVersionOfProcessQuery((prev) => ({ ...prev!, ...value }));
 				}}
@@ -423,7 +439,7 @@ export default function CustomerManagementPage() {
 	};
 
 	const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
-		null,
+		null
 	);
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 	const handleEditClick = (customerId: string) => {

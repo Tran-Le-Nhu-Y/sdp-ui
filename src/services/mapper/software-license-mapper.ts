@@ -14,7 +14,7 @@ function toEntity(response: SoftwareLicenseResponse): SoftwareLicense {
 
 function toDetailEntity(
 	response: SoftwareLicenseDetailResponse,
-	licenseCreator: UserMetadata,
+	licenseCreator: UserMetadata
 ): SoftwareLicenseDetail {
 	const process = response.process;
 	return {
@@ -22,7 +22,7 @@ function toDetailEntity(
 		description: response.description,
 		startTimeMs: response.startTimeMs,
 		endTimeMs: response.endTimeMs,
-		isExpireAlertDone: false,
+		isExpireAlertDone: response.isExpireAlertDone,
 		expireAlertIntervalDay: response.expireAlertIntervalDay,
 		createdAt: new Date(response.createdAtMs).toLocaleString(),
 		updatedAt: response.updatedAtMs

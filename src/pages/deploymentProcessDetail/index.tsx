@@ -115,7 +115,7 @@ function PhaseTab({
 	const [openDialog, setOpenDialog] = useState(false);
 	const showCopyrightButton = useMemo(
 		() => phases.every((phase) => phase.isDone),
-		[phases],
+		[phases]
 	);
 	const [showLicenseDialog, setShowLicenseDialog] = useState(false);
 	const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
@@ -133,7 +133,7 @@ function PhaseTab({
 		async (
 			request: DeploymentPhaseUpdateActualDatesRequest,
 			successText: string,
-			errorText: string,
+			errorText: string
 		) => {
 			try {
 				await updateActualDateTrigger(request).unwrap();
@@ -150,7 +150,7 @@ function PhaseTab({
 				});
 			}
 		},
-		[notifications, updateActualDateTrigger],
+		[notifications, updateActualDateTrigger]
 	);
 
 	const handleStart = async (phaseId: string) => {
@@ -169,7 +169,7 @@ function PhaseTab({
 				updatedByUserId: userId,
 			},
 			t('updateDeploymentPhaseActualStartDateSuccess'),
-			t('updateDeploymentPhaseActualStartDateError'),
+			t('updateDeploymentPhaseActualStartDateError')
 		);
 	};
 
@@ -193,7 +193,7 @@ function PhaseTab({
 				const fileIds = await Promise.all(
 					addedFiles.map((file) => {
 						return uploadFileTrigger({ userId, file }).unwrap();
-					}),
+					})
 				);
 				await Promise.all(
 					fileIds.map((fileId) =>
@@ -201,8 +201,8 @@ function PhaseTab({
 							phaseId: selectedPhaseId,
 							attachmentId: fileId,
 							operator: 'ADD',
-						}).unwrap(),
-					),
+						}).unwrap()
+					)
 				);
 			} catch (error) {
 				notifications.show(t('uploadedFileError'), {
@@ -240,7 +240,7 @@ function PhaseTab({
 				updatedByUserId: userId,
 			},
 			t('updateDeploymentPhaseActualEndDateSuccess'),
-			t('updateDeploymentPhaseActualEndDateError'),
+			t('updateDeploymentPhaseActualEndDateError')
 		);
 
 		phaseUpdateHistories.refetch();
@@ -336,7 +336,7 @@ function PhaseTab({
 				type: 'string',
 			},
 		],
-		[t],
+		[t]
 	);
 
 	const [phaseUpdateHistoriesQuery, setPhaseUpdateHistoriesQuery] =
@@ -346,7 +346,7 @@ function PhaseTab({
 			pageSize: 5,
 		});
 	const phaseUpdateHistories = useGetDeploymentPhaseUpdateHistories(
-		phaseUpdateHistoriesQuery,
+		phaseUpdateHistoriesQuery
 	);
 	const historyCols: GridColDef<DeploymentPhaseUpdateHistory>[] = useMemo(
 		() => [
@@ -412,7 +412,7 @@ function PhaseTab({
 				},
 			},
 		],
-		[t],
+		[t]
 	);
 
 	return (
@@ -710,7 +710,7 @@ function PhaseTab({
 								};
 							return acc;
 						},
-						{ description: '', phaseTypeName: '' },
+						{ description: '', phaseTypeName: '' }
 					);
 					setPhaseUpdateHistoriesQuery((prev) => ({ ...prev, ...value }));
 				}}
@@ -801,7 +801,7 @@ function ModuleTab({ processId }: { processId: number }) {
 				flex: 1,
 			},
 		],
-		[t],
+		[t]
 	);
 
 	return (
@@ -852,7 +852,7 @@ function PersonnelTab({ processId }: { processId: number }) {
 				}) ?? []
 			);
 		},
-		[memberIdQuery?.data, userQuery?.data],
+		[memberIdQuery?.data, userQuery?.data]
 	);
 
 	const unselectedUsers = useMemo(() => findUsers(false), [findUsers]);
@@ -876,7 +876,7 @@ function PersonnelTab({ processId }: { processId: number }) {
 				type: 'string',
 			},
 		],
-		[t],
+		[t]
 	);
 
 	const selectedUsers = useMemo(() => findUsers(true), [findUsers]);
@@ -898,7 +898,7 @@ function PersonnelTab({ processId }: { processId: number }) {
 				headerName: t('emailAddress'),
 			},
 		],
-		[t],
+		[t]
 	);
 
 	if (userQuery.isLoading || memberIdQuery.isLoading) return <LinearProgress />;
@@ -984,7 +984,7 @@ function LicenseTab({
 	const [showUpdateLicenseDialog, setShowUpdateLicenseDialog] = useState(false);
 	const showCopyrightButton = useMemo(
 		() => phases.every((phase) => phase.isDone),
-		[phases],
+		[phases]
 	);
 	const [licenseQuery, setLicenseQuery] =
 		useState<GetAllProcessSoftwareLicensesQuery>({
@@ -1080,7 +1080,7 @@ function LicenseTab({
 		async (
 			request: SoftwareLicenseUpdateRequest,
 			successText: string,
-			errorText: string,
+			errorText: string
 		) => {
 			try {
 				await updateLicenseTrigger(request).unwrap();
@@ -1098,7 +1098,7 @@ function LicenseTab({
 				});
 			}
 		},
-		[notifications, updateLicenseTrigger],
+		[notifications, updateLicenseTrigger]
 	);
 
 	const licenseCols: GridColDef<SoftwareLicense>[] = useMemo(
@@ -1132,7 +1132,7 @@ function LicenseTab({
 				editable: false,
 				sortable: false,
 				filterable: false,
-				minWidth: 200,
+				width: 200,
 				headerName: t('licenseEndTime'),
 				type: 'string',
 				valueGetter: (_value, row) => {
@@ -1144,7 +1144,7 @@ function LicenseTab({
 				editable: false,
 				sortable: false,
 				filterable: false,
-				minWidth: 200,
+				width: 200,
 				headerName: t('expiredAlertIntervalDays'),
 				type: 'number',
 				valueGetter: (_value, row) => {
@@ -1156,7 +1156,7 @@ function LicenseTab({
 				editable: false,
 				sortable: false,
 				filterable: false,
-				minWidth: 200,
+				width: 200,
 				headerName: t('dateCreated'),
 				type: 'string',
 				valueGetter: (_value, row) => {
@@ -1168,7 +1168,7 @@ function LicenseTab({
 				editable: false,
 				sortable: false,
 				filterable: false,
-				minWidth: 200,
+				width: 200,
 				headerName: t('updatedDate'),
 				type: 'string',
 				valueGetter: (_value, row) => {
@@ -1179,7 +1179,7 @@ function LicenseTab({
 				field: 'actions',
 				headerName: t('action'),
 				type: 'actions',
-				width: 40,
+				width: 80,
 				getActions: (params) => [
 					<GridActionsCellItem
 						icon={
@@ -1194,8 +1194,8 @@ function LicenseTab({
 							navigate(
 								RoutePaths.SOFTWARE_LICENSE_DETAIL.replace(
 									`:${PathHolders.SOFTWARE_LICENSE_ID}`,
-									licenseId,
-								),
+									licenseId
+								)
 							);
 						}}
 					/>,
@@ -1214,7 +1214,7 @@ function LicenseTab({
 				],
 			},
 		],
-		[t, navigate],
+		[t, navigate]
 	);
 
 	return (
@@ -1402,7 +1402,7 @@ function LicenseTab({
 											licenseEditing.expireAlertIntervalDay!,
 									},
 									t('updateLicenseSuccess'),
-									t('updateLicenseError'),
+									t('updateLicenseError')
 								);
 							}}
 							color="primary"
@@ -1480,7 +1480,7 @@ const DeploymentProcessDetailPage = () => {
 		{ processId: numericProcessId || 0 },
 		{
 			skip: !numericProcessId,
-		},
+		}
 	);
 	useEffect(() => {
 		if (phasesQuery.isError)
@@ -1506,8 +1506,8 @@ const DeploymentProcessDetailPage = () => {
 						{deploymentProcess.data?.status &&
 							t(
 								getDeploymentProcessStatusTransKey(
-									deploymentProcess.data?.status,
-								),
+									deploymentProcess.data?.status
+								)
 							)}
 					</Typography>
 				</Stack>
