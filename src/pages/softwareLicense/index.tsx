@@ -91,7 +91,7 @@ const SoftwareLicenseDetailPage = () => {
 								onClick={() => {
 									const path = RoutePaths.DEPLOYMENT_PROCESS_DETAIL.replace(
 										`:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
-										`${licenseQuery.data?.processId ?? ''}`,
+										`${licenseQuery.data?.processId ?? ''}`
 									);
 									navigate(path);
 								}}
@@ -147,7 +147,7 @@ const SoftwareLicenseDetailPage = () => {
 			<Button
 				variant="outlined"
 				onClick={() => {
-					navigate(RoutePaths.EXPIRED_SOFTWARE_LICENSES, { replace: true });
+					navigate(RoutePaths.EXPIRED_SOFTWARE_LICENSES);
 				}}
 			>
 				{t('return')}

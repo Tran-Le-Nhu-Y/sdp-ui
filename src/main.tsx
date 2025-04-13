@@ -20,7 +20,6 @@ import {
 	ModifySoftwareDocumentPage,
 	ModifySoftwarePage,
 	ModifySoftwareVersionPage,
-	OverviewPage,
 	SoftwareDocumentDetailPage,
 	SoftwarePage,
 	SoftwareVersionDetailPage,
@@ -50,7 +49,7 @@ const router = createBrowserRouter(
 	createRoutesFromElements(
 		<Route path="/" element={<App />} errorElement={<ErrorPage />}>
 			<Route path={RoutePaths.NOTIFICATION} element={<NotificationPage />} />
-			<Route path={RoutePaths.OVERVIEW} element={<OverviewPage />} />
+			{/* <Route path={RoutePaths.OVERVIEW} element={<OverviewPage />} /> */}
 
 			<Route path={RoutePaths.CUSTOMER} element={<CustomerManagementPage />} />
 
@@ -163,8 +162,8 @@ const router = createBrowserRouter(
 				path={RoutePaths.SOFTWARE_LICENSE_DETAIL}
 				element={<SoftwareLicenseDetailPage />}
 			/>
-		</Route>,
-	),
+		</Route>
+	)
 );
 
 createRoot(document.getElementById('root')!).render(
@@ -172,5 +171,5 @@ createRoot(document.getElementById('root')!).render(
 		<Provider store={store}>
 			<RouterProvider router={router} />
 		</Provider>
-	</StrictMode>,
+	</StrictMode>
 );
