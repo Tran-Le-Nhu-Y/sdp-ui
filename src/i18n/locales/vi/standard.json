@@ -346,7 +346,7 @@
 	"licenseEndTimeRequire": "Thời điểm hết hiệu lực không được để trống",
 	"expireAlertIntervalDayRequire": "Thời gian thông báo trước ngày hết hiệu lực không được để trống",
 	"days": "ngày",
-	"expiredAlertIntervalDays": "Thông báo hết hạn trước bao nhiêu ngày",
+	"expiredAlertIntervalDays": "Thông báo hết hạn trước",
 	"isExpiredLicenseAlertDone": "Đã gửi mail thông báo hết hạn",
 	"licenseDetailInfor": "Thông tin chi tiết giấy phép",
 	"creator": "Người tạo",
