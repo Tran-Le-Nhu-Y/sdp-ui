@@ -294,7 +294,7 @@ export default function PhaseTab({
 
 	const [phaseUpdateHistoriesQuery, setPhaseUpdateHistoriesQuery] =
 		useState<GetAllDeploymentPhaseUpdateHistoriesQuery>({
-			processId: 1,
+			processId: processId,
 			pageNumber: 0,
 			pageSize: 5,
 		});
