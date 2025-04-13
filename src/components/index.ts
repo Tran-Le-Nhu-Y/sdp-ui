@@ -2,7 +2,6 @@ import HydrateFallback from './HydrateFallback';
 import { CollapsibleTable, CollapsibleTableRow } from './CollapsibleTable';
 import FilterAction from './FilterAction';
 import CreateOrModifyForm from './CreateOrModifyForm';
-import CreateModifyVersionForm from './CreateModifyVersionForm';
 import {
 	DragAndDropForm,
 	FileAttachment,
@@ -29,7 +28,6 @@ export {
 	CollapsibleTableRow,
 	FilterAction,
 	CreateOrModifyForm,
-	CreateModifyVersionForm,
 	DragAndDropForm,
 	PaginationTable,
 	ReadonlyTextEditor,

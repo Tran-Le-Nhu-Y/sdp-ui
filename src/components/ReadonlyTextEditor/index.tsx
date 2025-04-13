@@ -5,38 +5,41 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
+import { ClassicEditor } from '@ckeditor/ckeditor5-editor-classic/dist/index.js';
 import {
-	ClassicEditor,
-	Alignment,
-	Autoformat,
-	Autosave,
-	BlockQuote,
 	Bold,
-	CodeBlock,
-	Emoji,
-	Essentials,
-	GeneralHtmlSupport,
-	Heading,
-	Indent,
-	IndentBlock,
 	Italic,
-	Link,
-	List,
-	ListProperties,
-	Mention,
-	Paragraph,
-	Style,
+	Underline,
+} from '@ckeditor/ckeditor5-basic-styles/dist/index.js';
+import { Essentials } from '@ckeditor/ckeditor5-essentials/dist/index.js';
+import { GeneralHtmlSupport } from '@ckeditor/ckeditor5-html-support/dist/index.js';
+import { Link } from '@ckeditor/ckeditor5-link/dist/index.js';
+import { EditorConfig } from '@ckeditor/ckeditor5-core/dist/index.js';
+import { Heading } from '@ckeditor/ckeditor5-heading/dist/index.js';
+import { TextTransformation } from '@ckeditor/ckeditor5-typing/dist/index.js';
+import { Mention } from '@ckeditor/ckeditor5-mention/dist/index.js';
+import { Paragraph } from '@ckeditor/ckeditor5-paragraph/dist/index.js';
+import { CodeBlock } from '@ckeditor/ckeditor5-code-block/dist/index.js';
+import { Indent, IndentBlock } from '@ckeditor/ckeditor5-indent/dist/index.js';
+import { Emoji } from '@ckeditor/ckeditor5-emoji/dist/index.js';
+import { BlockQuote } from '@ckeditor/ckeditor5-block-quote/dist/index.js';
+import { Style } from '@ckeditor/ckeditor5-style/dist/index.js';
+import { Autosave } from '@ckeditor/ckeditor5-autosave/dist/index.js';
+import { Autoformat } from '@ckeditor/ckeditor5-autoformat/dist/index.js';
+import { Alignment } from '@ckeditor/ckeditor5-alignment/dist/index.js';
+import {
 	Table,
 	TableCaption,
 	TableCellProperties,
 	TableColumnResize,
 	TableProperties,
 	TableToolbar,
-	TextTransformation,
+} from '@ckeditor/ckeditor5-table/dist/index.js';
+import {
+	List,
+	ListProperties,
 	TodoList,
-	Underline,
-	EditorConfig,
-} from 'ckeditor5';
+} from '@ckeditor/ckeditor5-list/dist/index.js';
 
 import translations from 'ckeditor5/translations/vi.js';
 
