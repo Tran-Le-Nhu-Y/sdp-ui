@@ -20,7 +20,7 @@ import ModuleVersionDetailPage from './moduleVersionDetail';
 import ModifyModuleVersionPage from './modifyModuleVersion';
 import TemplateSoftwareExpirationPage from './mailTemplateSoftwareExpiration';
 import TemplateCompleteDeploymentPage from './mailTemplateCompleteDeployment';
-import CreateModuleDocumentPage from './createModulDocument';
+import CreateModuleDocumentPage from './createModuleDocument';
 import ModifyModuleDocumentPage from './modifyModuleDocument';
 import ModuleDocumentDetailPage from './moduleDocumentDetail';
 import DeploymentPhaseTypePage from './deploymentPhaseType';

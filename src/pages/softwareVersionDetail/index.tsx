@@ -4,7 +4,6 @@ import {
 	Stack,
 	Box,
 	TableCell,
-	TableRow,
 	Button,
 	Divider,
 	LinearProgress,
@@ -13,12 +12,10 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { useTranslation } from 'react-i18next';
 import {
 	CollapsibleTable,
 	CollapsibleTableRow,
-	PaginationTable,
 	FilterDialog,
 	ReadonlyTextEditor,
 } from '../../components';
@@ -27,400 +24,20 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
 	useDeleteModule,
-	useDeleteModuleVersion,
-	useDeleteSoftwareDocument,
 	useDeleteSoftwareVersion,
 	useGetAllModuleBySoftwareVersionId,
-	useGetAllModuleVersionsByModuleId,
-	useGetAllSoftwareDocumentByVersionId,
 	useGetSoftwareById,
 	useGetSoftwareVersionById,
 } from '../../services';
 import { useDialogs, useNotifications } from '@toolpad/core';
 import { HideDuration, PathHolders, RoutePaths } from '../../utils';
-
-function DocumentsOfVersionTable({
-	versionId,
-	documentQuery,
-	onQueryChange,
-}: {
-	versionId: string;
-	documentQuery: GetAllSoftwareDocumentQuery | null;
-	onQueryChange: (query: GetAllSoftwareDocumentQuery | null) => void;
-}) {
-	const navigate = useNavigate();
-	const { t } = useTranslation('standard');
-	const notifications = useNotifications();
-	const dialogs = useDialogs();
-	const [filterVersionDialogOpen, setFilterVersionDialogOpen] = useState(false);
-
-	const documents = useGetAllSoftwareDocumentByVersionId(documentQuery!, {
-		skip: !documentQuery,
-	});
-	useEffect(() => {
-		if (documents.isError)
-			notifications.show(t('fetchError'), {
-				severity: 'error',
-				autoHideDuration: HideDuration.fast,
-			});
-		// else if (software.isSuccess && software.data?.content.length === 0)
-		// 	notifications.show(t('noProduct'), { severity: 'info' });
-	}, [notifications, documents.isError, t]);
-
-	const [deleteSoftwareDocumentTrigger, deleteSoftwareDocument] =
-		useDeleteSoftwareDocument();
-	useEffect(() => {
-		if (deleteSoftwareDocument.isError)
-			notifications.show(t('deleteSoftwareVersionError'), {
-				severity: 'error',
-				autoHideDuration: HideDuration.fast,
-			});
-		else if (deleteSoftwareDocument.isSuccess)
-			notifications.show(t('deleteSoftwareVersionSuccess'), {
-				severity: 'success',
-				autoHideDuration: HideDuration.fast,
-			});
-	}, [
-		deleteSoftwareDocument.isError,
-		deleteSoftwareDocument.isSuccess,
-		notifications,
-		t,
-	]);
-	const handleDelete = async (versionId: string) => {
-		const confirmed = await dialogs.confirm(t('deleteSoftwareVersionConfirm'), {
-			okText: t('yes'),
-			cancelText: t('cancel'),
-		});
-		if (!confirmed) return;
-
-		await deleteSoftwareDocumentTrigger(versionId);
-	};
-
-	return (
-		<Box>
-			<Stack
-				direction="row"
-				justifyContent="space-between"
-				alignItems="center"
-				sx={{ marginBottom: 1 }}
-			>
-				<FilterDialog
-					filters={[
-						{
-							key: 'documentTypeName',
-							label: t('documentTypeName'),
-						},
-						{
-							key: 'softwareDocumentName',
-							label: t('documentName'),
-						},
-					]}
-					open={filterVersionDialogOpen}
-					onClose={() => setFilterVersionDialogOpen(false)}
-					onOpen={() => setFilterVersionDialogOpen(true)}
-					onApply={(filters) => {
-						const query: object = filters.reduce((pre, curr) => {
-							return { ...pre, [curr.key]: curr.value };
-						}, {});
-						const defaultProps: Omit<
-							GetAllSoftwareDocumentQuery,
-							'softwareVersionId'
-						> = {
-							...documentQuery,
-							softwareDocumentName: undefined,
-							documentTypeName: undefined,
-						};
-						onQueryChange({
-							...defaultProps,
-							softwareVersionId: versionId,
-							...query,
-						});
-					}}
-					onReset={() => {
-						onQueryChange({
-							softwareVersionId: versionId,
-							...documentQuery,
-							documentTypeName: '',
-							softwareDocumentName: '',
-						});
-					}}
-				/>
-				<Button
-					variant="contained"
-					onClick={() =>
-						navigate(
-							`${RoutePaths.CREATE_SOFTWARE_DOCUMENT.replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, versionId)}`
-						)
-					}
-				>
-					{t('addDocument')}
-				</Button>
-			</Stack>
-			{(deleteSoftwareDocument.isLoading || documents.isFetching) && (
-				<LinearProgress />
-			)}
-			<PaginationTable
-				headers={
-					<>
-						<TableCell key={`software-${versionId}-type`}>
-							{t('documentType')}
-						</TableCell>
-						<TableCell key={`software-${versionId}-name`}>
-							{t('documentName')}
-						</TableCell>
-						<TableCell key={`software-${versionId}-createdAt`} align="center">
-							{t('dateCreated')}
-						</TableCell>
-						<TableCell key={`software-${versionId}-updatedAt`} align="center">
-							{t('lastUpdated')}
-						</TableCell>
-						<TableCell />
-					</>
-				}
-				count={documents?.data?.totalElements ?? 0}
-				rows={documents?.data?.content ?? []}
-				onPageChange={(newPage) =>
-					onQueryChange({
-						softwareVersionId: versionId,
-						softwareDocumentName: documentQuery?.softwareDocumentName ?? '',
-						...newPage,
-					})
-				}
-				getCell={(row) => (
-					<TableRow key={`software_verion-${row.id}`}>
-						<TableCell>{row.typeName}</TableCell>
-						<TableCell>{row.name}</TableCell>
-						<TableCell align="center">{row.createdAt}</TableCell>
-						<TableCell align="center">{row.updatedAt}</TableCell>
-						<TableCell>
-							<Stack direction="row">
-								<IconButton
-									size="small"
-									onClick={() =>
-										navigate(
-											RoutePaths.SOFTWARE_DOCUMENT.replace(
-												`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
-												row.id
-											)
-										)
-									}
-								>
-									<RemoveRedEyeIcon color="info" />
-								</IconButton>
-								<IconButton
-									size="small"
-									onClick={() =>
-										navigate(
-											RoutePaths.MODIFY_SOFTWARE_DOCUMENT.replace(
-												`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
-												row.id
-											)
-										)
-									}
-								>
-									<EditIcon color="info" />
-								</IconButton>
-								<IconButton size="small" onClick={() => handleDelete(row.id)}>
-									<DeleteIcon color="error" />
-								</IconButton>
-							</Stack>
-						</TableCell>
-					</TableRow>
-				)}
-			/>
-		</Box>
-	);
-}
-
-function ModuleVersionInner({
-	moduleId,
-	moduleVersionQuery,
-	onQueryChange,
-}: {
-	moduleId: string;
-	moduleVersionQuery: GetAllModuleVersionQuery | null;
-	onQueryChange: (query: GetAllModuleVersionQuery | null) => void;
-}) {
-	const navigate = useNavigate();
-	const { t } = useTranslation('standard');
-	const notifications = useNotifications();
-	const dialogs = useDialogs();
-	const [filterVersionDialogOpen, setFilterVersionDialogOpen] = useState(false);
-
-	const moduleVersions = useGetAllModuleVersionsByModuleId(
-		moduleVersionQuery!,
-		{
-			skip: !moduleVersionQuery,
-		}
-	);
-	useEffect(() => {
-		if (moduleVersions.isError)
-			notifications.show(t('fetchError'), {
-				severity: 'error',
-				autoHideDuration: HideDuration.fast,
-			});
-		// else if (software.isSuccess && software.data?.content.length === 0)
-		// 	notifications.show(t('noProduct'), { severity: 'info' });
-	}, [notifications, moduleVersions.isError, t]);
-
-	const [deleteModuleVersionTrigger, deleteModuleVersion] =
-		useDeleteModuleVersion();
-	useEffect(() => {
-		if (deleteModuleVersion.isError)
-			notifications.show(t('deleteModuleVersionError'), {
-				severity: 'error',
-				autoHideDuration: HideDuration.fast,
-			});
-		else if (deleteModuleVersion.isSuccess)
-			notifications.show(t('deleteModuleVersionSuccess'), {
-				severity: 'success',
-				autoHideDuration: HideDuration.fast,
-			});
-	}, [
-		deleteModuleVersion.isError,
-		deleteModuleVersion.isSuccess,
-		notifications,
-		t,
-	]);
-	const handleDelete = async (moduleVersionId: string) => {
-		const confirmed = await dialogs.confirm(t('deleteModuleVersionConfirm'), {
-			okText: t('yes'),
-			cancelText: t('cancel'),
-		});
-		if (!confirmed) return;
-
-		await deleteModuleVersionTrigger(moduleVersionId);
-	};
-
-	return (
-		<Box>
-			<Stack
-				direction="row"
-				justifyContent="space-between"
-				alignItems="center"
-				sx={{ marginBottom: 1 }}
-			>
-				<FilterDialog
-					filters={[
-						{
-							key: 'moduleVersionName',
-							label: t('versionName'),
-						},
-					]}
-					open={filterVersionDialogOpen}
-					onClose={() => setFilterVersionDialogOpen(false)}
-					onOpen={() => setFilterVersionDialogOpen(true)}
-					onApply={(filters) => {
-						const query: object = filters.reduce((pre, curr) => {
-							return { ...pre, [curr.key]: curr.value };
-						}, {});
-						onQueryChange({ ...moduleVersionQuery, moduleId, ...query });
-					}}
-					onReset={() => {
-						onQueryChange({
-							moduleId,
-							...moduleVersionQuery,
-							moduleVersionName: '',
-						});
-					}}
-				/>
-				<Button
-					variant="contained"
-					onClick={() =>
-						navigate(
-							`${RoutePaths.CREATE_MODULE_VERSION.replace(`:${PathHolders.MODULE_ID}`, moduleId)}`
-						)
-					}
-				>
-					{t('addModuleVersion')}
-				</Button>
-			</Stack>
-			{(deleteModuleVersion.isLoading || moduleVersions.isFetching) && (
-				<LinearProgress />
-			)}
-			<PaginationTable
-				headers={
-					<>
-						<TableCell key={`module-version-${moduleId}-name`}>
-							{t('versionName')}
-						</TableCell>
-						<TableCell
-							key={`module-version-${moduleId}-createdAt`}
-							align="center"
-						>
-							{t('dateCreated')}
-						</TableCell>
-						<TableCell
-							key={`module-version-${moduleId}-updatedAt`}
-							align="center"
-						>
-							{t('lastUpdated')}
-						</TableCell>
-						<TableCell />
-					</>
-				}
-				count={moduleVersions?.data?.totalElements ?? 0}
-				rows={moduleVersions?.data?.content ?? []}
-				onPageChange={(newPage) =>
-					onQueryChange({
-						moduleId,
-						moduleVersionName: moduleVersionQuery?.moduleVersionName ?? '',
-						...newPage,
-					})
-				}
-				getCell={(row) => (
-					<TableRow key={`module_verion-${row.id}`}>
-						<TableCell>{row.name}</TableCell>
-						<TableCell align="center">{row.createdAt}</TableCell>
-						<TableCell align="center">{row.updatedAt}</TableCell>
-						<TableCell>
-							<Stack direction="row">
-								<IconButton
-									size="small"
-									onClick={() =>
-										navigate(
-											RoutePaths.MODULE_VERSION.replace(
-												`:${PathHolders.MODULE_ID}`,
-												moduleId
-											).replace(`:${PathHolders.MODULE_VERSION_ID}`, row.id)
-										)
-									}
-								>
-									<RemoveRedEyeIcon color="info" />
-								</IconButton>
-								<IconButton
-									size="small"
-									onClick={() =>
-										navigate(
-											RoutePaths.MODIFY_MODULE_VERSION.replace(
-												`:${PathHolders.MODULE_VERSION_ID}`,
-												row.id
-											)
-										)
-									}
-								>
-									<EditIcon color="info" />
-								</IconButton>
-								<IconButton
-									size="small"
-									onClick={async () => handleDelete(row.id)}
-								>
-									<DeleteIcon color="error" />
-								</IconButton>
-							</Stack>
-						</TableCell>
-					</TableRow>
-				)}
-			/>
-		</Box>
-	);
-}
+import DocumentsOfVersionTable from './DocumentsOfVersionTable';
+import ModuleVersionInner from './ModuleVersionInner';
 
 const SoftwareVersionDetailPage = () => {
 	const { t } = useTranslation();
 	const navigate = useNavigate();
 	const dialogs = useDialogs();
-	// const dispatch = useDispatch();
 	const [showDocumentTable, setShowDocumentTable] = useState(false);
 	const notifications = useNotifications();
 	const versionId = useParams()[PathHolders.SOFTWARE_VERSION_ID];
@@ -678,9 +295,6 @@ const SoftwareVersionDetailPage = () => {
 						</Button>
 					</Stack>
 
-					{/* {loading ? (
-						<LinearProgress />
-					) : ( */}
 					<CollapsibleTable
 						headers={
 							<>

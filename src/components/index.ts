@@ -20,6 +20,7 @@ import { TabPanel, TabPanelProps } from './TabPanel';
 import Attachment from './Attachment';
 import ReadonlyTextEditor from './ReadonlyTextEditor';
 import CustomDataGrid from './CustomDataGrid';
+import UserGuideScrollDialog from './UserGuideScrollDialog';
 
 export {
 	CustomDataGrid,
@@ -38,6 +39,7 @@ export {
 	Guard,
 	TabPanel,
 	Attachment,
+	UserGuideScrollDialog,
 };
 export type {
 	CollapsibleDataGridProps,
