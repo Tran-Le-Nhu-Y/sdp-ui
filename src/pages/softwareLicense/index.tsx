@@ -27,6 +27,7 @@ const SoftwareLicenseDetailPage = () => {
 		skip: !licenseId,
 	});
 
+	if (licenseQuery.isLoading) return <LinearProgress />;
 	return (
 		<Stack spacing={2} alignItems={'center'} width="100%">
 			<Typography variant="h4">{t('licenseDetailInfor')}</Typography>
