@@ -65,7 +65,8 @@ declare interface GetAllDocumentTypeQuery {
 }
 
 declare interface GetAllDeploymentProcessQuery {
-	softwareVersionName?: string?;
+	userId: string;
+	softwareName?: string?;
 	customerName?: string?;
 	status?: DeploymentProcessStatus?;
 	pageNumber?: number?;

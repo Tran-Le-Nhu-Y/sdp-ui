@@ -24,23 +24,30 @@ import {
 	useDeleteDeploymentProcess,
 	useGetAllDeploymentProcesses,
 } from '../../services';
-import { useDialogs, useNotifications } from '@toolpad/core';
+import { useDialogs, useNotifications, useSession } from '@toolpad/core';
 import EditIcon from '@mui/icons-material/Edit';
 import { Filter } from '../../components/FilterDialog';
 
 export default function DeploymentProcessPage() {
 	const navigate = useNavigate();
 	const { t } = useTranslation('standard');
+	const userId = useSession()?.user?.id;
 	const notifications = useNotifications();
 	const dialogs = useDialogs();
 	const [filterDialogOpen, setFilterDialogOpen] = useState(false);
-	const [processQuery, setProcessQuery] =
-		useState<GetAllDeploymentProcessQuery>({
-			pageNumber: 0,
-			pageSize: 5,
-		});
+	const [processQuery, setProcessQuery] = useState<
+		Partial<GetAllDeploymentProcessQuery>
+	>({
+		pageNumber: 0,
+		pageSize: 5,
+	});
 
-	const processes = useGetAllDeploymentProcesses(processQuery);
+	const processes = useGetAllDeploymentProcesses(
+		{ ...processQuery, userId: userId! },
+		{
+			skip: !userId,
+		}
+	);
 	useEffect(() => {
 		if (processes.isError)
 			notifications.show(t('fetchError'), {
@@ -160,7 +167,7 @@ export default function DeploymentProcessPage() {
 					onReset={() => {
 						setProcessQuery((prev) => ({
 							...prev,
-							softwareVersionName: null,
+							softwareName: null,
 							customerName: null,
 							status: undefined,
 						}));

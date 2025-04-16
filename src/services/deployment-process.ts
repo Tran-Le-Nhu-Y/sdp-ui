@@ -20,16 +20,17 @@ export const deploymentProcessApi = createApi({
 			GetAllDeploymentProcessQuery
 		>({
 			query: ({
-				softwareVersionName,
+				userId,
+				softwareName,
 				customerName,
 				status,
 				pageNumber,
 				pageSize,
 			}) => ({
-				url: `/${EXTENSION_URL}`,
+				url: `/${EXTENSION_URL}/${userId}/creator`,
 				method: 'GET',
 				params: {
-					softwareVersionName: softwareVersionName,
+					softwareName: softwareName,
 					customerName: customerName,
 					status: status,
 					pageNumber,
