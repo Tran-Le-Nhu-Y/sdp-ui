@@ -39,7 +39,7 @@ export default function DeploymentPhaseTypePage() {
 		deploymentPhaseTypeQuery!,
 		{
 			skip: !deploymentPhaseTypeQuery,
-		}
+		},
 	);
 	useEffect(() => {
 		if (types.isError)
@@ -73,6 +73,7 @@ export default function DeploymentPhaseTypePage() {
 	]);
 	const handleDelete = async (typeId: string) => {
 		const confirmed = await dialogs.confirm(t('deleteProcessTypeConfirm'), {
+			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
 		});

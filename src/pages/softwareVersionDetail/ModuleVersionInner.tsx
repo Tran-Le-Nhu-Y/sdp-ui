@@ -40,7 +40,7 @@ export default function ModuleVersionInner({
 		moduleVersionQuery!,
 		{
 			skip: !moduleVersionQuery,
-		}
+		},
 	);
 	useEffect(() => {
 		if (moduleVersions.isError)
@@ -73,6 +73,7 @@ export default function ModuleVersionInner({
 	]);
 	const handleDelete = async (moduleVersionId: string) => {
 		const confirmed = await dialogs.confirm(t('deleteModuleVersionConfirm'), {
+			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
 		});
@@ -117,7 +118,7 @@ export default function ModuleVersionInner({
 					variant="contained"
 					onClick={() =>
 						navigate(
-							`${RoutePaths.CREATE_MODULE_VERSION.replace(`:${PathHolders.MODULE_ID}`, moduleId)}`
+							`${RoutePaths.CREATE_MODULE_VERSION.replace(`:${PathHolders.MODULE_ID}`, moduleId)}`,
 						)
 					}
 				>
@@ -170,8 +171,8 @@ export default function ModuleVersionInner({
 										navigate(
 											RoutePaths.MODULE_VERSION.replace(
 												`:${PathHolders.MODULE_ID}`,
-												moduleId
-											).replace(`:${PathHolders.MODULE_VERSION_ID}`, row.id)
+												moduleId,
+											).replace(`:${PathHolders.MODULE_VERSION_ID}`, row.id),
 										)
 									}
 								>
@@ -183,8 +184,8 @@ export default function ModuleVersionInner({
 										navigate(
 											RoutePaths.MODIFY_MODULE_VERSION.replace(
 												`:${PathHolders.MODULE_VERSION_ID}`,
-												row.id
-											)
+												row.id,
+											),
 										)
 									}
 								>
