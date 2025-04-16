@@ -21,7 +21,13 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-export default function PersonnelTab({ processId }: { processId: number }) {
+export default function PersonnelTab({
+	processId,
+	editable = true,
+}: {
+	processId: number;
+	editable?: boolean;
+}) {
 	const { t } = useTranslation('standard');
 	const notifications = useNotifications();
 	const userQuery = useGetAllUsersByRole('deployment_person');
@@ -93,32 +99,35 @@ export default function PersonnelTab({ processId }: { processId: number }) {
 				headerName: t('action'),
 				type: 'actions',
 				width: 40,
-				getActions: (params) => [
-					<GridActionsCellItem
-						icon={
-							<Tooltip title={t('add')}>
-								<AddIcon />
-							</Tooltip>
-						}
-						color="success"
-						label={t('add')}
-						onClick={() => {
-							const memberId = params.id.toString();
-							updateMemberHandler(
-								{
-									processId: processId,
-									memberId: memberId,
-									operator: 'ADD',
-								},
-								t('addMemberSuccess'),
-								t('addMemberError')
-							);
-						}}
-					/>,
-				],
+				getActions: (params) =>
+					editable
+						? [
+								<GridActionsCellItem
+									icon={
+										<Tooltip title={t('add')}>
+											<AddIcon />
+										</Tooltip>
+									}
+									color="success"
+									label={t('add')}
+									onClick={() => {
+										const memberId = params.id.toString();
+										updateMemberHandler(
+											{
+												processId: processId,
+												memberId: memberId,
+												operator: 'ADD',
+											},
+											t('addMemberSuccess'),
+											t('addMemberError')
+										);
+									}}
+								/>,
+							]
+						: [],
 			},
 		],
-		[processId, t, updateMemberHandler]
+		[editable, processId, t, updateMemberHandler]
 	);
 
 	const selectedUsers = useMemo(() => findUsers(true), [findUsers]);
@@ -144,32 +153,35 @@ export default function PersonnelTab({ processId }: { processId: number }) {
 				headerName: t('action'),
 				type: 'actions',
 				width: 40,
-				getActions: (params) => [
-					<GridActionsCellItem
-						icon={
-							<Tooltip title={t('delete')}>
-								<DeleteIcon />
-							</Tooltip>
-						}
-						color="error"
-						label={t('delete')}
-						onClick={() => {
-							const memberId = params.id.toString();
-							updateMemberHandler(
-								{
-									processId: processId,
-									memberId: memberId,
-									operator: 'REMOVE',
-								},
-								t('removeMemberSuccess'),
-								t('removeMemberError')
-							);
-						}}
-					/>,
-				],
+				getActions: (params) =>
+					editable
+						? [
+								<GridActionsCellItem
+									icon={
+										<Tooltip title={t('delete')}>
+											<DeleteIcon />
+										</Tooltip>
+									}
+									color="error"
+									label={t('delete')}
+									onClick={() => {
+										const memberId = params.id.toString();
+										updateMemberHandler(
+											{
+												processId: processId,
+												memberId: memberId,
+												operator: 'REMOVE',
+											},
+											t('removeMemberSuccess'),
+											t('removeMemberError')
+										);
+									}}
+								/>,
+							]
+						: [],
 			},
 		],
-		[processId, t, updateMemberHandler]
+		[editable, processId, t, updateMemberHandler]
 	);
 
 	if (userQuery.isLoading || memberIdQuery.isLoading) return <LinearProgress />;

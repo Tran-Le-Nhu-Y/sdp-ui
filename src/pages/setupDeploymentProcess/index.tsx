@@ -157,13 +157,19 @@ const SetupDeploymentProcessPage = () => {
 					<Tab label={t('personnelPerforms')} {...a11yProps(2)} />
 				</Tabs>
 				<TabPanel value={value} index={0}>
-					<PhaseTab processId={Number(processId)} />
+					<PhaseTab
+						processId={Number(processId)}
+						editable={deploymentProcess.data?.status === 'INIT'}
+					/>
 				</TabPanel>
 				<TabPanel value={value} index={1}>
 					<ModuleTab processId={Number(processId)} />
 				</TabPanel>
 				<TabPanel value={value} index={2}>
-					<PersonnelTab processId={Number(processId)} />
+					<PersonnelTab
+						processId={Number(processId)}
+						editable={deploymentProcess.data?.status === 'INIT'}
+					/>
 				</TabPanel>
 			</Box>
 		</Box>

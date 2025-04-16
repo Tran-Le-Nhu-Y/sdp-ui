@@ -41,6 +41,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 
 function AddPhaseDialog({
 	processId,
@@ -242,7 +243,13 @@ function AddPhaseDialog({
 	);
 }
 
-export default function PhaseTab({ processId }: { processId: number }) {
+export default function PhaseTab({
+	processId,
+	editable = true,
+}: {
+	processId: number;
+	editable?: boolean;
+}) {
 	const { t } = useTranslation('standard');
 	const navigate = useNavigate();
 	const notifications = useNotifications();
@@ -302,53 +309,77 @@ export default function PhaseTab({ processId }: { processId: number }) {
 				headerName: t('action'),
 				type: 'actions',
 				width: 100,
-				getActions: (params) => [
-					<GridActionsCellItem
-						icon={
-							<Tooltip title={t('edit')}>
-								<EditIcon />
-							</Tooltip>
-						}
-						label={t('edit')}
-						onClick={() => {
-							const phaseId = params.id.toString();
-							const path = RoutePaths.SETUP_DEPLOYMENT_PHASE.replace(
-								`:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
-								`${processId}`
-							).replace(`:${PathHolders.DEPLOYMENT_PHASE_ID}`, phaseId);
-							navigate(path);
-						}}
-					/>,
-					<GridActionsCellItem
-						icon={
-							<Tooltip title={t('delete')}>
-								<DeleteIcon />
-							</Tooltip>
-						}
-						color="error"
-						label={t('delete')}
-						onClick={async () => {
-							const phaseId = params.id.toString();
-							try {
-								await deletePhaseTrigger(phaseId).unwrap();
-
-								notifications.show(t('deletePhaseSuccess'), {
-									severity: 'success',
-									autoHideDuration: HideDuration.fast,
-								});
-							} catch (error) {
-								console.error(error);
-								notifications.show(t('deletePhaseError'), {
-									severity: 'error',
-									autoHideDuration: HideDuration.fast,
-								});
+				getActions: (params) => {
+					const readElm = (
+						<GridActionsCellItem
+							icon={
+								<Tooltip title={t('seeDetail')}>
+									<RemoveRedEyeIcon color="primary" />
+								</Tooltip>
 							}
-						}}
-					/>,
-				],
+							label={t('seeDetail')}
+							onClick={() => {
+								const phaseId = params.id.toString();
+								const path = RoutePaths.DEPLOYMENT_PHASE.replace(
+									`:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
+									`${processId}`
+								).replace(`:${PathHolders.DEPLOYMENT_PHASE_ID}`, phaseId);
+								navigate(path);
+							}}
+						/>
+					);
+					const editElm = (
+						<GridActionsCellItem
+							icon={
+								<Tooltip title={t('edit')}>
+									<EditIcon color="primary" />
+								</Tooltip>
+							}
+							label={t('edit')}
+							onClick={() => {
+								const phaseId = params.id.toString();
+								const path = RoutePaths.SETUP_DEPLOYMENT_PHASE.replace(
+									`:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
+									`${processId}`
+								).replace(`:${PathHolders.DEPLOYMENT_PHASE_ID}`, phaseId);
+								navigate(path);
+							}}
+						/>
+					);
+					const deleteElm = (
+						<GridActionsCellItem
+							icon={
+								<Tooltip title={t('delete')}>
+									<DeleteIcon />
+								</Tooltip>
+							}
+							color="error"
+							label={t('delete')}
+							onClick={async () => {
+								const phaseId = params.id.toString();
+								try {
+									await deletePhaseTrigger(phaseId).unwrap();
+
+									notifications.show(t('deletePhaseSuccess'), {
+										severity: 'success',
+										autoHideDuration: HideDuration.fast,
+									});
+								} catch (error) {
+									console.error(error);
+									notifications.show(t('deletePhaseError'), {
+										severity: 'error',
+										autoHideDuration: HideDuration.fast,
+									});
+								}
+							}}
+						/>
+					);
+
+					return editable ? [editElm, deleteElm] : [readElm];
+				},
 			},
 		],
-		[deletePhaseTrigger, navigate, notifications, processId, t]
+		[deletePhaseTrigger, editable, navigate, notifications, processId, t]
 	);
 
 	return (

@@ -30,6 +30,7 @@ import SetupDeploymentPhasePage from './setupDeploymentPhase';
 import NotificationPage from './notification';
 import ExpiredSoftwareLicensesPage from './expiredSoftwareLicenses';
 import SoftwareLicenseDetailPage from './softwareLicense';
+import DeploymentPhasePage from './deploymentPhase';
 
 export {
 	NotificationPage,
@@ -64,4 +65,5 @@ export {
 	SetupDeploymentPhasePage,
 	ExpiredSoftwareLicensesPage,
 	SoftwareLicenseDetailPage,
+	DeploymentPhasePage,
 };
