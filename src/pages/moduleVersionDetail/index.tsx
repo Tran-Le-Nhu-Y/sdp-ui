@@ -67,6 +67,7 @@ const ModuleVersionDetailPage = () => {
 	]);
 	const handleDeleteModuleVersion = async (versionId: string) => {
 		const confirmed = await dialogs.confirm(t('deleteModuleVersionConfirm'), {
+			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
 		});
@@ -131,8 +132,8 @@ const ModuleVersionDetailPage = () => {
 										navigate(
 											RoutePaths.MODIFY_MODULE_VERSION.replace(
 												`:${PathHolders.MODULE_VERSION_ID}`,
-												versionId || ''
-											)
+												versionId || '',
+											),
 										)
 									}
 								>

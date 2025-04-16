@@ -79,6 +79,7 @@ const SoftwareVersionDetailPage = () => {
 	]);
 	const handleDeleteSoftwareVersion = async (versionId: string) => {
 		const confirmed = await dialogs.confirm(t('deleteSoftwareVersionConfirm'), {
+			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
 		});
@@ -137,6 +138,7 @@ const SoftwareVersionDetailPage = () => {
 	}, [deleteModule.isError, deleteModule.isSuccess, notifications, t]);
 	const handleDeleteModule = async (moduleId: string) => {
 		const confirmed = await dialogs.confirm(t('deleteModuleConfirm'), {
+			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
 		});
@@ -189,8 +191,8 @@ const SoftwareVersionDetailPage = () => {
 										navigate(
 											RoutePaths.MODIFY_SOFTWARE_VERSION.replace(
 												`:${PathHolders.SOFTWARE_VERSION_ID}`,
-												versionId || ''
-											)
+												versionId || '',
+											),
 										)
 									}
 								>
@@ -286,8 +288,8 @@ const SoftwareVersionDetailPage = () => {
 								navigate(
 									RoutePaths.CREATE_MODULE.replace(
 										`:${PathHolders.SOFTWARE_VERSION_ID}`,
-										versionId!
-									)
+										versionId!,
+									),
 								)
 							}
 						>
@@ -334,8 +336,8 @@ const SoftwareVersionDetailPage = () => {
 													navigate(
 														RoutePaths.MODIFY_MODULE.replace(
 															`:${PathHolders.MODULE_ID}`,
-															row.id
-														)
+															row.id,
+														),
 													)
 												}
 											>

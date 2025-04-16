@@ -55,7 +55,7 @@ export default function SelectSoftwareAndVersionSection({
 				minWidth: 150,
 			},
 		],
-		[t]
+		[t],
 	);
 
 	const title = useMemo(
@@ -63,7 +63,7 @@ export default function SelectSoftwareAndVersionSection({
 			selectedModel
 				? `${selectedModel.softwareName} - ${t('version')}: ${selectedModel.versionName}`
 				: t('notSelected'),
-		[selectedModel, t]
+		[selectedModel, t],
 	);
 
 	return (

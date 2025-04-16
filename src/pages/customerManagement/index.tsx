@@ -63,6 +63,7 @@ export default function CustomerManagementPage() {
 	}, [deleteCustomer.isError, deleteCustomer.isSuccess, notifications, t]);
 	const handleDelete = async (customerId: string) => {
 		const confirmed = await dialogs.confirm(t('deleteCustomerConfirm'), {
+			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
 		});
@@ -72,7 +73,7 @@ export default function CustomerManagementPage() {
 	};
 
 	const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
-		null
+		null,
 	);
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 	const handleEditClick = (customerId: string) => {

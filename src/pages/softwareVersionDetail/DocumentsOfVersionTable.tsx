@@ -69,10 +69,14 @@ export default function DocumentsOfVersionTable({
 		t,
 	]);
 	const handleDelete = async (versionId: string) => {
-		const confirmed = await dialogs.confirm(t('deleteSoftwareVersionConfirm'), {
-			okText: t('yes'),
-			cancelText: t('cancel'),
-		});
+		const confirmed = await dialogs.confirm(
+			t('deleteSoftwareDocumentConfirm'),
+			{
+				title: t('deleteConfirm'),
+				okText: t('yes'),
+				cancelText: t('cancel'),
+			},
+		);
 		if (!confirmed) return;
 
 		await deleteSoftwareDocumentTrigger(versionId);
@@ -131,7 +135,7 @@ export default function DocumentsOfVersionTable({
 					variant="contained"
 					onClick={() =>
 						navigate(
-							`${RoutePaths.CREATE_SOFTWARE_DOCUMENT.replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, versionId)}`
+							`${RoutePaths.CREATE_SOFTWARE_DOCUMENT.replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, versionId)}`,
 						)
 					}
 				>
@@ -182,8 +186,8 @@ export default function DocumentsOfVersionTable({
 										navigate(
 											RoutePaths.SOFTWARE_DOCUMENT.replace(
 												`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
-												row.id
-											)
+												row.id,
+											),
 										)
 									}
 								>
@@ -195,8 +199,8 @@ export default function DocumentsOfVersionTable({
 										navigate(
 											RoutePaths.MODIFY_SOFTWARE_DOCUMENT.replace(
 												`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
-												row.id
-											)
+												row.id,
+											),
 										)
 									}
 								>

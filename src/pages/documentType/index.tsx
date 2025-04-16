@@ -129,6 +129,7 @@ function DocumentTypePage() {
 
 	const onDelete = async (typeId: string) => {
 		const confirmed = await dialogs.confirm(t('deleteDocumentTypeConfirm'), {
+			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
 		});
@@ -191,7 +192,7 @@ function DocumentTypePage() {
 			documentTypes.isLoading,
 			documentTypes.isFetching,
 			updateDocumentType.isLoading,
-		]
+		],
 	);
 
 	return (
@@ -387,10 +388,10 @@ interface EditableDocumentTypeProps {
 	description?: string;
 
 	onNameChange: (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
 	) => void;
 	onDescriptionChange: (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
 	) => void;
 
 	onSave: () => void;

@@ -69,6 +69,7 @@ export default function DocumentsOfVersionTable({
 	]);
 	const handleDelete = async (versionId: string) => {
 		const confirmed = await dialogs.confirm(t('deleteModuleDocumentConfirm'), {
+			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
 		});
@@ -130,7 +131,7 @@ export default function DocumentsOfVersionTable({
 					variant="contained"
 					onClick={() =>
 						navigate(
-							`${RoutePaths.CREATE_MODULE_DOCUMENT.replace(`:${PathHolders.MODULE_VERSION_ID}`, versionId)}`
+							`${RoutePaths.CREATE_MODULE_DOCUMENT.replace(`:${PathHolders.MODULE_VERSION_ID}`, versionId)}`,
 						)
 					}
 				>
@@ -179,8 +180,8 @@ export default function DocumentsOfVersionTable({
 										navigate(
 											RoutePaths.MODULE_DOCUMENT.replace(
 												`:${PathHolders.MODULE_DOCUMENT_ID}`,
-												row.id
-											)
+												row.id,
+											),
 										)
 									}
 								>
@@ -192,8 +193,8 @@ export default function DocumentsOfVersionTable({
 										navigate(
 											RoutePaths.MODIFY_MODULE_DOCUMENT.replace(
 												`:${PathHolders.MODULE_DOCUMENT_ID}`,
-												row.id
-											)
+												row.id,
+											),
 										)
 									}
 								>

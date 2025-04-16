@@ -88,7 +88,7 @@ export default function UpdateDeploymentPhaseTypeFormDialog({
 	return (
 		<Dialog open={open} onClose={onClose}>
 			<form onSubmit={handleSubmit}>
-				<DialogTitle>{t('editCustomer')}</DialogTitle>
+				<DialogTitle>{t('modifyProcessTypeInfor')}</DialogTitle>
 				<DialogContent>
 					{(type.isLoading || isUpdateLoading) && <LinearProgress />}
 					<TextField

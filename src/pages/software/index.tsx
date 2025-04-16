@@ -65,6 +65,7 @@ export default function SoftwarePage() {
 	}, [deleteSoftware.isError, deleteSoftware.isSuccess, notifications, t]);
 	const handleDelete = async (productId: string) => {
 		const confirmed = await dialogs.confirm(t('deleteProductConfirm'), {
+			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
 		});
@@ -153,8 +154,8 @@ export default function SoftwarePage() {
 											navigate(
 												RoutePaths.MODIFY_SOFTWARE.replace(
 													`:${PathHolders.SOFTWARE_ID}`,
-													row.id
-												)
+													row.id,
+												),
 											)
 										}
 									>

@@ -45,6 +45,7 @@ export default function ModuleDocumentDetailPage() {
 	const [deleteDocumentTrigger] = useDeleteModuleDocument();
 	const handleDelete = async (documentId: string) => {
 		const confirmed = await dialogs.confirm(t('deleteModuleDocumentConfirm'), {
+			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
 		});

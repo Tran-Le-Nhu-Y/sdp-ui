@@ -68,7 +68,7 @@ export default function PhaseTab({
 	const [openDialog, setOpenDialog] = useState(false);
 	const showCopyrightButton = useMemo(
 		() => phases.every((phase) => phase.isDone),
-		[phases]
+		[phases],
 	);
 	const [showLicenseDialog, setShowLicenseDialog] = useState(false);
 	const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
@@ -86,7 +86,7 @@ export default function PhaseTab({
 		async (
 			request: DeploymentPhaseUpdateActualDatesRequest,
 			successText: string,
-			errorText: string
+			errorText: string,
 		) => {
 			try {
 				await updateActualDateTrigger(request).unwrap();
@@ -103,7 +103,7 @@ export default function PhaseTab({
 				});
 			}
 		},
-		[notifications, updateActualDateTrigger]
+		[notifications, updateActualDateTrigger],
 	);
 
 	const handleStart = async (phaseId: string) => {
@@ -122,7 +122,7 @@ export default function PhaseTab({
 				updatedByUserId: userId,
 			},
 			t('updateDeploymentPhaseActualStartDateSuccess'),
-			t('updateDeploymentPhaseActualStartDateError')
+			t('updateDeploymentPhaseActualStartDateError'),
 		);
 	};
 
@@ -146,7 +146,7 @@ export default function PhaseTab({
 				const fileIds = await Promise.all(
 					addedFiles.map((file) => {
 						return uploadFileTrigger({ userId, file }).unwrap();
-					})
+					}),
 				);
 				await Promise.all(
 					fileIds.map((fileId) =>
@@ -154,8 +154,8 @@ export default function PhaseTab({
 							phaseId: selectedPhaseId,
 							attachmentId: fileId,
 							operator: 'ADD',
-						}).unwrap()
-					)
+						}).unwrap(),
+					),
 				);
 			} catch (error) {
 				notifications.show(t('uploadedFileError'), {
@@ -193,7 +193,7 @@ export default function PhaseTab({
 				updatedByUserId: userId,
 			},
 			t('updateDeploymentPhaseActualEndDateSuccess'),
-			t('updateDeploymentPhaseActualEndDateError')
+			t('updateDeploymentPhaseActualEndDateError'),
 		);
 
 		phaseUpdateHistories.refetch();
@@ -289,7 +289,7 @@ export default function PhaseTab({
 				type: 'string',
 			},
 		],
-		[t]
+		[t],
 	);
 
 	const [phaseUpdateHistoriesQuery, setPhaseUpdateHistoriesQuery] =
@@ -299,7 +299,7 @@ export default function PhaseTab({
 			pageSize: 5,
 		});
 	const phaseUpdateHistories = useGetDeploymentPhaseUpdateHistories(
-		phaseUpdateHistoriesQuery
+		phaseUpdateHistoriesQuery,
 	);
 	const historyCols: GridColDef<DeploymentPhaseUpdateHistory>[] = useMemo(
 		() => [
@@ -365,7 +365,7 @@ export default function PhaseTab({
 				},
 			},
 		],
-		[t]
+		[t],
 	);
 
 	return (
@@ -663,7 +663,7 @@ export default function PhaseTab({
 								};
 							return acc;
 						},
-						{ description: '', phaseTypeName: '' }
+						{ description: '', phaseTypeName: '' },
 					);
 					setPhaseUpdateHistoriesQuery((prev) => ({ ...prev, ...value }));
 				}}
