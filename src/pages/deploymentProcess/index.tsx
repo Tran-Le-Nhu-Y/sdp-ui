@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { FilterDialog, Guard, PaginationTable } from '../../components';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
 	Box,
 	Button,
@@ -15,6 +15,7 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import {
+	checkRoles,
 	getDeploymentProcessStatusTransKey,
 	HideDuration,
 	PathHolders,
@@ -23,6 +24,7 @@ import {
 import {
 	useDeleteDeploymentProcess,
 	useGetAllDeploymentProcesses,
+	useGetAllJoinedDeploymentProcesses,
 } from '../../services';
 import { useDialogs, useNotifications, useSession } from '@toolpad/core';
 import EditIcon from '@mui/icons-material/Edit';
@@ -42,10 +44,16 @@ export default function DeploymentProcessPage() {
 		pageSize: 5,
 	});
 
+	const existRoles = useCallback(
+		(params: { checkAll?: boolean; requiredRoles: ResourceRoles[] }) =>
+			checkRoles(params),
+		[]
+	);
+
 	const processes = useGetAllDeploymentProcesses(
 		{ ...processQuery, userId: userId! },
 		{
-			skip: !userId,
+			skip: !userId || !existRoles({ requiredRoles: ['software_admin'] }),
 		}
 	);
 	useEffect(() => {
@@ -55,6 +63,19 @@ export default function DeploymentProcessPage() {
 				autoHideDuration: HideDuration.fast,
 			});
 	}, [notifications, processes.isError, t]);
+	const joinedProcesses = useGetAllJoinedDeploymentProcesses(
+		{ ...processQuery, userId: userId! },
+		{
+			skip: !userId || !existRoles({ requiredRoles: ['deployment_person'] }),
+		}
+	);
+	useEffect(() => {
+		if (joinedProcesses.isError)
+			notifications.show(t('fetchError'), {
+				severity: 'error',
+				autoHideDuration: HideDuration.fast,
+			});
+	}, [joinedProcesses.isError, notifications, t]);
 
 	const [deleteProcessTrigger, deleteProcess] = useDeleteDeploymentProcess();
 
@@ -173,12 +194,14 @@ export default function DeploymentProcessPage() {
 						}));
 					}}
 				/>
-				<Button
-					variant="contained"
-					onClick={() => navigate(RoutePaths.CREATE_DEPLOYMENT_PROCESS)}
-				>
-					{t('createDeployProcess')}
-				</Button>
+				<Guard requiredRoles={['software_admin']}>
+					<Button
+						variant="contained"
+						onClick={() => navigate(RoutePaths.CREATE_DEPLOYMENT_PROCESS)}
+					>
+						{t('createDeployProcess')}
+					</Button>
+				</Guard>
 			</Stack>
 			<PaginationTable
 				headers={
@@ -200,8 +223,16 @@ export default function DeploymentProcessPage() {
 						<TableCell />
 					</>
 				}
-				count={processes.data?.totalElements ?? 0}
-				rows={processes.data?.content ?? []}
+				count={
+					(processes.isUninitialized
+						? joinedProcesses.data?.totalElements
+						: processes.data?.totalElements) ?? 0
+				}
+				rows={
+					(processes.isUninitialized
+						? joinedProcesses.data?.content
+						: processes.data?.content) ?? []
+				}
 				pageNumber={processQuery.pageNumber ?? 0}
 				pageSize={processQuery.pageSize ?? 0}
 				onPageChange={(newPage) =>

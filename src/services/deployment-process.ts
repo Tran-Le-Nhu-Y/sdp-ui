@@ -55,6 +55,46 @@ export const deploymentProcessApi = createApi({
 				};
 			},
 		}),
+		getAllJoinedProcesses: builder.query<
+			PagingWrapper<DeploymentProcess>,
+			GetAllDeploymentProcessQuery
+		>({
+			query: ({
+				userId,
+				softwareName,
+				customerName,
+				status,
+				pageNumber,
+				pageSize,
+			}) => ({
+				url: `/${EXTENSION_URL}/${userId}/join`,
+				method: 'GET',
+				params: {
+					softwareName: softwareName,
+					customerName: customerName,
+					status: status,
+					pageNumber,
+					pageSize,
+				},
+			}),
+			providesTags(result) {
+				return result
+					? [
+							{
+								type: 'PagingDeploymentProcess',
+								id: `${result?.number}-${result?.totalPages}-${result?.size}-${result?.numberOfElements}-${result?.totalElements}`,
+							} as const,
+						]
+					: [];
+			},
+			transformResponse(rawResult: PagingWrapper<DeploymentProcessResponse>) {
+				const content = rawResult.content.map(toEntity);
+				return {
+					...rawResult,
+					content,
+				};
+			},
+		}),
 		getProcess: builder.query<DeploymentProcess, string>({
 			query: (processId) => ({
 				url: `/${EXTENSION_URL}/${processId}`,
@@ -217,6 +257,7 @@ export const deploymentProcessApi = createApi({
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
 export const {
+	useGetAllJoinedProcessesQuery,
 	useGetAllProcessesQuery,
 	useGetProcessQuery,
 	useGetMemberIdsQuery,

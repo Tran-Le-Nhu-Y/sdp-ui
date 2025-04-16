@@ -140,6 +140,7 @@ export {
 
 import {
 	deploymentProcessApi,
+	useGetAllJoinedProcessesQuery as useGetAllJoinedDeploymentProcesses,
 	useGetAllProcessesQuery as useGetAllDeploymentProcesses,
 	useGetMemberIdsQuery as useGetDeploymentProcessMemberIds,
 	useGetProcessQuery as useGetDeploymentProcess,
@@ -152,6 +153,7 @@ import {
 } from './deployment-process';
 export {
 	deploymentProcessApi,
+	useGetAllJoinedDeploymentProcesses,
 	useGetAllDeploymentProcesses,
 	useGetDeploymentProcess,
 	useGetDeploymentProcessMemberIds,
