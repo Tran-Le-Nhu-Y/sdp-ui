@@ -19,11 +19,14 @@ import FilterAltIcon from '@mui/icons-material/FilterAlt';
 
 const DEFAULT_FILTER: Omit<Filter, 'label'> = {
 	key: 'default',
+	type: 'text',
 };
 
 interface Filter {
 	key: string;
 	label: string;
+	type?: 'select' | 'text';
+	selectOptions?: Array<{ key: string | number; value: string | number }>;
 }
 interface FilterResult extends Omit<Filter, 'label'> {
 	// operator: 'contains' | 'equals';
@@ -62,13 +65,9 @@ function FilterDialog({
 	const { t } = useTranslation('standard');
 	const [filterResults, setFilterResults] = useState<FilterResult[]>([]);
 
-	const updateFilters = (
-		index: number,
-		key: keyof FilterResult,
-		value: string | number
-	) => {
+	const updateFilters = (index: number, newFilter: FilterResult) => {
 		const newFilters = [...filterResults];
-		newFilters[index] = { ...newFilters[index], [key]: value };
+		newFilters[index] = newFilter;
 		setFilterResults(newFilters);
 		if (onUpdate) onUpdate(newFilters[index]);
 	};
@@ -100,7 +99,21 @@ function FilterDialog({
 									const isExist = filterResults.find((f) => f.key === key);
 									if (isExist) return;
 
-									updateFilters(index, 'key', key);
+									const addedFilter = filters.find((f) => f.key === key);
+									if (!addedFilter) return;
+									switch (addedFilter.type) {
+										case 'select':
+											updateFilters(index, {
+												...addedFilter,
+												value: addedFilter.selectOptions?.[0].key ?? '',
+											});
+											break;
+										default:
+											updateFilters(index, {
+												...addedFilter,
+												value: '',
+											});
+									}
 								}}
 								displayEmpty
 								style={{ minWidth: '120px' }}
@@ -122,11 +135,30 @@ function FilterDialog({
 								<MenuItem value="contains">{t('contains')}</MenuItem>
 								<MenuItem value="equals">{t('equals')}</MenuItem>
 							</Select> */}
-							<TextField
-								value={filter.value}
-								onChange={(e) => updateFilters(index, 'value', e.target.value)}
-								placeholder={t('enterValue')}
-							/>
+
+							{filter.type === 'select' ? (
+								<Select
+									value={filter.value}
+									onChange={(e) =>
+										updateFilters(index, { ...filter, value: e.target.value })
+									}
+									displayEmpty
+									style={{ minWidth: '150px' }}
+								>
+									{filter.selectOptions?.map(({ key, value }) => (
+										<MenuItem value={key}>{value}</MenuItem>
+									))}
+								</Select>
+							) : (
+								<TextField
+									value={filter.value}
+									onChange={(e) =>
+										updateFilters(index, { ...filter, value: e.target.value })
+									}
+									placeholder={t('enterValue')}
+								/>
+							)}
+
 							<IconButton
 								onClick={() => {
 									const removed = filterResults[index];
@@ -149,6 +181,7 @@ function FilterDialog({
 									{
 										key: DEFAULT_FILTER.key,
 										// operator: 'contains',
+										type: DEFAULT_FILTER.type,
 										value: '',
 									},
 								]);

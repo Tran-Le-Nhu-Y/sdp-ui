@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { FilterDialog, Guard, PaginationTable } from '../../components';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
 	Box,
 	Button,
@@ -26,6 +26,7 @@ import {
 } from '../../services';
 import { useDialogs, useNotifications } from '@toolpad/core';
 import EditIcon from '@mui/icons-material/Edit';
+import { Filter } from '../../components/FilterDialog';
 
 export default function DeploymentProcessPage() {
 	const navigate = useNavigate();
@@ -58,7 +59,7 @@ export default function DeploymentProcessPage() {
 				cancelText: t('cancel'),
 				severity: 'error',
 				title: t('deleteDeploymentProcess'),
-			},
+			}
 		);
 		if (!confirmed) return;
 
@@ -81,8 +82,8 @@ export default function DeploymentProcessPage() {
 		navigate(
 			RoutePaths.SETUP_DEPLOYMENT_PROCESS.replace(
 				`:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
-				`${processId}`,
-			),
+				`${processId}`
+			)
 		);
 	};
 
@@ -90,10 +91,48 @@ export default function DeploymentProcessPage() {
 		navigate(
 			RoutePaths.DEPLOYMENT_PROCESS_DETAIL.replace(
 				`:${PathHolders.DEPLOYMENT_PROCESS_ID}`,
-				`${processId}`,
-			),
+				`${processId}`
+			)
 		);
 	};
+
+	const filters = useMemo(
+		() =>
+			[
+				{
+					key: 'softwareVersionName',
+					label: t('softwareName'),
+				},
+				{
+					key: 'customerName',
+					label: t('customer'),
+				},
+				{
+					key: 'status',
+					label: t('status'),
+					type: 'select',
+					selectOptions: [
+						{
+							key: 'INIT',
+							value: t(getDeploymentProcessStatusTransKey('INIT')),
+						},
+						{
+							key: 'PENDING',
+							value: t(getDeploymentProcessStatusTransKey('PENDING')),
+						},
+						{
+							key: 'IN_PROGRESS',
+							value: t(getDeploymentProcessStatusTransKey('IN_PROGRESS')),
+						},
+						{
+							key: 'DONE',
+							value: t(getDeploymentProcessStatusTransKey('DONE')),
+						},
+					],
+				},
+			] as Filter[],
+		[t]
+	);
 
 	return (
 		<Box>
@@ -105,20 +144,7 @@ export default function DeploymentProcessPage() {
 				sx={{ marginBottom: 1 }}
 			>
 				<FilterDialog
-					filters={[
-						{
-							key: 'softwareVersionName',
-							label: t('softwareName'),
-						},
-						{
-							key: 'customerName',
-							label: t('customer'),
-						},
-						{
-							key: 'status',
-							label: t('status'),
-						},
-					]}
+					filters={filters}
 					open={filterDialogOpen}
 					onClose={() => setFilterDialogOpen(false)}
 					onOpen={() => setFilterDialogOpen(true)}
