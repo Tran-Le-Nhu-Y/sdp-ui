@@ -35,12 +35,7 @@ export default function DeploymentPhaseTypePage() {
 			pageNumber: 0,
 			pageSize: 6,
 		});
-	const types = useGetAllDeploymentPhaseTypesByUserId(
-		deploymentPhaseTypeQuery!,
-		{
-			skip: !deploymentPhaseTypeQuery,
-		},
-	);
+	const types = useGetAllDeploymentPhaseTypesByUserId(deploymentPhaseTypeQuery);
 	useEffect(() => {
 		if (types.isError)
 			notifications.show(t('fetchError'), {
@@ -101,8 +96,8 @@ export default function DeploymentPhaseTypePage() {
 				<FilterDialog
 					filters={[
 						{
-							key: 'customerName',
-							label: t('customerName'),
+							key: 'name',
+							label: t('deploymentPhaseType'),
 						},
 					]}
 					open={filterVersionDialogOpen}
@@ -117,7 +112,7 @@ export default function DeploymentPhaseTypePage() {
 					onReset={() => {
 						setDeploymentPhaseTypeQuery((prev) => ({
 							...prev,
-							customerName: '',
+							name: '',
 						}));
 					}}
 				/>
