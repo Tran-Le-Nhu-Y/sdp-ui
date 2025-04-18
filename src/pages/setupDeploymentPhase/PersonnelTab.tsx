@@ -6,6 +6,7 @@ import { HideDuration } from '../../utils';
 import {
 	useGetAllUsersByRole,
 	useGetDeploymentPhaseMemberIds,
+	useGetDeploymentProcessMemberIds,
 	useUpdateDeploymentPhaseMember,
 } from '../../services';
 import { useNotifications } from '@toolpad/core';
@@ -21,10 +22,17 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 
-export default function PersonnelTab({ phaseId }: { phaseId: string }) {
+export default function PersonnelTab({
+	processId,
+	phaseId,
+}: {
+	processId: number;
+	phaseId: string;
+}) {
 	const { t } = useTranslation('standard');
 	const notifications = useNotifications();
 	const userQuery = useGetAllUsersByRole('deployment_person');
+	const processMemberIdQuery = useGetDeploymentProcessMemberIds(processId);
 	const memberIdQuery = useGetDeploymentPhaseMemberIds(phaseId);
 	const [updateMemberTrigger, { isLoading: isUpdatingMember }] =
 		useUpdateDeploymentPhaseMember();
@@ -59,13 +67,18 @@ export default function PersonnelTab({ phaseId }: { phaseId: string }) {
 			if (!memberIds) return [];
 
 			return (
-				userQuery?.data?.filter((user) => {
-					const selected = memberIds.includes(user.id);
-					return isSelected ? selected : !selected;
-				}) ?? []
+				userQuery?.data
+					?.filter((user) => {
+						const isMember = processMemberIdQuery.data?.includes(user.id);
+						return isMember;
+					})
+					?.filter((user) => {
+						const selected = memberIds.includes(user.id);
+						return isSelected ? selected : !selected;
+					}) ?? []
 			);
 		},
-		[memberIdQuery?.data, userQuery?.data]
+		[memberIdQuery.data, processMemberIdQuery.data, userQuery?.data]
 	);
 
 	const unselectedUsers = useMemo(() => findUsers(false), [findUsers]);
