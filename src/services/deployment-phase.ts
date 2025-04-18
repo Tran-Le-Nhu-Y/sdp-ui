@@ -285,7 +285,10 @@ export const deploymentPhaseApi = createApi({
 			}),
 			invalidatesTags(_result, _error, arg) {
 				const { phaseId } = arg;
-				return [{ id: phaseId, type: 'ProcessPhases' } as const];
+				return [
+					{ id: phaseId, type: 'ProcessPhases' } as const,
+					{ type: 'UpdateHistories' } as const,
+				];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;

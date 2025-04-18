@@ -696,7 +696,7 @@ export default function PhaseTab({
 								fullWidth
 								size="medium"
 								helperText={t('hyperTextVeryLong')}
-								value={description}
+								value={description ?? ''}
 								onChange={(e) => {
 									const newValue = e.target.value;
 									if (isValidLength(newValue, TextLength.VeryLong))
