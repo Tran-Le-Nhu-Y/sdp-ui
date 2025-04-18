@@ -48,6 +48,7 @@ export default function ModuleDocumentDetailPage() {
 			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
+			severity: 'error',
 		});
 		if (!confirmed) return;
 		try {
@@ -84,8 +85,8 @@ export default function ModuleDocumentDetailPage() {
 							navigate(
 								RoutePaths.MODIFY_MODULE_DOCUMENT.replace(
 									`:${PathHolders.MODULE_DOCUMENT_ID}`,
-									documentId || '',
-								),
+									documentId || ''
+								)
 							)
 						}
 					>

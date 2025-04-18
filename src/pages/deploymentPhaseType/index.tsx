@@ -71,6 +71,7 @@ export default function DeploymentPhaseTypePage() {
 			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
+			severity: 'error',
 		});
 		if (!confirmed) return;
 		await deleteDeploymentPhaseTypeTrigger(typeId);

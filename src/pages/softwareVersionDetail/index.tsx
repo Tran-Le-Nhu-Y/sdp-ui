@@ -82,6 +82,7 @@ const SoftwareVersionDetailPage = () => {
 			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
+			severity: 'error',
 		});
 		if (!confirmed) return;
 
@@ -141,6 +142,7 @@ const SoftwareVersionDetailPage = () => {
 			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
+			severity: 'error',
 		});
 		if (!confirmed) return;
 
@@ -191,8 +193,8 @@ const SoftwareVersionDetailPage = () => {
 										navigate(
 											RoutePaths.MODIFY_SOFTWARE_VERSION.replace(
 												`:${PathHolders.SOFTWARE_VERSION_ID}`,
-												versionId || '',
-											),
+												versionId || ''
+											)
 										)
 									}
 								>
@@ -288,8 +290,8 @@ const SoftwareVersionDetailPage = () => {
 								navigate(
 									RoutePaths.CREATE_MODULE.replace(
 										`:${PathHolders.SOFTWARE_VERSION_ID}`,
-										versionId!,
-									),
+										versionId!
+									)
 								)
 							}
 						>
@@ -336,8 +338,8 @@ const SoftwareVersionDetailPage = () => {
 													navigate(
 														RoutePaths.MODIFY_MODULE.replace(
 															`:${PathHolders.MODULE_ID}`,
-															row.id,
-														),
+															row.id
+														)
 													)
 												}
 											>

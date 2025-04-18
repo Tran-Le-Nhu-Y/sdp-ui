@@ -48,7 +48,8 @@ export default function SoftwareDocumentDetailPage() {
 				title: t('deleteConfirm'),
 				okText: t('yes'),
 				cancelText: t('cancel'),
-			},
+				severity: 'error',
+			}
 		);
 		if (!confirmed) return;
 		try {
@@ -86,8 +87,8 @@ export default function SoftwareDocumentDetailPage() {
 							navigate(
 								RoutePaths.MODIFY_SOFTWARE_DOCUMENT.replace(
 									`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
-									documentId || '',
-								),
+									documentId || ''
+								)
 							)
 						}
 					>

@@ -82,6 +82,7 @@
 	"createCustomerError": "Thêm khách hàng đã xảy ra lỗi",
 	"createCustomerSuccess": "Thêm khách hàng thành công",
 	"deleteCustomerConfirm": "Bạn có chắc chắn muốn xóa khách hàng này không?",
+	"deletePhaseConfirm": "Bạn có chắc chắn muốn xóa giai đoạn triển khai này không?",
 	"deleteCustomerSuccess": "Đã xóa khách hàng",
 	"deleteCustomerError": "Xóa khách hàng đã xảy ra lỗi",
 	"updateCustomerError": "Cập nhật thông tin khách hàng đã xảy ra lỗi",

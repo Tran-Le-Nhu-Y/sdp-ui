@@ -75,7 +75,8 @@ export default function DocumentsOfVersionTable({
 				title: t('deleteConfirm'),
 				okText: t('yes'),
 				cancelText: t('cancel'),
-			},
+				severity: 'error',
+			}
 		);
 		if (!confirmed) return;
 
@@ -135,7 +136,7 @@ export default function DocumentsOfVersionTable({
 					variant="contained"
 					onClick={() =>
 						navigate(
-							`${RoutePaths.CREATE_SOFTWARE_DOCUMENT.replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, versionId)}`,
+							`${RoutePaths.CREATE_SOFTWARE_DOCUMENT.replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, versionId)}`
 						)
 					}
 				>
@@ -186,8 +187,8 @@ export default function DocumentsOfVersionTable({
 										navigate(
 											RoutePaths.SOFTWARE_DOCUMENT.replace(
 												`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
-												row.id,
-											),
+												row.id
+											)
 										)
 									}
 								>
@@ -199,8 +200,8 @@ export default function DocumentsOfVersionTable({
 										navigate(
 											RoutePaths.MODIFY_SOFTWARE_DOCUMENT.replace(
 												`:${PathHolders.SOFTWARE_DOCUMENT_ID}`,
-												row.id,
-											),
+												row.id
+											)
 										)
 									}
 								>

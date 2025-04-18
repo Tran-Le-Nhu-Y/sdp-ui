@@ -28,7 +28,7 @@ import {
 	useGetAllDeploymentPhasesByProcessId,
 	useGetAllDeploymentPhaseTypesByUserId,
 } from '../../services';
-import { useNotifications, useSession } from '@toolpad/core';
+import { useDialogs, useNotifications, useSession } from '@toolpad/core';
 import {
 	GridActionsCellItem,
 	GridColDef,
@@ -251,6 +251,7 @@ export default function PhaseTab({
 	editable?: boolean;
 }) {
 	const { t } = useTranslation('standard');
+	const dialogs = useDialogs();
 	const navigate = useNavigate();
 	const notifications = useNotifications();
 	const [openCreateDialog, setOpenCreateDialog] = useState(false);
@@ -358,6 +359,17 @@ export default function PhaseTab({
 							onClick={async () => {
 								const phaseId = params.id.toString();
 								try {
+									const confirmed = await dialogs.confirm(
+										t('deletePhaseConfirm'),
+										{
+											title: t('deleteConfirm'),
+											okText: t('yes'),
+											cancelText: t('cancel'),
+											severity: 'error',
+										}
+									);
+									if (!confirmed) return;
+
 									await deletePhaseTrigger(phaseId).unwrap();
 
 									notifications.show(t('deletePhaseSuccess'), {
@@ -379,7 +391,15 @@ export default function PhaseTab({
 				},
 			},
 		],
-		[deletePhaseTrigger, editable, navigate, notifications, processId, t]
+		[
+			deletePhaseTrigger,
+			dialogs,
+			editable,
+			navigate,
+			notifications,
+			processId,
+			t,
+		]
 	);
 
 	return (

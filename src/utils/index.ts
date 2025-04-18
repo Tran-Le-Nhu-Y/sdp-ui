@@ -146,7 +146,6 @@ export function createAxiosInstance(config?: CreateAxiosDefaults) {
 					config.headers.Authorization = `Bearer ${keycloak.token}`;
 				} catch (error) {
 					console.error(error);
-					alert('Failed to refresh the token, or the session has expired');
 					keycloak.logout();
 				}
 			} else {

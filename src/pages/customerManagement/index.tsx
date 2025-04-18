@@ -66,6 +66,7 @@ export default function CustomerManagementPage() {
 			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
+			severity: 'error',
 		});
 		if (!confirmed) return;
 
@@ -73,7 +74,7 @@ export default function CustomerManagementPage() {
 	};
 
 	const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(
-		null,
+		null
 	);
 	const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 	const handleEditClick = (customerId: string) => {

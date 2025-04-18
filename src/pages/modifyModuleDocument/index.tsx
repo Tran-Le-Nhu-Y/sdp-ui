@@ -69,7 +69,7 @@ export default function ModifyModuleDocumentPage() {
 	const [removedFileIds, setRemovedFileIds] = useState<string[]>([]);
 	const displayedAttachments = useMemo(() => {
 		return attachments.data?.filter(
-			(data) => !removedFileIds.includes(data.id),
+			(data) => !removedFileIds.includes(data.id)
 		);
 	}, [attachments.data, removedFileIds]);
 	const [updateModuleDocumentTrigger] = useUpdateModuleDocument();
@@ -84,7 +84,7 @@ export default function ModifyModuleDocumentPage() {
 				const fileIds = await Promise.all(
 					addedFiles.map((file) => {
 						return uploadFileTrigger({ userId, file }).unwrap();
-					}),
+					})
 				);
 				await Promise.all(
 					fileIds.map((fileId) =>
@@ -92,8 +92,8 @@ export default function ModifyModuleDocumentPage() {
 							documentId,
 							attachmentId: fileId,
 							operator: 'ADD',
-						}).unwrap(),
-					),
+						}).unwrap()
+					)
 				);
 			} catch (error) {
 				notifications.show(t('uploadedFileError'), {
@@ -113,8 +113,8 @@ export default function ModifyModuleDocumentPage() {
 							documentId,
 							attachmentId: fileId,
 							operator: 'REMOVE',
-						}).unwrap(),
-					),
+						}).unwrap()
+					)
 				);
 			} catch (error) {
 				notifications.show(t('deleteFileError'), {
@@ -178,6 +178,7 @@ export default function ModifyModuleDocumentPage() {
 			title: t('deleteFile'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
+			severity: 'error',
 		});
 		if (!confirmed) return;
 		setRemovedFileIds((prev) => [...prev, attachmentId]);

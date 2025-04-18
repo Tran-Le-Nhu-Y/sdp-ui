@@ -73,6 +73,7 @@ export default function SoftwareVersionInner({
 			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
+			severity: 'error',
 		});
 		if (!confirmed) return;
 
@@ -115,7 +116,7 @@ export default function SoftwareVersionInner({
 					variant="contained"
 					onClick={() =>
 						navigate(
-							`${RoutePaths.CREATE_SOFTWARE_VERSION.replace(`:${PathHolders.SOFTWARE_ID}`, softwareId)}`,
+							`${RoutePaths.CREATE_SOFTWARE_VERSION.replace(`:${PathHolders.SOFTWARE_ID}`, softwareId)}`
 						)
 					}
 				>
@@ -162,8 +163,8 @@ export default function SoftwareVersionInner({
 										navigate(
 											RoutePaths.SOFTWARE_VERSION.replace(
 												`:${PathHolders.SOFTWARE_ID}`,
-												softwareId,
-											).replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, row.id),
+												softwareId
+											).replace(`:${PathHolders.SOFTWARE_VERSION_ID}`, row.id)
 										)
 									}
 								>
@@ -175,8 +176,8 @@ export default function SoftwareVersionInner({
 										navigate(
 											RoutePaths.MODIFY_SOFTWARE_VERSION.replace(
 												`:${PathHolders.SOFTWARE_VERSION_ID}`,
-												row.id,
-											),
+												row.id
+											)
 										)
 									}
 								>

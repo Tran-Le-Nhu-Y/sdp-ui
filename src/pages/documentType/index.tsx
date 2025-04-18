@@ -132,6 +132,7 @@ function DocumentTypePage() {
 			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
+			severity: 'error',
 		});
 		if (!confirmed) return;
 
@@ -192,7 +193,7 @@ function DocumentTypePage() {
 			documentTypes.isLoading,
 			documentTypes.isFetching,
 			updateDocumentType.isLoading,
-		],
+		]
 	);
 
 	return (
@@ -388,10 +389,10 @@ interface EditableDocumentTypeProps {
 	description?: string;
 
 	onNameChange: (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => void;
 	onDescriptionChange: (
-		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+		e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
 	) => void;
 
 	onSave: () => void;

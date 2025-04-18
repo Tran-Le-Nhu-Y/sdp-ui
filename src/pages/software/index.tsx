@@ -68,6 +68,7 @@ export default function SoftwarePage() {
 			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
+			severity: 'error',
 		});
 		if (!confirmed) return;
 
@@ -154,8 +155,8 @@ export default function SoftwarePage() {
 											navigate(
 												RoutePaths.MODIFY_SOFTWARE.replace(
 													`:${PathHolders.SOFTWARE_ID}`,
-													row.id,
-												),
+													row.id
+												)
 											)
 										}
 									>

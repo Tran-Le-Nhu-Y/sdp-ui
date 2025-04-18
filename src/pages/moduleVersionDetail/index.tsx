@@ -70,6 +70,7 @@ const ModuleVersionDetailPage = () => {
 			title: t('deleteConfirm'),
 			okText: t('yes'),
 			cancelText: t('cancel'),
+			severity: 'error',
 		});
 		if (!confirmed) return;
 
@@ -132,8 +133,8 @@ const ModuleVersionDetailPage = () => {
 										navigate(
 											RoutePaths.MODIFY_MODULE_VERSION.replace(
 												`:${PathHolders.MODULE_VERSION_ID}`,
-												versionId || '',
-											),
+												versionId || ''
+											)
 										)
 									}
 								>
