@@ -8,16 +8,16 @@ import {
 	TextField,
 } from '@mui/material';
 import { useState } from 'react';
+import { Edit } from '@mui/icons-material';
+import { TextLength } from '../../utils';
 import {
 	ReadonlyTextEditor,
 	TextEditor,
 	UserGuideScrollDialog,
 } from '../../components';
-import { Edit } from '@mui/icons-material';
-import { TextLength } from '../../utils';
 import { useMailTemplate } from '../../hooks';
 
-export default function TemplateCompleteDeploymentPage() {
+export default function TemplateNewLicenseCreatedPage() {
 	const { t } = useTranslation();
 	const [isEditing, setIsEditing] = useState(false);
 	const {
@@ -28,11 +28,11 @@ export default function TemplateCompleteDeploymentPage() {
 		mailTemplateUpdating,
 		handleSubmit,
 	} = useMailTemplate({
-		type: 'SOFTWARE_DEPLOYED_SUCCESSFULLY',
-		updateSuccessText: t('updateMailCompleteDeploymentSuccess'),
-		updateErrorText: t('updateMailCompleteDeploymentError'),
-		createSuccessText: t('createMailCompleteDeploymentSuccess'),
-		createErrorText: t('createMailCompleteDeploymentError'),
+		type: 'NEW_LICENSE_CREATED_ALERT',
+		updateSuccessText: t('updateMailNewLicenseCreatedSuccess'),
+		updateErrorText: t('updateMailNewLicenseCreatedError'),
+		createSuccessText: t('createMailNewLicenseCreatedSuccess'),
+		createErrorText: t('createMailNewLicenseCreatedError'),
 	});
 
 	if (
@@ -91,7 +91,10 @@ export default function TemplateCompleteDeploymentPage() {
 							variant="contained"
 							hidden={!isEditing}
 							color="primary"
-							onClick={handleSubmit}
+							onClick={() => {
+								handleSubmit();
+								setIsEditing(false);
+							}}
 						>
 							{t('submit')}
 						</Button>

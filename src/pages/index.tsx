@@ -31,7 +31,7 @@ import NotificationPage from './notification';
 import ExpiredSoftwareLicensesPage from './expiredSoftwareLicenses';
 import SoftwareLicenseDetailPage from './softwareLicense';
 import DeploymentPhasePage from './deploymentPhase';
-
+import TemplateNewLicenseCreatedPage from './mailTemplateNewLicenseCreated';
 export {
 	NotificationPage,
 	OverviewPage,
@@ -66,4 +66,5 @@ export {
 	ExpiredSoftwareLicensesPage,
 	SoftwareLicenseDetailPage,
 	DeploymentPhasePage,
+	TemplateNewLicenseCreatedPage,
 };

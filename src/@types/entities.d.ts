@@ -180,6 +180,7 @@ declare interface ModuleDocument {
 
 declare type MailTemplateType =
 	| 'SOFTWARE_EXPIRE_ALERT'
+	| 'NEW_LICENSE_CREATED_ALERT'
 	| 'SOFTWARE_DEPLOYED_SUCCESSFULLY';
 
 declare interface MailTemplate {

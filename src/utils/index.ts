@@ -27,8 +27,9 @@ export enum PathHolders {
 	DEPLOYMENT_PROCESS_ID = 'processId',
 	DEPLOYMENT_PHASE_ID = 'phaseId',
 	DEPLOYMENT_PHASE_TYPE_ID = 'phaseTypeId',
-	TEMPLATE_SOFTWARE_EXPIRATION_ID = 'softwareExpirationId',
-	TEMPLATE_COMPLETE_DEPLOYMENT_ID = 'completeDeploymentId',
+	// TEMPLATE_SOFTWARE_EXPIRATION_ID = 'softwareExpirationId',
+	// TEMPLATE_SOFTWARE_EXPIRATION_ID = 'softwareExpirationId',
+	// TEMPLATE_COMPLETE_DEPLOYMENT_ID = 'completeDeploymentId',
 	SOFTWARE_LICENSE_ID = 'softwareLicenseId',
 }
 
@@ -71,6 +72,7 @@ export enum RoutePaths {
 	DEPLOYMENT_PHASE_TYPE = '/deployment/phase-type',
 
 	TEMPLATE_SOFTWARE_EXPIRATION = '/mail-template/software-expiration',
+	TEMPLATE_NEW_LICENSE_CREATED = '/mail-template/new-license-created',
 	TEMPLATE_COMPLETE_DEPLOYMENT = '/mail-template/complete-deployment',
 
 	EXPIRED_SOFTWARE_LICENSES = '/deployment/expired-licenses',

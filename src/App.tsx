@@ -8,7 +8,7 @@ import 'dayjs/locale/vi';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AppProvider } from '@toolpad/core/react-router-dom';
-import { Outlet } from 'react-router';
+import { Outlet, useNavigate } from 'react-router';
 import WysiwygIcon from '@mui/icons-material/Wysiwyg';
 import Diversity1Icon from '@mui/icons-material/Diversity1';
 import DnsIcon from '@mui/icons-material/Dns';
@@ -57,6 +57,7 @@ import { useAppDispatch, useAppSelector } from './hooks/useRedux';
 import { decreaseUnread, getNotificationState, increaseUnread } from './redux';
 import DeveloperBoardIcon from '@mui/icons-material/DeveloperBoard';
 import KeyIcon from '@mui/icons-material/Key';
+import GradingIcon from '@mui/icons-material/Grading';
 
 function CustomAppTitle() {
 	return (
@@ -77,6 +78,7 @@ function CustomToolbarActions() {
 	const userId = useSession()?.user?.id;
 	const [anchorEl, setAnchorEl] = useState<Element>();
 	const open = Boolean(anchorEl);
+	const navigate = useNavigate();
 
 	const dispatch = useAppDispatch();
 	const { unread: unreadNotifs } = useAppSelector(getNotificationState);
@@ -194,7 +196,12 @@ function CustomToolbarActions() {
 							))}
 						</List>
 					</Stack>
-					<Button href={RoutePaths.NOTIFICATION} sx={{ alignSelf: 'flex-end' }}>
+					<Button
+						onClick={() => {
+							navigate(RoutePaths.NOTIFICATION);
+						}}
+						sx={{ alignSelf: 'flex-end' }}
+					>
 						{t('seeMore')}
 					</Button>
 				</Stack>
@@ -231,7 +238,7 @@ function App() {
 			userId: session?.user?.id ?? '',
 			isRead: false,
 		},
-		{ skip: !session },
+		{ skip: !session }
 	);
 
 	useEffect(() => {
@@ -306,13 +313,19 @@ function App() {
 							segment: 'software-expiration',
 							title: t('potentiallyExpiredLicense'),
 							icon: <AssignmentLateIcon />,
-							pattern: `software-expiration{/:${PathHolders.TEMPLATE_SOFTWARE_EXPIRATION_ID}}*`,
+							pattern: `software-expiration`,
+						},
+						{
+							segment: 'new-license-created',
+							title: t('newLicenseCreated'),
+							icon: <GradingIcon />,
+							pattern: `new-license-created`,
 						},
 						{
 							segment: 'complete-deployment',
 							title: t('completeDeployment'),
 							icon: <AssignmentTurnedInIcon />,
-							pattern: `complete-deployment{/:${PathHolders.TEMPLATE_COMPLETE_DEPLOYMENT_ID}}*`,
+							pattern: `complete-deployment`,
 						},
 					],
 				},
