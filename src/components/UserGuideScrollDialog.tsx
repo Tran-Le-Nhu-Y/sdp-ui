@@ -1,9 +1,8 @@
 import { useTranslation } from 'react-i18next';
-import { Box, Button } from '@mui/material';
+import { Button } from '@mui/material';
 import Dialog, { DialogProps } from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
@@ -22,16 +21,6 @@ export default function UserGuideScrollDialog() {
 		setOpen(false);
 	};
 
-	const descriptionElementRef = React.useRef<HTMLElement>(null);
-	React.useEffect(() => {
-		if (open) {
-			const { current: descriptionElement } = descriptionElementRef;
-			if (descriptionElement !== null) {
-				descriptionElement.focus();
-			}
-		}
-	}, [open]);
-
 	return (
 		<React.Fragment>
 			<Button onClick={handleClickOpen('paper')}>{t('guide')}</Button>
@@ -46,15 +35,7 @@ export default function UserGuideScrollDialog() {
 					{t('instructionForWritingMailTemplate')}
 				</DialogTitle>
 				<DialogContent dividers={scroll === 'paper'}>
-					<DialogContentText
-						id="scroll-dialog-description"
-						ref={descriptionElementRef}
-						tabIndex={-1}
-					>
-						<Box p={1}>
-							<ReactMarkdown>{t('useGuideDetail')}</ReactMarkdown>
-						</Box>
-					</DialogContentText>
+					<ReactMarkdown>{t('useGuideDetail')}</ReactMarkdown>
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleClose}>{t('exit')}</Button>
