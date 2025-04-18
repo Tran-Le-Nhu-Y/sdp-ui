@@ -5,7 +5,7 @@ import { CustomDataGrid } from '../../components';
 import { HideDuration } from '../../utils';
 import {
 	useGetAllUsersByRole,
-	useGetDeploymentPhaseMemberIds,
+	useGetDeploymentPhaseMembers,
 	useGetDeploymentProcessMemberIds,
 	useUpdateDeploymentPhaseMember,
 } from '../../services';
@@ -33,10 +33,26 @@ export default function PersonnelTab({
 	const notifications = useNotifications();
 	const userQuery = useGetAllUsersByRole('deployment_person');
 	const processMemberIdQuery = useGetDeploymentProcessMemberIds(processId);
-	const memberIdQuery = useGetDeploymentPhaseMemberIds(phaseId);
+	const membersQuery = useGetDeploymentPhaseMembers(phaseId);
+	const unselectedUsers = useMemo(() => {
+		const members = membersQuery.data;
+		if (!members) return userQuery?.data ?? [];
+
+		return (
+			userQuery?.data
+				?.filter((user) => {
+					const isProcessMember = processMemberIdQuery.data?.includes(user.id);
+					return isProcessMember;
+				})
+				?.filter((user) => {
+					const isExist = members.find((member) => member.id === user.id);
+					return !isExist;
+				}) ?? []
+		);
+	}, [membersQuery.data, processMemberIdQuery.data, userQuery?.data]);
+
 	const [updateMemberTrigger, { isLoading: isUpdatingMember }] =
 		useUpdateDeploymentPhaseMember();
-
 	const updateMemberHandler = useCallback(
 		async (
 			request: DeploymentPhaseMemberUpdateRequest,
@@ -61,27 +77,6 @@ export default function PersonnelTab({
 		[notifications, updateMemberTrigger]
 	);
 
-	const findUsers = useCallback(
-		(isSelected: boolean) => {
-			const memberIds = memberIdQuery.data;
-			if (!memberIds) return [];
-
-			return (
-				userQuery?.data
-					?.filter((user) => {
-						const isMember = processMemberIdQuery.data?.includes(user.id);
-						return isMember;
-					})
-					?.filter((user) => {
-						const selected = memberIds.includes(user.id);
-						return isSelected ? selected : !selected;
-					}) ?? []
-			);
-		},
-		[memberIdQuery.data, processMemberIdQuery.data, userQuery?.data]
-	);
-
-	const unselectedUsers = useMemo(() => findUsers(false), [findUsers]);
 	const unselectedCols: GridColDef[] = useMemo(
 		() => [
 			{
@@ -133,8 +128,6 @@ export default function PersonnelTab({
 		],
 		[phaseId, t, updateMemberHandler]
 	);
-
-	const selectedUsers = useMemo(() => findUsers(true), [findUsers]);
 	const selectedCols: GridColDef[] = useMemo(
 		() => [
 			{
@@ -185,7 +178,7 @@ export default function PersonnelTab({
 		[phaseId, t, updateMemberHandler]
 	);
 
-	if (userQuery.isLoading || memberIdQuery.isLoading) return <LinearProgress />;
+	if (userQuery.isLoading || membersQuery.isLoading) return <LinearProgress />;
 	return (
 		<>
 			{isUpdatingMember && <LinearProgress />}
@@ -236,7 +229,7 @@ export default function PersonnelTab({
 								</GridToolbarContainer>
 							),
 						}}
-						rows={selectedUsers}
+						rows={membersQuery.data ?? []}
 						columns={selectedCols}
 						pageSizeOptions={[5, 10, 15]}
 						initialState={{

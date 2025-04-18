@@ -1,10 +1,11 @@
 import { Typography, Stack, LinearProgress } from '@mui/material';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CustomDataGrid } from '../../components';
 import {
 	useGetAllUsersByRole,
-	useGetDeploymentPhaseMemberIds,
+	useGetDeploymentPhaseMembers,
+	useGetDeploymentProcessMemberIds,
 } from '../../services';
 import {
 	GridColDef,
@@ -15,27 +16,34 @@ import {
 	GridToolbarQuickFilter,
 } from '@mui/x-data-grid';
 
-export default function PersonnelTab({ phaseId }: { phaseId: string }) {
+export default function PersonnelTab({
+	processId,
+	phaseId,
+}: {
+	processId: number;
+	phaseId: string;
+}) {
 	const { t } = useTranslation('standard');
 	const userQuery = useGetAllUsersByRole('deployment_person');
-	const memberIdQuery = useGetDeploymentPhaseMemberIds(phaseId);
+	const processMemberIdQuery = useGetDeploymentProcessMemberIds(processId);
+	const membersQuery = useGetDeploymentPhaseMembers(phaseId);
 
-	const findUsers = useCallback(
-		(isSelected: boolean) => {
-			const memberIds = memberIdQuery.data;
-			if (!memberIds) return [];
+	const unselectedUsers = useMemo(() => {
+		const members = membersQuery.data;
+		if (!members) return userQuery?.data ?? [];
 
-			return (
-				userQuery?.data?.filter((user) => {
-					const selected = memberIds.includes(user.id);
-					return isSelected ? selected : !selected;
+		return (
+			userQuery?.data
+				?.filter((user) => {
+					const isProcessMember = processMemberIdQuery.data?.includes(user.id);
+					return isProcessMember;
+				})
+				?.filter((user) => {
+					const isExist = members.find((member) => member.id === user.id);
+					return !isExist;
 				}) ?? []
-			);
-		},
-		[memberIdQuery?.data, userQuery?.data]
-	);
-
-	const unselectedUsers = useMemo(() => findUsers(false), [findUsers]);
+		);
+	}, [membersQuery.data, processMemberIdQuery.data, userQuery?.data]);
 	const unselectedCols: GridColDef[] = useMemo(
 		() => [
 			{
@@ -59,7 +67,6 @@ export default function PersonnelTab({ phaseId }: { phaseId: string }) {
 		[t]
 	);
 
-	const selectedUsers = useMemo(() => findUsers(true), [findUsers]);
 	const selectedCols: GridColDef[] = useMemo(
 		() => [
 			{
@@ -81,7 +88,7 @@ export default function PersonnelTab({ phaseId }: { phaseId: string }) {
 		[t]
 	);
 
-	if (userQuery.isLoading || memberIdQuery.isLoading) return <LinearProgress />;
+	if (userQuery.isLoading || membersQuery.isLoading) return <LinearProgress />;
 	return (
 		<Stack
 			direction={{
@@ -130,7 +137,7 @@ export default function PersonnelTab({ phaseId }: { phaseId: string }) {
 							</GridToolbarContainer>
 						),
 					}}
-					rows={selectedUsers}
+					rows={membersQuery.data ?? []}
 					columns={selectedCols}
 					pageSizeOptions={[5, 10, 15]}
 					initialState={{

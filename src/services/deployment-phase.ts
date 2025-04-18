@@ -40,7 +40,7 @@ export const deploymentPhaseApi = createApi({
 									({
 										type: 'ProcessPhases',
 										id: phase.id,
-									}) as const,
+									}) as const
 							),
 						]
 					: [];
@@ -78,7 +78,7 @@ export const deploymentPhaseApi = createApi({
 							const userIdPerformed = history.id.userIdPerformed;
 							const userMetadata = await getUserMetadata(userIdPerformed);
 							return toHistoryEntity(history, userMetadata);
-						}),
+						})
 					);
 					return { ...wrapper, content };
 				};
@@ -122,12 +122,12 @@ export const deploymentPhaseApi = createApi({
 				method: 'GET',
 			}),
 			providesTags(result, _err, arg) {
-				const processId = arg;
+				const phaseId = arg;
 				return result
 					? [
 							{
 								type: 'MemberId',
-								id: processId,
+								id: phaseId,
 							} as const,
 						]
 					: [];
@@ -145,12 +145,12 @@ export const deploymentPhaseApi = createApi({
 				return axiosQueryHandler(func);
 			},
 			providesTags(result, _err, arg) {
-				const processId = arg;
+				const phaseId = arg;
 				return result
 					? [
 							{
 								type: 'Member',
-								id: processId,
+								id: phaseId,
 							} as const,
 						]
 					: [];
@@ -254,7 +254,13 @@ export const deploymentPhaseApi = createApi({
 			}),
 			invalidatesTags(_result, _error, arg) {
 				const { phaseId } = arg;
-				return [{ id: phaseId, type: 'Member' } as const];
+				return [
+					{ id: phaseId, type: 'Member' } as const,
+					{
+						type: 'MemberId',
+						id: phaseId,
+					} as const,
+				];
 			},
 			transformErrorResponse(baseQueryReturnValue) {
 				return baseQueryReturnValue.status;

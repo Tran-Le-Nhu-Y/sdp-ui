@@ -139,7 +139,7 @@ const DeploymentPhasePage = () => {
 					/>
 				</TabPanel>
 				<TabPanel value={value} index={1}>
-					<PersonnelTab phaseId={phaseId} />
+					<PersonnelTab processId={Number(processId)} phaseId={phaseId} />
 				</TabPanel>
 			</Box>
 		</Box>
