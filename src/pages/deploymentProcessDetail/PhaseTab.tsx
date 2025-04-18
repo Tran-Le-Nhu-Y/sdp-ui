@@ -68,7 +68,7 @@ export default function PhaseTab({
 	const [openDialog, setOpenDialog] = useState(false);
 	const showCopyrightButton = useMemo(
 		() => phases.every((phase) => phase.isDone),
-		[phases],
+		[phases]
 	);
 	const [showLicenseDialog, setShowLicenseDialog] = useState(false);
 	const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
@@ -77,7 +77,9 @@ export default function PhaseTab({
 	const membersQuery = useGetDeploymentPhaseMembers(selectedPhaseId!, {
 		skip: !selectedPhaseId,
 	});
-
+	const hasModifyingPermission = useMemo(() => {
+		return membersQuery.data?.some((member) => member.id === userId) ?? false;
+	}, [membersQuery.data, userId]);
 	useEffect(() => {
 		setSelectedPhaseId(phases[activeStep]?.id);
 	}, [activeStep, phases]);
@@ -86,7 +88,7 @@ export default function PhaseTab({
 		async (
 			request: DeploymentPhaseUpdateActualDatesRequest,
 			successText: string,
-			errorText: string,
+			errorText: string
 		) => {
 			try {
 				await updateActualDateTrigger(request).unwrap();
@@ -103,7 +105,7 @@ export default function PhaseTab({
 				});
 			}
 		},
-		[notifications, updateActualDateTrigger],
+		[notifications, updateActualDateTrigger]
 	);
 
 	const handleStart = async (phaseId: string) => {
@@ -122,7 +124,7 @@ export default function PhaseTab({
 				updatedByUserId: userId,
 			},
 			t('updateDeploymentPhaseActualStartDateSuccess'),
-			t('updateDeploymentPhaseActualStartDateError'),
+			t('updateDeploymentPhaseActualStartDateError')
 		);
 	};
 
@@ -146,7 +148,7 @@ export default function PhaseTab({
 				const fileIds = await Promise.all(
 					addedFiles.map((file) => {
 						return uploadFileTrigger({ userId, file }).unwrap();
-					}),
+					})
 				);
 				await Promise.all(
 					fileIds.map((fileId) =>
@@ -154,8 +156,8 @@ export default function PhaseTab({
 							phaseId: selectedPhaseId,
 							attachmentId: fileId,
 							operator: 'ADD',
-						}).unwrap(),
-					),
+						}).unwrap()
+					)
 				);
 			} catch (error) {
 				notifications.show(t('uploadedFileError'), {
@@ -193,7 +195,7 @@ export default function PhaseTab({
 				updatedByUserId: userId,
 			},
 			t('updateDeploymentPhaseActualEndDateSuccess'),
-			t('updateDeploymentPhaseActualEndDateError'),
+			t('updateDeploymentPhaseActualEndDateError')
 		);
 
 		phaseUpdateHistories.refetch();
@@ -289,7 +291,7 @@ export default function PhaseTab({
 				type: 'string',
 			},
 		],
-		[t],
+		[t]
 	);
 
 	const [phaseUpdateHistoriesQuery, setPhaseUpdateHistoriesQuery] =
@@ -299,7 +301,7 @@ export default function PhaseTab({
 			pageSize: 5,
 		});
 	const phaseUpdateHistories = useGetDeploymentPhaseUpdateHistories(
-		phaseUpdateHistoriesQuery,
+		phaseUpdateHistoriesQuery
 	);
 	const historyCols: GridColDef<DeploymentPhaseUpdateHistory>[] = useMemo(
 		() => [
@@ -365,7 +367,7 @@ export default function PhaseTab({
 				},
 			},
 		],
-		[t],
+		[t]
 	);
 
 	return (
@@ -459,24 +461,26 @@ export default function PhaseTab({
 							</Stack>
 
 							<Guard requiredRoles={['deployment_person']}>
-								<Box sx={{ mb: 2 }}>
-									<Button
-										variant="contained"
-										onClick={() => handleStart(phase.id)}
-										sx={{ mt: 1, mr: 1 }}
-										disabled={!!phase.actualStartDate}
-									>
-										{t('start')}
-									</Button>
-									<Button
-										variant="contained"
-										onClick={() => handleComplete(phase.id)}
-										sx={{ mt: 1, mr: 1 }}
-										disabled={phase.isDone}
-									>
-										{t('complete')}
-									</Button>
-								</Box>
+								{hasModifyingPermission && (
+									<Box sx={{ mb: 2 }}>
+										<Button
+											variant="contained"
+											onClick={() => handleStart(phase.id)}
+											sx={{ mt: 1, mr: 1 }}
+											disabled={!!phase.actualStartDate}
+										>
+											{t('start')}
+										</Button>
+										<Button
+											variant="contained"
+											onClick={() => handleComplete(phase.id)}
+											sx={{ mt: 1, mr: 1 }}
+											disabled={phase.isDone || !phase.actualStartDate}
+										>
+											{t('complete')}
+										</Button>
+									</Box>
+								)}
 							</Guard>
 						</StepContent>
 					</Step>
@@ -663,7 +667,7 @@ export default function PhaseTab({
 								};
 							return acc;
 						},
-						{ description: '', phaseTypeName: '' },
+						{ description: '', phaseTypeName: '' }
 					);
 					setPhaseUpdateHistoriesQuery((prev) => ({ ...prev, ...value }));
 				}}
