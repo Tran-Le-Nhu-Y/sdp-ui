@@ -5,7 +5,14 @@ const CustomDataGrid = <R extends GridValidRowModel>(
 	props: DataGridProps<R> & React.RefAttributes<HTMLDivElement>
 ) => {
 	return (
-		<div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+		<div
+			style={{
+				display: 'flex',
+				flexDirection: 'column',
+				width: '100%',
+				height: 'auto',
+			}}
+		>
 			<DataGrid {...props} />
 		</div>
 	);

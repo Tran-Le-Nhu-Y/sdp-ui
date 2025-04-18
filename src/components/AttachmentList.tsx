@@ -1,4 +1,4 @@
-import { List, ListItem } from '@mui/material';
+import { Stack } from '@mui/material';
 import Attachment from './Attachment';
 
 export interface AttachmentListProps {
@@ -11,24 +11,24 @@ export const AttachmentList = ({
 	onRemoveClick,
 }: AttachmentListProps) => {
 	return (
-		<List
+		<Stack
 			sx={{
-				marginTop: 2,
-				display: 'flex',
-				flexDirection: 'row',
-				gap: 1,
 				border: '1px solid #ccc',
 				borderRadius: 1,
-				maxHeight: 350,
-				width: '100%',
 				overflowX: 'auto',
 			}}
+			width={'100%'}
+			direction={'row'}
+			spacing={1}
+			padding={1}
 		>
 			{attachments.map((file) => (
-				<ListItem key={file.id} sx={{ width: '100%' }}>
-					<Attachment metadata={file} onRemoveClick={onRemoveClick} />
-				</ListItem>
+				<Attachment
+					key={file.id}
+					metadata={file}
+					onRemoveClick={onRemoveClick}
+				/>
 			))}
-		</List>
+		</Stack>
 	);
 };

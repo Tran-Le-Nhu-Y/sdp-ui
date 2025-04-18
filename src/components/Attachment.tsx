@@ -1,12 +1,5 @@
 import { AttachFile } from '@mui/icons-material';
-import {
-	Box,
-	ButtonBase,
-	IconButton,
-	Paper,
-	Tooltip,
-	Typography,
-} from '@mui/material';
+import { Box, IconButton, Paper, Tooltip, Typography } from '@mui/material';
 import { getFileSize, HideDuration } from '../utils';
 import ClearIcon from '@mui/icons-material/Clear';
 import { getDownloadPath, createDownloadUrl } from '../services';
@@ -48,7 +41,7 @@ const Attachment = ({
 	}, [metadata.id, metadata.name, notification, t]);
 
 	return (
-		<ButtonBase onClick={download}>
+		<Box onClick={download}>
 			<Tooltip title={metadata.name} arrow>
 				<Paper
 					elevation={1}
@@ -90,7 +83,7 @@ const Attachment = ({
 					)}
 				</Paper>
 			</Tooltip>
-		</ButtonBase>
+		</Box>
 	);
 };
 

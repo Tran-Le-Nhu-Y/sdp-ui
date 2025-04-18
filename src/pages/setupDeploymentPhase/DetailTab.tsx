@@ -178,7 +178,8 @@ export default function DetailTab({
 					value={plannedStartDateAsDayjs}
 					maxDate={plannedEndDateAsDayjs}
 					onChange={(value) => {
-						if (!value || !phaseId || !numOrder || !plannedEndDate) return;
+						if (!value || !phaseId || numOrder === undefined || !plannedEndDate)
+							return;
 
 						const dateAsString = convertToAPIDateFormat(value);
 						handleUpdatePhase({
@@ -198,7 +199,13 @@ export default function DetailTab({
 					value={plannedEndDateAsDayjs}
 					minDate={plannedStartDateAsDayjs}
 					onChange={(value) => {
-						if (!value || !phaseId || !numOrder || !plannedStartDate) return;
+						if (
+							!value ||
+							!phaseId ||
+							numOrder === undefined ||
+							!plannedStartDate
+						)
+							return;
 
 						const dateAsString = convertToAPIDateFormat(value);
 						handleUpdatePhase({
@@ -222,7 +229,6 @@ export default function DetailTab({
 				<Tooltip arrow title={t('addFile')}>
 					<Button
 						component="label"
-						role={undefined}
 						variant="contained"
 						tabIndex={-1}
 						size="small"
@@ -240,12 +246,10 @@ export default function DetailTab({
 					</Button>
 				</Tooltip>
 			</Stack>
-			<Stack width={'100%'} spacing={1} direction={'row'}>
-				<AttachmentList
-					attachments={attachments?.data ?? []}
-					onRemoveClick={deleteAttachment}
-				/>
-			</Stack>
+			<AttachmentList
+				attachments={attachments?.data ?? []}
+				onRemoveClick={deleteAttachment}
+			/>
 
 			<Stack direction={'column'}>
 				<Stack direction={'row'} spacing={1} alignItems={'center'}>
@@ -257,7 +261,7 @@ export default function DetailTab({
 								onClick={() => {
 									if (
 										!phaseId ||
-										!numOrder ||
+										numOrder === undefined ||
 										!plannedStartDate ||
 										!plannedEndDate
 									)
