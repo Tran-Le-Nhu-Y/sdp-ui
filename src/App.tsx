@@ -332,7 +332,15 @@ function App() {
 				{
 					segment: 'notification',
 					title: t('notification'),
-					icon: <NotificationsActiveIcon />,
+					icon: (
+						<Badge
+							variant="dot"
+							color="error"
+							invisible={!(totalHistories && totalHistories > 0)}
+						>
+							<NotificationsActiveIcon />
+						</Badge>
+					),
 					action: totalHistories && totalHistories > 0 && (
 						<Tooltip arrow title={t('numOfUnreadNotification')}>
 							<Chip

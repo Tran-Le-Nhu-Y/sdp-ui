@@ -41,6 +41,7 @@ import {
 } from '../../services';
 import { useNotifications, useSession } from '@toolpad/core';
 import {
+	getGridStringOperators,
 	GridColDef,
 	GridToolbarColumnsButton,
 	GridToolbarContainer,
@@ -63,8 +64,6 @@ export default function PhaseTab({
 	const userId = useSession()?.user?.id ?? '';
 	const [activeStep, setActiveStep] = useState(0);
 	const [loading, setLoading] = useState(false);
-	const [updateActualDateTrigger, { isLoading: isUpdatingActualDate }] =
-		useUpdateDeploymentPhaseActualDates();
 	const [openDialog, setOpenDialog] = useState(false);
 	const showCopyrightButton = useMemo(
 		() => phases.every((phase) => phase.isDone),
@@ -73,6 +72,9 @@ export default function PhaseTab({
 	const [showLicenseDialog, setShowLicenseDialog] = useState(false);
 	const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
 	const [description, setDescripton] = useState<string | null>(null);
+	useEffect(() => {
+		setSelectedPhaseId(phases[activeStep]?.id);
+	}, [activeStep, phases]);
 
 	const membersQuery = useGetDeploymentPhaseMembers(selectedPhaseId!, {
 		skip: !selectedPhaseId,
@@ -80,10 +82,31 @@ export default function PhaseTab({
 	const hasModifyingPermission = useMemo(() => {
 		return membersQuery.data?.some((member) => member.id === userId) ?? false;
 	}, [membersQuery.data, userId]);
-	useEffect(() => {
-		setSelectedPhaseId(phases[activeStep]?.id);
-	}, [activeStep, phases]);
+	const memberCols: GridColDef<UserMetadata>[] = useMemo(
+		() => [
+			{
+				field: 'fullName',
+				headerName: t('fullName'),
+				editable: false,
+				width: 200,
+				type: 'string',
+				valueGetter: (_value, row) => {
+					return `${row.lastName || ''} ${row.firstName || ''}`;
+				},
+			},
+			{
+				field: 'email',
+				editable: false,
+				minWidth: 200,
+				headerName: t('emailAddress'),
+				type: 'string',
+			},
+		],
+		[t]
+	);
 
+	const [updateActualDateTrigger, { isLoading: isUpdatingActualDate }] =
+		useUpdateDeploymentPhaseActualDates();
 	const updateActualHandler = useCallback(
 		async (
 			request: DeploymentPhaseUpdateActualDatesRequest,
@@ -107,7 +130,6 @@ export default function PhaseTab({
 		},
 		[notifications, updateActualDateTrigger]
 	);
-
 	const handleStart = async (phaseId: string) => {
 		const currentTime = convertToAPIDateFormat(dayjs());
 		if (!userId) {
@@ -118,7 +140,7 @@ export default function PhaseTab({
 		await updateActualHandler(
 			{
 				phaseId: phaseId,
-				description: description,
+				description: t('start'),
 				actualStartDate: currentTime,
 				actualEndDate: null,
 				updatedByUserId: userId,
@@ -127,7 +149,6 @@ export default function PhaseTab({
 			t('updateDeploymentPhaseActualStartDateError')
 		);
 	};
-
 	const handleComplete = (phaseId: string) => {
 		setSelectedPhaseId(phaseId);
 		setOpenDialog(true);
@@ -139,7 +160,6 @@ export default function PhaseTab({
 	const [addedFiles, setAddedFiles] = useState<File[]>([]);
 	const [updateAttachmentTrigger] = useUpdateDeploymentPhaseAttachment();
 	const [uploadFileTrigger] = useCreateFile();
-
 	const handleFileSubmit = async () => {
 		if (!selectedPhaseId) return false;
 
@@ -219,7 +239,6 @@ export default function PhaseTab({
 	const [licenseCreating, setLicenseCreating] = useState<
 		Partial<Omit<SoftwareLicenseCreateRequest, 'userId' | 'processId'>>
 	>({});
-
 	const handleCreateLicense = async () => {
 		const validate = () => {
 			if (!licenseCreating.startTimeMs) {
@@ -271,29 +290,6 @@ export default function PhaseTab({
 		}
 	};
 
-	const memberCols: GridColDef<UserMetadata>[] = useMemo(
-		() => [
-			{
-				field: 'fullName',
-				headerName: t('fullName'),
-				editable: false,
-				width: 200,
-				type: 'string',
-				valueGetter: (_value, row) => {
-					return `${row.lastName || ''} ${row.firstName || ''}`;
-				},
-			},
-			{
-				field: 'email',
-				editable: false,
-				minWidth: 200,
-				headerName: t('emailAddress'),
-				type: 'string',
-			},
-		],
-		[t]
-	);
-
 	const [phaseUpdateHistoriesQuery, setPhaseUpdateHistoriesQuery] =
 		useState<GetAllDeploymentPhaseUpdateHistoriesQuery>({
 			processId: processId,
@@ -315,18 +311,23 @@ export default function PhaseTab({
 				valueGetter: (_value, row) => {
 					return row.phase.type.name;
 				},
+				filterOperators: getGridStringOperators().filter(
+					(operator) => operator.value === 'contains'
+				),
 			},
 			{
 				field: 'description',
 				headerName: t('description'),
 				editable: false,
 				sortable: false,
-
 				width: 250,
 				type: 'string',
 				valueGetter: (_value, row) => {
 					return row.description ?? '';
 				},
+				filterOperators: getGridStringOperators().filter(
+					(operator) => operator.value === 'contains'
+				),
 			},
 			{
 				field: 'updater',
@@ -364,6 +365,18 @@ export default function PhaseTab({
 				type: 'dateTime',
 				valueGetter: (_value, row) => {
 					return new Date(row.updatedAt);
+				},
+			},
+			{
+				field: 'isDone',
+				editable: false,
+				sortable: false,
+				filterable: false,
+				minWidth: 200,
+				headerName: t('status'),
+				type: 'string',
+				valueGetter: (value: boolean) => {
+					return value ? t('completed') : t('notCompleted');
 				},
 			},
 		],
@@ -670,14 +683,6 @@ export default function PhaseTab({
 						{ description: '', phaseTypeName: '' }
 					);
 					setPhaseUpdateHistoriesQuery((prev) => ({ ...prev, ...value }));
-				}}
-				initialState={{
-					pagination: {
-						paginationModel: {
-							page: 0,
-							pageSize: 5,
-						},
-					},
 				}}
 			/>
 

@@ -93,6 +93,7 @@ function AddPhaseDialog({
 		try {
 			await createPhaseTrigger({
 				processId,
+				description: createProps.description,
 				typeId: createProps.typeId!,
 				numOrder: createProps.numOrder!,
 				plannedStartDate: createProps.plannedStartDate!,
@@ -116,10 +117,10 @@ function AddPhaseDialog({
 	};
 
 	return (
-		<Dialog open={open} onClose={onClose}>
+		<Dialog maxWidth="lg" open={open} onClose={onClose}>
 			<DialogTitle>{t('addPhase')}</DialogTitle>
 			<DialogContent>
-				<Stack direction={'column'} spacing={2}>
+				<Stack direction={'column'} minWidth={600} spacing={2}>
 					<TextField
 						required
 						id="num-order"
@@ -159,6 +160,8 @@ function AddPhaseDialog({
 					<CustomDataGrid
 						checkboxSelection
 						disableMultipleRowSelection
+						disableColumnFilter
+						disableColumnSorting
 						onRowSelectionModelChange={(model) => {
 							if (model.length > 0)
 								setCreateProps((pre) => ({
@@ -187,14 +190,6 @@ function AddPhaseDialog({
 						}}
 						columns={phaseTypeCols}
 						pageSizeOptions={[5, 10, 15]}
-						initialState={{
-							pagination: {
-								paginationModel: {
-									page: 0,
-									pageSize: 5,
-								},
-							},
-						}}
 					/>
 					<DatePicker
 						label={t('plannedStartDate')}

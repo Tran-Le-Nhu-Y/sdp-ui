@@ -50,17 +50,17 @@ export default function DetailTab({
 	plannedStartDate,
 	plannedEndDate,
 }: {
-	numOrder?: number;
-	phaseId?: string;
+	numOrder: number;
+	phaseId: string;
 	description?: string | null;
-	plannedStartDate?: string;
-	plannedEndDate?: string;
+	plannedStartDate: string;
+	plannedEndDate: string;
 }) {
 	const { t } = useTranslation('standard');
 	const dialogs = useDialogs();
 	const notifications = useNotifications();
 	const userId = useSession()?.user?.id;
-	const [descSnapshot, setDescSnapshot] = useState(description);
+	const [descSnapshot, setDescSnapshot] = useState<string>();
 	const [enableEditDesc, setEnableEditDesc] = useState(false);
 
 	const plannedStartDateAsDayjs = plannedStartDate
@@ -178,8 +178,7 @@ export default function DetailTab({
 					value={plannedStartDateAsDayjs}
 					maxDate={plannedEndDateAsDayjs}
 					onChange={(value) => {
-						if (!value || !phaseId || numOrder === undefined || !plannedEndDate)
-							return;
+						if (!value) return;
 
 						const dateAsString = convertToAPIDateFormat(value);
 						handleUpdatePhase({
@@ -199,13 +198,7 @@ export default function DetailTab({
 					value={plannedEndDateAsDayjs}
 					minDate={plannedStartDateAsDayjs}
 					onChange={(value) => {
-						if (
-							!value ||
-							!phaseId ||
-							numOrder === undefined ||
-							!plannedStartDate
-						)
-							return;
+						if (!value) return;
 
 						const dateAsString = convertToAPIDateFormat(value);
 						handleUpdatePhase({
@@ -259,14 +252,6 @@ export default function DetailTab({
 							<IconButton
 								color="primary"
 								onClick={() => {
-									if (
-										!phaseId ||
-										numOrder === undefined ||
-										!plannedStartDate ||
-										!plannedEndDate
-									)
-										return;
-
 									handleUpdatePhase({
 										numOrder,
 										phaseId,
@@ -301,7 +286,7 @@ export default function DetailTab({
 						},
 					}}
 					helperText={`${t('max')} ${TextLength.VeryLong} ${t('character')}`}
-					value={descSnapshot}
+					value={descSnapshot ?? description}
 					onChange={(e) => {
 						const newDesc = e.target.value;
 						if (isValidLength(newDesc, TextLength.VeryLong))

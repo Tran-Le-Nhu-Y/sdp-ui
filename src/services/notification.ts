@@ -37,7 +37,7 @@ export const notificationApi = createApi({
 			}),
 			providesTags(result, _error, args) {
 				const { isRead } = args;
-				return result
+				return result !== undefined
 					? [
 							{
 								type: 'TotalHistories',
@@ -124,7 +124,14 @@ export const notificationApi = createApi({
 				method: 'DELETE',
 			}),
 			invalidatesTags(_result, error) {
-				return !error ? [{ type: 'PagingHistories' } as const] : [];
+				return !error
+					? [
+							{ type: 'PagingHistories' } as const,
+							{
+								type: 'TotalHistories',
+							} as const,
+						]
+					: [];
 			},
 		}),
 	}),

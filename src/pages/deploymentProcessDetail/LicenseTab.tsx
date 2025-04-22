@@ -509,14 +509,6 @@ export default function LicenseTab({
 				}}
 				pageSizeOptions={[5, 10, 15]}
 				filterMode="server"
-				initialState={{
-					pagination: {
-						paginationModel: {
-							page: 0,
-							pageSize: 5,
-						},
-					},
-				}}
 			/>
 		</Stack>
 	);

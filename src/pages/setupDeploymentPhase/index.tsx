@@ -133,10 +133,10 @@ const SetupDeploymentPhasePage = () => {
 				<TabPanel value={value} index={0}>
 					<DetailTab
 						phaseId={phaseId}
-						numOrder={deploymentPhase.data?.numOrder}
+						numOrder={deploymentPhase.data?.numOrder ?? 0}
 						description={deploymentPhase.data?.description}
-						plannedStartDate={deploymentPhase.data?.plannedStartDate}
-						plannedEndDate={deploymentPhase.data?.plannedEndDate}
+						plannedStartDate={deploymentPhase.data?.plannedStartDate ?? ''}
+						plannedEndDate={deploymentPhase.data?.plannedEndDate ?? ''}
 					/>
 				</TabPanel>
 				<TabPanel value={value} index={1}>

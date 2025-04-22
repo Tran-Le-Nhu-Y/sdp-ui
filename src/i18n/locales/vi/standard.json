@@ -293,6 +293,7 @@
 	"actualEndDate": "Ngày kết thúc thực tế",
 	"notStarted": "Chưa bắt đầu",
 	"notCompleted": "Chưa hoàn thành",
+	"completed": "Hoàn thành",
 	"start": "Bắt đầu thực hiện",
 	"completedAllDeploymentPhase": "Tất cả giai đoạn triển khai đã hoàn thành.",
 	"confirmDeploymentPhase": "Xác nhận hoàn thành giai đoạn triển khai.",

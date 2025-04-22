@@ -151,6 +151,8 @@ export default function NotificationPage() {
 						...getBackgroundColor(theme.palette.grey[300], theme, 0.7),
 					},
 				}}
+				disableColumnFilter
+				disableColumnSorting
 				getRowClassName={(params) =>
 					`sdp-notification-isRead--${params.row.isRead}`
 				}

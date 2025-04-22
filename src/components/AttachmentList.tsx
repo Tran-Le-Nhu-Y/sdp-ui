@@ -18,6 +18,7 @@ export const AttachmentList = ({
 				overflowX: 'auto',
 			}}
 			width={'100%'}
+			minHeight={100}
 			direction={'row'}
 			spacing={1}
 			padding={1}
