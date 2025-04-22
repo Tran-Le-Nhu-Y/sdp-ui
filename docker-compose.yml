@@ -1,0 +1,27 @@
+services:
+  sdp-ui:
+    image: nhatbangle/sdp-ui:latest
+    container_name: sdp-ui
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_GATEWAY=$VITE_API_GATEWAY
+        - VITE_RABBITMQ_URL=$VITE_RABBITMQ_URL
+        - VITE_RABBITMQ_VHOST=$VITE_RABBITMQ_VHOST
+        - VITE_RABBITMQ_USERNAME=$VITE_RABBITMQ_USERNAME
+        - VITE_RABBITMQ_PASSWORD=$VITE_RABBITMQ_PASSWORD
+        - VITE_KEYCLOAK_URL=$VITE_KEYCLOAK_URL
+        - VITE_KEYCLOAK_REALM=$VITE_KEYCLOAK_REALM
+        - VITE_KEYCLOAK_CLIENT_ID=$VITE_KEYCLOAK_CLIENT_ID
+        - VITE_KEYCLOAK_RESOURCE_CLIENT=$VITE_KEYCLOAK_RESOURCE_CLIENT
+        - VITE_KEYCLOAK_RESOURCE_CLIENT_ID=$VITE_KEYCLOAK_RESOURCE_CLIENT_ID
+    ports:
+      - '5173:80' # Only change the port on the left side
+    networks:
+      sdp-net:
+networks:
+  sdp-net:
+    name: sdp-net
