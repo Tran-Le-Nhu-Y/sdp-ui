@@ -125,7 +125,10 @@ const DeploymentProcessDetailPage = () => {
 				</Box>
 				<TabPanel value={value} index={0}>
 					<PhaseTab
-						processId={Number(processId)}
+						process={{
+							id: Number(processId),
+							status: deploymentProcess.data?.status ?? 'INIT',
+						}}
 						phases={phasesQuery.data ?? []}
 					/>
 				</TabPanel>
@@ -137,7 +140,10 @@ const DeploymentProcessDetailPage = () => {
 				</TabPanel>
 				<TabPanel value={value} index={3}>
 					<LicenseTab
-						processId={Number(processId)}
+						process={{
+							id: Number(processId),
+							status: deploymentProcess.data?.status ?? 'INIT',
+						}}
 						phases={phasesQuery.data ?? []}
 					/>
 				</TabPanel>

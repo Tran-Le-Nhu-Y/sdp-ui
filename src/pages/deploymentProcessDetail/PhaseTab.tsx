@@ -53,10 +53,13 @@ import dayjs from 'dayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 
 export default function PhaseTab({
-	processId,
+	process,
 	phases,
 }: {
-	processId: number;
+	process: {
+		id: number;
+		status: DeploymentProcessStatus;
+	};
 	phases: DeploymentPhase[];
 }) {
 	const { t } = useTranslation('standard');
@@ -66,8 +69,8 @@ export default function PhaseTab({
 	const [loading, setLoading] = useState(false);
 	const [openDialog, setOpenDialog] = useState(false);
 	const showCopyrightButton = useMemo(
-		() => phases.every((phase) => phase.isDone),
-		[phases]
+		() => phases.every((phase) => phase.isDone) && process.status === 'DONE',
+		[phases, process.status]
 	);
 	const [showLicenseDialog, setShowLicenseDialog] = useState(false);
 	const [selectedPhaseId, setSelectedPhaseId] = useState<string | null>(null);
@@ -270,7 +273,7 @@ export default function PhaseTab({
 		try {
 			await createLicenseTrigger({
 				userId: userId,
-				processId: processId,
+				processId: process.id,
 				description: licenseCreating.description,
 				startTimeMs: licenseCreating.startTimeMs!,
 				endTimeMs: licenseCreating.endTimeMs!,
@@ -292,7 +295,7 @@ export default function PhaseTab({
 
 	const [phaseUpdateHistoriesQuery, setPhaseUpdateHistoriesQuery] =
 		useState<GetAllDeploymentPhaseUpdateHistoriesQuery>({
-			processId: processId,
+			processId: process.id,
 			pageNumber: 0,
 			pageSize: 5,
 		});

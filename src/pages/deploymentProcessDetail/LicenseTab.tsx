@@ -38,10 +38,13 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import EditIcon from '@mui/icons-material/Edit';
 
 export default function LicenseTab({
-	processId,
+	process,
 	phases,
 }: {
-	processId: number;
+	process: {
+		id: number;
+		status: DeploymentProcessStatus;
+	};
 	phases: DeploymentPhase[];
 }) {
 	const { t } = useTranslation('standard');
@@ -51,12 +54,12 @@ export default function LicenseTab({
 	const [showCreateLicenseDialog, setShowCreateLicenseDialog] = useState(false);
 	const [showUpdateLicenseDialog, setShowUpdateLicenseDialog] = useState(false);
 	const showCopyrightButton = useMemo(
-		() => phases.every((phase) => phase.isDone),
-		[phases]
+		() => phases.every((phase) => phase.isDone) && process.status === 'DONE',
+		[phases, process.status]
 	);
 	const [licenseQuery, setLicenseQuery] =
 		useState<GetAllProcessSoftwareLicensesQuery>({
-			processId: processId,
+			processId: process.id,
 			pageNumber: 0,
 			pageSize: 5,
 		});
@@ -107,7 +110,7 @@ export default function LicenseTab({
 		try {
 			await createLicenseTrigger({
 				userId: userId,
-				processId: processId,
+				processId: process.id,
 				description: licenseCreating.description,
 				startTimeMs: licenseCreating.startTimeMs!,
 				endTimeMs: licenseCreating.endTimeMs!,
