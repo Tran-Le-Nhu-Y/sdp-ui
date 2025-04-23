@@ -43,6 +43,38 @@ const VisuallyHiddenInput = styled('input')({
 	width: 1,
 });
 
+function FileUploadButton({
+	onChange,
+}: {
+	onChange: (files: FileList) => void;
+}) {
+	const { t } = useTranslation('standard');
+	const [key, setKey] = useState(Date.now()); // Initial unique key
+	return (
+		<Button
+			component="label"
+			variant="contained"
+			tabIndex={-1}
+			size="small"
+			startIcon={<CloudUploadIcon />}
+		>
+			{t('add')}
+			<VisuallyHiddenInput
+				key={key} // Changing this key will remount the input
+				type="file"
+				multiple
+				onChange={(event) => {
+					const files = event.target.files;
+					if (files) {
+						onChange(files);
+						setKey(Date.now());
+					}
+				}}
+			/>
+		</Button>
+	);
+}
+
 export default function DetailTab({
 	numOrder,
 	phaseId,
@@ -220,23 +252,7 @@ export default function DetailTab({
 			>
 				<Typography variant="h6">{t('uploadedFiles')}:</Typography>
 				<Tooltip arrow title={t('addFile')}>
-					<Button
-						component="label"
-						variant="contained"
-						tabIndex={-1}
-						size="small"
-						startIcon={<CloudUploadIcon />}
-					>
-						{t('add')}
-						<VisuallyHiddenInput
-							type="file"
-							multiple
-							onChange={(event) => {
-								const files = event.target.files;
-								if (files) addAttachments(files);
-							}}
-						/>
-					</Button>
+					<FileUploadButton onChange={addAttachments} />
 				</Tooltip>
 			</Stack>
 			<AttachmentList
