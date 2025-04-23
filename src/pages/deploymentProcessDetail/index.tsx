@@ -1,5 +1,5 @@
 import { Typography, Container, Stack, Box, Tab, Tabs } from '@mui/material';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { TabPanel } from '../../components';
 import { useParams } from 'react-router-dom';
@@ -51,6 +51,10 @@ const DeploymentProcessDetailPage = () => {
 			skip: !numericProcessId,
 		}
 	);
+	const phases = useMemo(() => {
+		const data = phasesQuery?.data ?? [];
+		return [...data].sort((a, b) => a.numOrder - b.numOrder);
+	}, [phasesQuery?.data]);
 	useEffect(() => {
 		if (phasesQuery.isError)
 			notifications.show(t('fetchError'), {
@@ -129,7 +133,7 @@ const DeploymentProcessDetailPage = () => {
 							id: Number(processId),
 							status: deploymentProcess.data?.status ?? 'INIT',
 						}}
-						phases={phasesQuery.data ?? []}
+						phases={phases}
 					/>
 				</TabPanel>
 				<TabPanel value={value} index={1}>
@@ -144,7 +148,7 @@ const DeploymentProcessDetailPage = () => {
 							id: Number(processId),
 							status: deploymentProcess.data?.status ?? 'INIT',
 						}}
-						phases={phasesQuery.data ?? []}
+						phases={phases}
 					/>
 				</TabPanel>
 			</Box>

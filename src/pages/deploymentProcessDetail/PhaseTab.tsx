@@ -83,8 +83,11 @@ export default function PhaseTab({
 		skip: !selectedPhaseId,
 	});
 	const hasModifyingPermission = useMemo(() => {
-		return membersQuery.data?.some((member) => member.id === userId) ?? false;
-	}, [membersQuery.data, userId]);
+		return (
+			(membersQuery.data?.some((member) => member.id === userId) ?? false) &&
+			process.status === 'IN_PROGRESS'
+		);
+	}, [membersQuery.data, process.status, userId]);
 	const memberCols: GridColDef<UserMetadata>[] = useMemo(
 		() => [
 			{
