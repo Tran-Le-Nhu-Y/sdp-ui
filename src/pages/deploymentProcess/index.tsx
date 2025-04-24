@@ -206,6 +206,7 @@ export default function DeploymentProcessPage() {
 			<PaginationTable
 				headers={
 					<>
+						<TableCell key="processId">{t('process')}</TableCell>
 						<TableCell key="softwareName">{t('softwareName')}</TableCell>
 						<TableCell key="deployFor" align="center">
 							{t('deployFor')}
@@ -240,6 +241,7 @@ export default function DeploymentProcessPage() {
 				}
 				getCell={(row) => (
 					<TableRow key={row.id}>
+						<TableCell key={`${row.id}-processId`}>{row.id}</TableCell>
 						<TableCell key={`${row.id}-softwareName`}>
 							{row.software.name}
 						</TableCell>
